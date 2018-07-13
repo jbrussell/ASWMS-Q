@@ -5,7 +5,7 @@ clear;
 isrecalulatealpha = 0;
 fixalpha = 1;
 demoip = 4;
-isfigure = 0;
+isfigure = 1;
 
 phase_v_path = './helmholtz/'
 r = 0.10;
@@ -190,7 +190,7 @@ ip = demoip
 	title(['stack for corrected phv,','Periods: ',num2str(periods(ip))],'fontsize',15)
 	avgv = nanmean(avgphv(ip).GV(:));
 	if isnan(avgv)
-		continue;
+% 		continue;
 	end
 	caxis([avgv*(1-r) avgv*(1+r)])
 	colorbar
@@ -204,7 +204,7 @@ ip = demoip
 	title(['stack for dynamics phv,','Periods: ',num2str(periods(ip))],'fontsize',15)
 	avgv = nanmean(avgphv(ip).GV(:));
 	if isnan(avgv)
-		continue;
+% 		continue;
 	end
 	caxis([avgv*(1-r) avgv*(1+r)])
 	colorbar

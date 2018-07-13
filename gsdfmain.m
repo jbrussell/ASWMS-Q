@@ -238,6 +238,7 @@ for ie = 1:length(matfiles)
 	eventcs.evlo = event.evlo;
 	eventcs.dists = dists;
 	eventcs.eventmatfile = [eventmatpath,matfiles(ie).name];
+    eventcs.Mw = event.Mw;
 
 	matfilename = [CSoutputpath,char(event.id),'_cs_',comp,'.mat'];
 	save(matfilename,'eventcs')

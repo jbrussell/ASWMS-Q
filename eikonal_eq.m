@@ -5,9 +5,9 @@
 clear
 
 % debug setting
-isfigure = 0;
+isfigure = 1;
 isdisp = 0;
-is_overwrite = 0;
+is_overwrite = 1;
 
 % input path
 eventcs_path = './CSmeasure/';

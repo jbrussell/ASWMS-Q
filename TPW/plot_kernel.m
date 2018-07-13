@@ -1,6 +1,6 @@
 clear;
 
-kernel_filename = 'kernel.032s040km3954v.example';
+kernel_filename = 'kernel.060s040km3850v.example';
 
 temp = textread(kernel_filename);
 data = temp(3:end,:);

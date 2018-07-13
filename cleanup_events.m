@@ -76,3 +76,7 @@ for ie = badind
 end
 end
 
+Ngood = length(char(evids(isgood == 1)));
+Nevs = length(char(evids));
+disp([num2str(Ngood),'/',num2str(Nevs),' events kept']);
+

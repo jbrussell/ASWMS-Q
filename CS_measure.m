@@ -210,7 +210,8 @@ function CS = CS_measure(event,sta1,sta2,parameters)
 			plot(CS.dtp(ip),periods(ip),'kx','linewidth',2);
 		end
 		xlim([-3*max(periods) 3*max(periods)]);
-        	pause
+%         	pause
+        drawnow
 	end
 
 

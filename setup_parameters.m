@@ -2,23 +2,32 @@
 
 %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%%
 %%%% Global settings
-parameters.proj_name = 'TA';
+parameters.proj_name = 'YO';
 parameters.component = 'LHZ';   % determined by filenames
-parameters.lalim=[25 50];
-parameters.lolim=[-125 -65];
+parameters.lalim = [32.0 37.0] ;
+parameters.lolim = [-77.0 -71.0];
 parameters.gridsize=0.3;   % in degrees
-parameters.periods = [20 25 32 40 50 60 80 100];  % in seconds
+parameters.periods = [20 25 32 40 50 60 80 100 120 130 150]; %[20 25 32 40 50 60 80 100];  % in seconds
 
 %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%%
-% parameters for data downloading (if using IRIS DMC)
-parameters.start_time = '2009-01-07 00:00:00';
-parameters.end_time = '2009-06-08 00:00:00'; % put '' for using 4 days before current date
-parameters.is_use_timestamp = 0;
-parameters.network = '_US-ALL';
-parameters.minMw = 6;
+% % parameters for data downloading (if using IRIS DMC)
+% parameters.start_time = '2009-01-07 00:00:00';
+% parameters.end_time = '2009-06-08 00:00:00'; % put '' for using 4 days before current date
+% parameters.is_use_timestamp = 0;
+% parameters.network = '_US-ALL';
+% parameters.minMw = 6;
+% parameters.maxdepth = 50;
+% parameters.datalength = 7200;  % in second
+% parameters.resample_delta = 1; % in second
+% parameters.dbpath = './sacdata/';
+% parameters.eventfile = 'eventlist';
+
+%%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%%
+% Parameters for own data selection criteria
+parameters.dbpath = '/Users/russell/Lamont/ENAM/DATA/EVENTS/IRIS_YO_6.5/';
+parameters.eventfile = 'evlist.txt';
+parameters.minMw = 6.5;
 parameters.maxdepth = 50;
-parameters.datalength = 7200;  % in second
-parameters.resample_delta = 1; % in second
 
 %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%%
 % parameters for the auto_win_select.m
@@ -35,7 +44,7 @@ parameters.cent_freq = 0.025;
 % parameters for the cross-correlation measurement
 % (gsdfmain.m)
 parameters.minstadist = 5;
-parameters.maxstadist = 200;   % station cross-correlation distance in km
+parameters.maxstadist = 250; %200;   % station cross-correlation distance in km
 parameters.is_rm_resp = 0;
 parameters.periods = sort(parameters.periods);  % make sure periods are ascending
 parameters.refv = 4;   % to select the correct cycle
@@ -54,7 +63,7 @@ parameters.tp_tol = 10;  % seconds away from averaged phase velocity
 %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%%
 % parameters for the tomography
 % (eikonal_eq.m helmholtz_eq.m)
-parameters.smweight_array = 3*[0.4 0.3 0.2 0.2 0.2 0.5 1 2];  % smoothing weight for the deltaSx and delta Sy
+parameters.smweight_array = 3*[0.4 0.3 0.2 0.2 0.2 0.5 1 2 2 3 3]; %3*[0.4 0.3 0.2 0.2 0.2 0.5 1 2];  % smoothing weight for the deltaSx and delta Sy
 parameters.raydensetol=deg2km(parameters.gridsize)*2;
 parameters.Tdumpweight = 0;  % dumping the ray to the girgle circle path
 parameters.Rdumpweight = 0;  % dumping the region to have the same phase velocity
@@ -70,15 +79,15 @@ parameters.alpha_search_grid = 0.1;
 %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%%
 % parameter for stacking 
 % (stack_phv.m stack_helm.m)
-parameters.min_csgoodratio=[3 3 3 3 5 10 15 15]; % minimum radio between good and bad measurements for a good event
+parameters.min_csgoodratio= [3 3 3 3 5 10 10 10 10 10 10]; %[3 3 3 3 5 10 15 15 15 15 20]; %[3 3 3 3 5 10 15 15]; % minimum radio between good and bad measurements for a good event
 parameters.min_phv_tol = 3;
 parameters.max_phv_tol = 5;
-parameters.is_raydense_weight = 1;
-parameters.min_event_num = 10;
-parameters.err_std_tol = 2;
+parameters.is_raydense_weight = 0;
+parameters.min_event_num = 1;
+parameters.err_std_tol = 3;
 parameters.issmoothmap = 1;
 parameters.smooth_wavelength = 0.25;
-parameters.event_bias_tol = 2;
+parameters.event_bias_tol = 5;
 
 
 %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%%
@@ -87,4 +96,8 @@ parameters.event_bias_tol = 2;
 parameters.smsize = 1;  % averaging nearby grid number
 parameters.off_azi_tol = 30; % differ from great circle path
 parameters.is_one_phi = 1;
+
+if length(parameters.periods)~=length(parameters.smweight_array) || length(parameters.periods)~=length(parameters.min_csgoodratio)
+    error('Length of periods doesn''t match smweight_array and/or min_csgoodratio');
+end
 

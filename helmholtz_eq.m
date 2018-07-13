@@ -5,8 +5,8 @@
 
 clear;
 
-isfigure = 0;
-isoverwrite = 0;
+isfigure = 1;
+isoverwrite = 1;
 
 % setup parameters
 setup_parameters
@@ -153,6 +153,10 @@ for ie = 1:length(eventfiles)
 %		eventGV(ind) = NaN;
 		% apply correction
 		[GV_cor alpha_errs alphas] = amp_correct(avgGV, eventGV, amp_term, alpha_range, alpha_search_grid);
+        
+        % JBR - line to replace negative phase velocities (imaginary) with event velocity
+        GV_cor(imag(GV_cor)~=0) = eventGV(imag(GV_cor)~=0);
+        
 		[temp bestalphai] = min(alpha_errs);
 		bestalpha = alphas(bestalphai);
 		fprintf('%f ',bestalpha);
@@ -208,10 +212,14 @@ for ie = 1:length(eventfiles)
 			colorbar
 			[temp bestalphai] = min(alpha_errs);
 			title('correction term')
+            drawnow;
+            
 			figure(38)
 			clf
                         set(gcf,'renderer','zbuffer');
 			plot(alphas,alpha_errs,'x');
+            drawnow;
+%             pause;
 		end % end of isfigure
 	end  % loop of period
 	matfilename = fullfile(helmholtz_path,[eventphv(1).id,'_helmholtz_',parameters.component,'.mat']);
