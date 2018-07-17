@@ -10,6 +10,7 @@ clear;
 phase_v_path = './eikonal/'
 r = 0.05;
 isfigure = 0;
+fastdir_plot = 95; % fast direction if doing sinusoidal plots
 
 setup_parameters
 
@@ -169,6 +170,14 @@ for ip = 1:length(periods)
                 plot(azi,phV,'x');
                 allazi = -200:200;
                 plot(allazi,para.a*(1+para.b*cosd(allazi-para.c)+para.d*cosd(2*(allazi-para.e))),'r')
+            elseif ~is_one_phi && isfigure
+                figure(11)
+                clf
+                hold on
+                plot(azi,phV,'x');
+                allazi = -200:200;
+                plot(allazi,para.a*(1+para.d*cosd(2*(allazi-para.e))),'r')
+                plot(allazi,para.a*(1+para.d*cosd(2*(allazi-fastdir_plot))),'--k');
             end
 		end  % mj loop
 	end % mi loop
@@ -193,6 +202,7 @@ end % end of period loop
 filename = ['eikonal_stack_aniso_',comp,'.mat'];
 save(filename,'avgphv_aniso');
 
+%%
 N=3; M = floor(length(periods)/N)+1;
 figure(56)
 clf
@@ -204,7 +214,8 @@ for ip = 1:length(periods)
 	colorbar
 	load seiscmap
 	colormap(seiscmap)
-	drawpng
+% 	drawpng
+    drawnow
 	avgv = nanmean(avgphv_aniso(ip).isophv(:));
 	caxis([avgv*(1-r) avgv*(1+r)])
 end
@@ -220,7 +231,8 @@ for ip = 1:length(periods)
 	colorbar
 	load seiscmap
 	colormap(seiscmap)
-	drawpng
+% 	drawpng
+    drawnow
  	avgv = nanmean(avgphv_aniso(ip).isophv(:));
 	caxis([avgv*(1-r) avgv*(1+r)])
 %     caxis([0 0.05]);

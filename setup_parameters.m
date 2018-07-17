@@ -79,23 +79,23 @@ parameters.alpha_search_grid = 0.1;
 %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%%
 % parameter for stacking 
 % (stack_phv.m stack_helm.m)
-parameters.min_csgoodratio= [3 3 3 3 5 10 10 10 10 10 10]; %[3 3 3 3 5 10 15 15 15 15 20]; %[3 3 3 3 5 10 15 15]; % minimum radio between good and bad measurements for a good event
+parameters.min_csgoodratio= [3 3 3 3 5 10 15 15 15 15 20]; %[3 3 3 3 5 10 15 15]; % minimum radio between good and bad measurements for a good event
 parameters.min_phv_tol = 3;
 parameters.max_phv_tol = 5;
-parameters.is_raydense_weight = 0;
-parameters.min_event_num = 1;
-parameters.err_std_tol = 3;
+parameters.is_raydense_weight = 0; %1; % manual says suggested turned off for large azimuthal anisotropy
+parameters.min_event_num = 3; %10;
+parameters.err_std_tol = 2;
 parameters.issmoothmap = 1;
 parameters.smooth_wavelength = 0.25;
-parameters.event_bias_tol = 5;
+parameters.event_bias_tol = 3; %2;
 
 
 %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%%
 % parameters for azimuthal anisotropy inversion
 % beta version
-parameters.smsize = 1;  % averaging nearby grid number
-parameters.off_azi_tol = 30; % differ from great circle path
-parameters.is_one_phi = 1;
+parameters.smsize = 5; %1;  % averaging nearby grid number
+parameters.off_azi_tol = 30; % differ from great circle path in degrees
+parameters.is_one_phi = 0; %1;
 
 if length(parameters.periods)~=length(parameters.smweight_array) || length(parameters.periods)~=length(parameters.min_csgoodratio)
     error('Length of periods doesn''t match smweight_array and/or min_csgoodratio');
