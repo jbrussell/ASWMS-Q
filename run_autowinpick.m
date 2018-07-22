@@ -4,15 +4,18 @@ clear;
 isfigure = 1;
 is_overwrite = 1;
 
-eventmatpath = './eventmat/';
-outwinpath = './winpara/';
+% Setup parameters
+setup_parameters
+
+% eventmatpath = './eventmat/';
+% outwinpath = './winpara/';
+workingdir = parameters.workingdir;
+eventmatpath = [workingdir,'eventmat/'];
+outwinpath = [workingdir,'winpara/'];
 
 if ~exist(outwinpath,'dir')
 	mkdir(outwinpath)
 end
-
-% Setup parameters
-setup_parameters
 
 % Setup Error Codes for Bad data
 setup_ErrorCode

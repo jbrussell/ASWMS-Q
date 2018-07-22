@@ -4,14 +4,17 @@ clear
 setup_parameters;
 comp = parameters.component;
 
-CSfiles = dir(['CSmeasure/*_',comp,'*.mat']);
+% CSfiles = dir(['CSmeasure/*_',comp,'*.mat']);
+workingdir = parameters.workingdir;
+CSfiles = dir([workingdir,'CSmeasure/*_',comp,'*.mat']);
 
 % Gather information
 stnms = {};
 stainfo = [];
 for ie = 1:length(CSfiles)
 	clear eventcs amps
-	load(fullfile('CSmeasure',CSfiles(ie).name));
+% 	load(fullfile('CSmeasure',CSfiles(ie).name));
+    load(fullfile(workingdir,'CSmeasure',CSfiles(ie).name));
 	disp(CSfiles(ie).name)
 	for ista = 1:length(eventcs.stnms)
 		amps(ista,:) = sqrt(eventcs.autocor(ista).amp);

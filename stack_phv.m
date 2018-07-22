@@ -4,11 +4,14 @@ clear;
 
 isfigure = 1;
 
-phase_v_path = './eikonal/'
+setup_parameters
+
+workingdir = parameters.workingdir;
+% phase_v_path = './eikonal/'
+phase_v_path = [workingdir,'eikonal/'];
+
 r = 0.10;
 load seiscmap
-
-setup_parameters
 
 comp = parameters.component;
 periods = parameters.periods;
@@ -86,8 +89,10 @@ for ie=1:length(event_ids)
 	diff_phv = GV-avg_GV;
 	diff_percent = nanmean(diff_phv(:))/mean_phv*100;
 	if abs(diff_percent) > event_bias_tol;
-		matfile = dir(fullfile('eikonal',[char(event_ids(ie)),'*.mat']));
-		load(fullfile('eikonal',matfile(1).name));
+% 		matfile = dir(fullfile('eikonal',[char(event_ids(ie)),'*.mat']));
+% 		load(fullfile('eikonal',matfile(1).name));
+        matfile = dir(fullfile(workingdir,'eikonal',[char(event_ids(ie)),'*.mat']));
+		load(fullfile(workingdir,'eikonal',matfile(1).name));
 		evla = eventphv(1).evla;
 		evlo = eventphv(1).evlo;
 		epi_dist = distance(evla,evlo,mean(lalim),mean(lolim));
@@ -133,7 +138,7 @@ if issmoothmap
 end
 
 
-save(['eikonal_stack_',comp,'.mat'],'avgphv','GV_mat','GV_mat','raydense_mat','event_ids');
+save([workingdir,'eikonal_stack_',comp,'.mat'],'avgphv','GV_mat','GV_mat','raydense_mat','event_ids');
 
 
 % plot section

@@ -7,12 +7,15 @@
 
 clear;
 
-phase_v_path = './eikonal/'
+setup_parameters
+
+% phase_v_path = './eikonal/'
+workingdir = parameters.workingdir;
+phase_v_path = [workingdir,'eikonal/'];
+
 r = 0.05;
 isfigure = 0;
 fastdir_plot = 95; % fast direction if doing sinusoidal plots
-
-setup_parameters
 
 comp = parameters.component;
 periods = parameters.periods;
@@ -199,7 +202,7 @@ for ip = 1:length(periods)
 	end          
 end % end of period loop
 
-filename = ['eikonal_stack_aniso_',comp,'.mat'];
+filename = [workingdir,'eikonal_stack_aniso_',comp,'.mat'];
 save(filename,'avgphv_aniso');
 
 %%

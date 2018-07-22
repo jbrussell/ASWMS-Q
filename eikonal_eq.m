@@ -9,16 +9,23 @@ isfigure = 1;
 isdisp = 0;
 is_overwrite = 1;
 
-% input path
-eventcs_path = './CSmeasure/';
-% output path
-eikonl_output_path = './eikonal/';
-if ~exist(eikonl_output_path)
-	mkdir(eikonl_output_path);
-end
+% % input path
+% eventcs_path = './CSmeasure/';
+% % output path
+% eikonl_output_path = './eikonal/';
 
 % setup parameters
 setup_parameters
+
+workingdir = parameters.workingdir;
+% input path
+eventcs_path = [workingdir,'CSmeasure/'];
+% output path
+eikonl_output_path = [workingdir,'eikonal/'];
+
+if ~exist(eikonl_output_path)
+	mkdir(eikonl_output_path);
+end
 
 comp = parameters.component;
 lalim=parameters.lalim;

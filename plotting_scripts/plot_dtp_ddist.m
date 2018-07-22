@@ -11,17 +11,22 @@ setup_parameters;
 
 periods = parameters.periods;
 
-is_fig = 0;
+is_fig = 1;
 % --------------------------
 
 eventfile = parameters.eventfile;
-evmat = '../eventmat/';
-CSmat = '../CSmeasure/';
-% fig_PATH = ['./',dir_PROJ,'/figs/'];
+workingdir = parameters.workingdir;
+workingdir = '/ENAM/';
+evmat = ['../',workingdir,'eventmat/'];
+CSmat = ['../',workingdir,'CSmeasure/'];
+fig_PATH = ['../',workingdir,'figs/dtp_ddist/'];
 
 maxstadist = parameters.maxstadist;
 xlims = [-maxstadist maxstadist];
 
+if ~exist(fig_PATH)
+    mkdir(fig_PATH);
+end
 %% LOAD DATA STRUCTURES
 
 % LOAD MEASUREMENTS .mat
@@ -71,14 +76,15 @@ ylabel('Phase Delay (sec)','fontsize',12);
 title([num2str(events_obs(ev).eventcs.id),' Data'],'fontsize',12);
 legend(h,lgd,'location','northeastoutside');
 ax = gca;
-set(ax,'ylim',[min_dtp max_dtp]);
+set(ax,'ylim',[min_dtp max_dtp],'linewidth',2,'fontsize',16);
 drawnow;
-pause;
+% pause;
 
 %% EXPORT FIGURES
 if is_fig == 1
-    export_fig(fig55,[fig_PATH,'obs_',num2str(events_obs(ev).event.id)],'-pdf','-painters');
-    export_fig(fig66,[fig_PATH,'synth_',num2str(events_synth(ev).event.id)],'-pdf','-painters');
+%     export_fig(fig55,[fig_PATH,'obs_',num2str(events_obs(ev).eventcs.id)],'-pdf','-painters');
+    save2pdf([fig_PATH,'obs_',num2str(events_obs(ev).eventcs.id)],fig55,500)
+%     export_fig(fig66,[fig_PATH,'synth_',num2str(events_synth(ev).event.id)],'-pdf','-painters');
 end
 %pause;
 end

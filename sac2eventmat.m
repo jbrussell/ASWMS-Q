@@ -12,7 +12,9 @@ isoverwrite = 1;
 % eventfile = 'eventlist';
 dbpath = parameters.dbpath;
 eventfile = parameters.eventfile;
-outpath = './eventmat/';
+% outpath = './eventmat/';
+workingdir = parameters.workingdir;
+outpath = [workingdir,'eventmat/'];
 minMw = parameters.minMw;
 maxdepth = parameters.maxdepth;
 

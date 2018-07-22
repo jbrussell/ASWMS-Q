@@ -19,16 +19,20 @@ clear;
 isdebug = 1;
 is_overwrite = 0;
 
-eventmatpath = './eventmat/';
-CSoutputpath = './CSmeasure/';
-winparapath = './winpara/';
+% Setup parameters
+setup_parameters
+
+workingdir = parameters.workingdir;
+% eventmatpath = './eventmat/';
+% CSoutputpath = './CSmeasure/';
+% winparapath = './winpara/';
+eventmatpath = [workingdir,'eventmat/'];
+CSoutputpath = [workingdir,'CSmeasure/'];
+winparapath = [workingdir,'winpara/'];
 
 if ~exist(CSoutputpath,'dir')
 	mkdir(CSoutputpath)
 end
-
-% Setup parameters
-setup_parameters
 
 % Setup Error Codes for Bad data
 setup_ErrorCode

@@ -1,7 +1,6 @@
 % Script to setup parameters used for the whole project
 
-addpath('./functions');
-parameters.workingdir = './ENAM_TCcorr/';
+parameters.workingdir = './ENAM/';
 
 %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%%
 %%%% Global settings
@@ -27,7 +26,7 @@ parameters.periods = [20 25 32 40 50 60 80 100 120 130 150]; %[20 25 32 40 50 60
 
 %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%%
 % Parameters for own data selection criteria
-parameters.dbpath = '/Users/russell/Lamont/ENAM/DATA/EVENTS/IRIS_YO_6.5_Zcorr2/CORRSEIS_SAC/'; %'/Users/russell/Lamont/ENAM/DATA/EVENTS/IRIS_YO_6.5/';
+parameters.dbpath = '/Users/russell/Lamont/ENAM/DATA/EVENTS/IRIS_YO_6.5/';
 parameters.eventfile = 'evlist.txt';
 parameters.minMw = 6.5;
 parameters.maxdepth = 50;
@@ -56,7 +55,7 @@ parameters.min_width = 0.06;  % to build up gaussian filters
 parameters.max_width = 0.10;  
 parameters.wintaperlength = 30;   % taper to build up the isolation filter
 parameters.prefilter = [10,200];
-parameters.xcor_win_halflength = 200; %150;  % window for the cross-correlation
+parameters.xcor_win_halflength = 150;  % window for the cross-correlation
 parameters.xcor_win_iter = zeros(size(parameters.periods)); % re-apply the xcor window due to measured group delay, should be same length as periods, not used anymore
 parameters.Nfit = 2;
 parameters.Ncircle = 5;

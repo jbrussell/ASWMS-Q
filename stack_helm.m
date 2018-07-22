@@ -7,10 +7,13 @@ fixalpha = 1;
 demoip = 4;
 isfigure = 1;
 
-phase_v_path = './helmholtz/'
-r = 0.10;
-
 setup_parameters
+
+% phase_v_path = './helmholtz/'
+workingdir = parameters.workingdir;
+phase_v_path = [workingdir,'helmholtz/'];
+
+r = 0.10;
 
 comp = parameters.component;
 periods = parameters.periods;
@@ -115,8 +118,10 @@ for ie=1:length(event_ids)
 	diff_phv = GV-avg_GV;
 	diff_percent = nanmean(diff_phv(:))/mean_phv*100;
 	if abs(diff_percent) > event_bias_tol;
-		matfile = dir(fullfile('helmholtz',[char(event_ids(ie)),'*.mat']));
-		load(fullfile('helmholtz',matfile(1).name));
+% 		matfile = dir(fullfile('helmholtz',[char(event_ids(ie)),'*.mat']));
+% 		load(fullfile('helmholtz',matfile(1).name));
+        matfile = dir(fullfile(workingdir,'helmholtz',[char(event_ids(ie)),'*.mat']));
+		load(fullfile(workingdir,'helmholtz',matfile(1).name));
 		evla = helmholtz(1).evla;
 		evlo = helmholtz(1).evlo;
 		epi_dist = distance(evla,evlo,mean(lalim),mean(lolim));
@@ -172,7 +177,7 @@ if issmoothmap
 end
 
 
-save(['helmholtz_stack_',comp,'.mat'],'avgphv','GV_mat','GV_cor_mat','raydense_mat','event_ids');
+save([workingdir,'helmholtz_stack_',comp,'.mat'],'avgphv','GV_mat','GV_cor_mat','raydense_mat','event_ids');
 
 
 % plot section

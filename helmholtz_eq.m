@@ -12,10 +12,15 @@ isoverwrite = 1;
 setup_parameters
 
 % input path and files
-eventcs_path = './CSmeasure/';
-eikonal_data_path = './eikonal/';
-eikonal_stack_file = ['eikonal_stack_',parameters.component];
-helmholtz_path = './helmholtz/';
+% eventcs_path = './CSmeasure/';
+% eikonal_data_path = './eikonal/';
+% eikonal_stack_file = ['eikonal_stack_',parameters.component];
+% helmholtz_path = './helmholtz/';
+workingdir = parameters.workingdir;
+eventcs_path = [workingdir,'CSmeasure/'];
+eikonal_data_path = [workingdir,'eikonal/'];
+eikonal_stack_file = [workingdir,'eikonal_stack_',parameters.component];
+helmholtz_path = [workingdir,'helmholtz/'];
 
 if ~exist(helmholtz_path,'dir')
 	mkdir(helmholtz_path);

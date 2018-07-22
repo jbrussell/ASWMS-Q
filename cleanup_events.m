@@ -4,12 +4,16 @@
 
 clear;
 
-eventmatpath = './eventmat/';
-csmatpath = './CSmeasure/';
-eikonalpath = './eikonal/';
-
 % Setup parameters
 setup_parameters
+
+% eventmatpath = './eventmat/';
+% csmatpath = './CSmeasure/';
+% eikonalpath = './eikonal/';
+workingdir = parameters.workingdir;
+eventmatpath = [workingdir,'eventmat/'];
+csmatpath = [workingdir,'CSmeasure/'];
+eikonalpath = [workingdir,'eikonal/'];
 
 % Setup Error Codes for Bad data
 setup_ErrorCode
