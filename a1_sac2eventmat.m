@@ -23,7 +23,7 @@ if ~exist(outpath)
 end
 
 eventids = textread([dbpath,eventfile],'%s');
-
+is_skip_mag_dep = 0; % Initialize to 0
 for ie = 1:length(eventids)
 	matfilename = [outpath,char(eventids(ie)),'_',comp,'.mat'];
 	if ~isoverwrite && exist(matfilename)
@@ -34,6 +34,9 @@ for ie = 1:length(eventids)
 	datapath = [dbpath, char(eventids(ie)),'/'];
 	disp(datapath);
 	saclist = dir([datapath,'*',comp,'.sac']);
+    if isempty(saclist)
+        continue
+    end
 	for isac = 1:length(saclist)
 		% read sac file
 		sacfilename = [datapath,saclist(isac).name];
@@ -71,10 +74,11 @@ for ie = 1:length(eventids)
 %			event.stadata(isac).cmp = 'LHZ';
 %		end
     end
-    if event.evdp<=maxdepth && event.Mw>=minMw
+    if ~is_skip_mag_dep
         matfilename = [outpath,char(eventids(ie)),'_',comp,'.mat'];
         save(matfilename,'event')
         disp(['Save to ',matfilename]);
     end
+    is_skip_mag_dep = 0;
 end % end of loop ie
 
