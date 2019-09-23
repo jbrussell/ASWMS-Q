@@ -1,15 +1,15 @@
 % Script to setup parameters used for the whole project
 
 addpath('./functions');
-parameters.workingdir = './ENAM_TCcorr/';
+parameters.workingdir = './ORCA_M6.5/';
 
 %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%%
 %%%% Global settings
-parameters.proj_name = 'YO';
-parameters.component = 'LHZ';   % determined by filenames
-parameters.lalim = [32.0 37.0] ;
-parameters.lolim = [-77.0 -71.0];
-parameters.gridsize=0.3;   % in degrees
+parameters.proj_name = 'XX';
+parameters.component = 'BHZ';   % determined by filenames
+parameters.lalim = [-9 -3] ;
+parameters.lolim = [-136 -130];
+parameters.gridsize=1;   % in degrees
 parameters.periods = [20 25 32 40 50 60 80 100 120 130 150]; %[20 25 32 40 50 60 80 100];  % in seconds
 
 %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%%
@@ -27,7 +27,7 @@ parameters.periods = [20 25 32 40 50 60 80 100 120 130 150]; %[20 25 32 40 50 60
 
 %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%%
 % Parameters for own data selection criteria
-parameters.dbpath = '/Users/russell/Lamont/ENAM/DATA/EVENTS/IRIS_YO_6.5_Zcorr2/CORRSEIS_SAC/'; %'/Users/russell/Lamont/ENAM/DATA/EVENTS/IRIS_YO_6.5/';
+parameters.dbpath = '/Users/russell/Lamont/PROJ_YoungPacificORCA/DATA/EVENTS/IRIS_XX_5.5/'; %'/Users/russell/Lamont/ENAM/DATA/EVENTS/IRIS_YO_6.5/';
 parameters.eventfile = 'evlist.txt';
 parameters.minMw = 6.5;
 parameters.maxdepth = 50;
@@ -67,6 +67,7 @@ parameters.tp_tol = 10;  % seconds away from averaged phase velocity
 % parameters for the tomography
 % (eikonal_eq.m helmholtz_eq.m)
 parameters.smweight_array = 3*[0.4 0.3 0.2 0.2 0.2 0.5 1 2 2 3 3]; %3*[0.4 0.3 0.2 0.2 0.2 0.5 1 2];  % smoothing weight for the deltaSx and delta Sy
+parameters.flweight_array = 100*ones(length(parameters.periods)); % JBR
 parameters.raydensetol=deg2km(parameters.gridsize)*2;
 parameters.Tdumpweight = 0;  % dumping the ray to the girgle circle path
 parameters.Rdumpweight = 0;  % dumping the region to have the same phase velocity
@@ -96,7 +97,7 @@ parameters.event_bias_tol = 3; %2;
 %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%%
 % parameters for azimuthal anisotropy inversion
 % beta version
-parameters.smsize = 5; %1;  % averaging nearby grid number
+parameters.smsize = 10; %1;  % averaging nearby grid number
 parameters.off_azi_tol = 30; % differ from great circle path in degrees
 parameters.is_one_phi = 0; %1;
 

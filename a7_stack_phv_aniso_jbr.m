@@ -3,15 +3,26 @@
 % written by Ge Jin, LDEO
 % jinwar@gmail.com, ge.jin@ldeo.columbia.edu
 %
+% JBR 9/23/19: Same as Jingle's version but instances of
+% n < min_event_num*((2*smsize).^2) 
+%   have been changed to
+% n < min_event_num*((smsize).^2)
+% in order to let more data through
+%
+%
 
 
 clear;
 
-phase_v_path = './eikonal/'
+setup_parameters
+
+% phase_v_path = './eikonal/'
+workingdir = parameters.workingdir;
+phase_v_path = [workingdir,'eikonal/'];
+
 r = 0.05;
 isfigure = 0;
-
-setup_parameters
+fastdir_plot = 95; % fast direction if doing sinusoidal plots
 
 comp = parameters.component;
 periods = parameters.periods;
@@ -102,7 +113,8 @@ for ip = 1:length(periods)
                 end
 			end  % enent loop
 
-            if n < min_event_num*((2*smsize).^2)
+%             if n < min_event_num*((2*smsize).^2)
+            if n < min_event_num*((smsize).^2)
                 isophv(mi,mj)=NaN;
                 isophv_std(mi,mj)=NaN;
                 aniso_strength(mi,mj)=NaN;
@@ -128,7 +140,8 @@ for ip = 1:length(periods)
 				phV(ind) = [];
 			end
 
-            if n < min_event_num*((2*smsize).^2)
+%             if n < min_event_num*((2*smsize).^2)
+            if n < min_event_num*((smsize).^2)
                 isophv(mi,mj)=NaN;
                 isophv_std(mi,mj)=NaN;
                 aniso_strength(mi,mj)=NaN;
@@ -169,6 +182,14 @@ for ip = 1:length(periods)
                 plot(azi,phV,'x');
                 allazi = -200:200;
                 plot(allazi,para.a*(1+para.b*cosd(allazi-para.c)+para.d*cosd(2*(allazi-para.e))),'r')
+            elseif ~is_one_phi && isfigure
+                figure(11)
+                clf
+                hold on
+                plot(azi,phV,'x');
+                allazi = -200:200;
+                plot(allazi,para.a*(1+para.d*cosd(2*(allazi-para.e))),'r')
+                plot(allazi,para.a*(1+para.d*cosd(2*(allazi-fastdir_plot))),'--k');
             end
 		end  % mj loop
 	end % mi loop
@@ -179,6 +200,7 @@ for ip = 1:length(periods)
 	avgphv_aniso(ip).parameters = parameters;
 	avgphv_aniso(ip).xi = xi;
 	avgphv_aniso(ip).yi = yi;
+    avgphv_aniso(ip).period = periods(ip);
 	if is_one_phi
 		avgphv_aniso(ip).aniso_1phi_strength=aniso_1phi_strength;
 		avgphv_aniso(ip).aniso_1phi_azi=aniso_1phi_azi;
@@ -190,9 +212,10 @@ for ip = 1:length(periods)
 	end          
 end % end of period loop
 
-filename = ['eikonal_stack_aniso_',comp,'.mat'];
+filename = [workingdir,'eikonal_stack_aniso_',comp,'.mat'];
 save(filename,'avgphv_aniso');
 
+%%
 N=3; M = floor(length(periods)/N)+1;
 figure(56)
 clf
@@ -204,7 +227,8 @@ for ip = 1:length(periods)
 	colorbar
 	load seiscmap
 	colormap(seiscmap)
-	drawnow
+% 	drawpng
+    drawnow
 	avgv = nanmean(avgphv_aniso(ip).isophv(:));
 	caxis([avgv*(1-r) avgv*(1+r)])
 end
@@ -220,7 +244,8 @@ for ip = 1:length(periods)
 	colorbar
 	load seiscmap
 	colormap(seiscmap)
-	drawnow
+% 	drawpng
+    drawnow
  	avgv = nanmean(avgphv_aniso(ip).isophv(:));
 	caxis([avgv*(1-r) avgv*(1+r)])
 %     caxis([0 0.05]);
