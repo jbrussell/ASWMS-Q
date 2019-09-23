@@ -49,6 +49,7 @@ for ie = 1:length(eventids)
             end
 			event.evla = sac.EVLA;
 			event.evlo = sac.EVLO;
+            event.evdp = sac.EVDP/1000;
 			event.otime = otime;
 			event.dbpath = datapath;
 			event.id = char(eventids(ie));
@@ -70,11 +71,10 @@ for ie = 1:length(eventids)
 %			event.stadata(isac).cmp = 'LHZ';
 %		end
     end
-    if ~is_skip_mag_dep
+    if event.evdp<=maxdepth && event.Mw>=minMw
         matfilename = [outpath,char(eventids(ie)),'_',comp,'.mat'];
         save(matfilename,'event')
         disp(['Save to ',matfilename]);
     end
-    is_skip_mag_dep = 0;
 end % end of loop ie
 
