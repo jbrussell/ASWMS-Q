@@ -31,6 +31,7 @@ parameters.dbpath = '/Users/russell/Lamont/PROJ_YoungPacificORCA/DATA/EVENTS/IRI
 parameters.eventfile = 'evlist.txt';
 parameters.minMw = 6.5;
 parameters.maxdepth = 50;
+parameters.snr_tol = 3;
 
 %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%%
 % parameters for the auto_win_select.m
@@ -42,6 +43,7 @@ parameters.max_dist_tol = deg2km(160);
 parameters.min_groupv = 2;
 parameters.max_groupv = 5;
 parameters.cent_freq = 0.025;
+parameters.min_sta_num = 5; %10 %JBR
 
 %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%%
 % parameters for the cross-correlation measurement
