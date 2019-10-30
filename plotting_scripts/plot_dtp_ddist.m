@@ -16,7 +16,6 @@ is_fig = 1;
 
 eventfile = parameters.eventfile;
 workingdir = parameters.workingdir;
-workingdir = '/ENAM/';
 evmat = ['../',workingdir,'eventmat/'];
 CSmat = ['../',workingdir,'CSmeasure/'];
 fig_PATH = ['../',workingdir,'figs/dtp_ddist/'];

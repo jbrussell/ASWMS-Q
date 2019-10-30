@@ -5,7 +5,10 @@
 clear;
 
 addpath('../');
+addpath('../functions/');
+cd ..
 setup_parameters;
+cd plotting_scripts
 periods = parameters.periods;
 lalim = parameters.lalim;
 lolim = parameters.lolim;
