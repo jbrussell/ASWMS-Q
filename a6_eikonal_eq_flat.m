@@ -6,6 +6,12 @@
 %
 clear
 
+% setup parameters
+setup_parameters
+
+% JBR
+cohere_tol = parameters.cohere_tol;
+
 % debug setting
 isfigure = 1;
 isdisp = 0;
@@ -15,9 +21,6 @@ is_overwrite = 1;
 % eventcs_path = './CSmeasure/';
 % % output path
 % eikonl_output_path = './eikonal/';
-
-% setup parameters
-setup_parameters
 
 workingdir = parameters.workingdir;
 % input path
@@ -162,6 +165,11 @@ for ie = 1:length(csmatfiles)
 		dt = zeros(length(eventcs.CS),1);
 		w = zeros(length(eventcs.CS),1);
 		for ics = 1:length(eventcs.CS)
+            if eventcs.CS(ics).cohere(ip)<cohere_tol && eventcs.CS(ics).isgood(ip)>0
+                eventcs.CS(ics).isgood(ip) = -1;
+            elseif eventcs.CS(ics).cohere(ip)>=cohere_tol && eventcs.CS(ics).isgood(ip)==-1
+                eventcs.CS(ics).isgood(ip) = 1;
+            end
 			if eventcs.CS(ics).isgood(ip) > 0 
 				dt(ics) = eventcs.CS(ics).dtp(ip);
 				w(ics) = 1;
@@ -326,6 +334,7 @@ for ie = 1:length(csmatfiles)
 		eventphv(ip).stlas = eventcs.stlas;
 		eventphv(ip).stlos = eventcs.stlos;
 		eventphv(ip).stnms = eventcs.stnms;
+        eventphv(ip).isgood = w>0;
 		disp(['Period:',num2str(periods(ip)),', Goodnum:',num2str(eventphv(ip).goodnum),...
 				'Badnum:',num2str(eventphv(ip).badnum)]);
 	end % end of periods loop
@@ -351,7 +360,23 @@ for ie = 1:length(csmatfiles)
 			colorbar
 			load seiscmap
 			colormap(seiscmap)
-		end
+            
+%             % Plot ray paths
+%             jj=0;
+%             for ii = 1:length(eventphv(ip).w)
+%                 if ~eventphv(ip).isgood(ii) %|| raytomo(ip).sta_dep(ixsp) > -4500
+%                     continue
+%                 end
+%                 jj = jj + 1;
+%                 lat1(jj,1) = eventphv(ip).rays(ii,1);
+%                 lon1(jj,1) = eventphv(ip).rays(ii,2);
+%                 lat2(jj,1) = eventphv(ip).rays(ii,3);
+%                 lon2(jj,1) = eventphv(ip).rays(ii,4);
+%             end
+%             hold on;
+%             h = plotm([lat1 lat2]',[lon1 lon2]','-k','linewidth',0.5); hold on;
+		
+        end
 		drawnow;
 	end
 	matfilename = [eikonl_output_path,'/',eventcs.id,'_eikonal_',comp,'.mat'];

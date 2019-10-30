@@ -3,17 +3,11 @@
 % written by Ge Jin, LDEO
 % jinwar@gmail.com, ge.jin@ldeo.columbia.edu
 %
-% JBR 9/23/19: Same as Jingle's version but instances of
-% n < min_event_num*((2*smsize).^2) 
-%   have been changed to
-% n < min_event_num*((smsize).^2)
-% in order to let more data through
-%
-%
+
 
 
 clear;
-
+close 11
 setup_parameters
 
 % phase_v_path = './eikonal/'
@@ -21,8 +15,9 @@ workingdir = parameters.workingdir;
 phase_v_path = [workingdir,'eikonal/'];
 
 r = 0.05;
-isfigure = 0;
-fastdir_plot = 95; % fast direction if doing sinusoidal plots
+isfigure = 1;
+APM = 114; % absolute plate motion (GSRM 2.1; NNR) https://www.unavco.org/software/geodetic-utilities/plate-motion-calculator/plate-motion-calculator.html
+FSD = 75; 
 
 comp = parameters.component;
 periods = parameters.periods;
@@ -80,6 +75,7 @@ for ie = 1:length(phvmatfiles)
 	gcazi_mat(:,:,ie) = azimuth(xi,yi,evla(ie),evlo(ie));
 end
 
+N=4; M = floor(length(periods)/N)+1;
 for ip = 1:length(periods)
     isophv=zeros(Nx,Ny);
     isophv_std=zeros(Nx,Ny);
@@ -114,7 +110,7 @@ for ip = 1:length(periods)
 			end  % enent loop
 
 %             if n < min_event_num*((2*smsize).^2)
-            if n < min_event_num*((smsize).^2)
+            if n < min_event_num*((0.5*smsize).^2)
                 isophv(mi,mj)=NaN;
                 isophv_std(mi,mj)=NaN;
                 aniso_strength(mi,mj)=NaN;
@@ -141,7 +137,7 @@ for ip = 1:length(periods)
 			end
 
 %             if n < min_event_num*((2*smsize).^2)
-            if n < min_event_num*((smsize).^2)
+            if n < min_event_num*((0.5*smsize).^2)
                 isophv(mi,mj)=NaN;
                 isophv_std(mi,mj)=NaN;
                 aniso_strength(mi,mj)=NaN;
@@ -184,12 +180,13 @@ for ip = 1:length(periods)
                 plot(allazi,para.a*(1+para.b*cosd(allazi-para.c)+para.d*cosd(2*(allazi-para.e))),'r')
             elseif ~is_one_phi && isfigure
                 figure(11)
-                clf
+                subplot(M,N,ip);
+%                 clf
                 hold on
                 plot(azi,phV,'x');
                 allazi = -200:200;
                 plot(allazi,para.a*(1+para.d*cosd(2*(allazi-para.e))),'r')
-                plot(allazi,para.a*(1+para.d*cosd(2*(allazi-fastdir_plot))),'--k');
+%                 plot(allazi,para.a*(1+para.d*cosd(2*(allazi-fastdir_plot))),'--k');
             end
 		end  % mj loop
 	end % mi loop
@@ -262,3 +259,33 @@ for ip = 1:length(periods)
 		end
 	end
 end
+
+figure(58);
+set(gcf,'position',[351   677   560   668]);
+clf
+clear avgv avgv_std aniso_str aniso_str_std aniso_azi aniso_azi_std
+for ip = 1:length(periods)
+    avgv(ip) = nanmean(avgphv_aniso(ip).isophv(:));
+    avgv_std(ip) = nanmean(avgphv_aniso(ip).isophv_std(:));
+    aniso_str(ip) = nanmean(avgphv_aniso(ip).aniso_strength(:));
+    aniso_str_std(ip) = nanmean(avgphv_aniso(ip).aniso_strength_std(:));
+    aniso_azi(ip) = nanmean(avgphv_aniso(ip).aniso_azi(:));
+    aniso_azi_std(ip) = nanmean(avgphv_aniso(ip).aniso_azi_std(:));
+end
+subplot(3,1,1);
+errorbar(periods,avgv,avgv_std*2,'-or');
+ylim([3.85 4.4]);
+ylabel('c (km/s)');
+subplot(3,1,2);
+errorbar(periods,aniso_str*100*2,aniso_str_std*100*2,'-or');
+ylim([0 5]);
+ylabel('2A');
+subplot(3,1,3);
+plot([periods(1),periods(end)],FSD*[1 1],'--k','linewidth',1.5); hold on;
+plot([periods(1),periods(end)],APM*[1 1],'--','color',[0.5 0.5 0.5],'linewidth',1.5);
+errorbar(periods,aniso_azi,aniso_azi_std*2,'-or');
+ylim([65 120]);
+ylabel('\phi');
+xlabel('Periods (s)');
+
+

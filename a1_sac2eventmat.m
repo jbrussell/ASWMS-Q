@@ -8,6 +8,8 @@ setup_parameters;
 
 comp = parameters.component;
 isoverwrite = 1;
+iscleanevs = 1;
+isplotsnr = 0;
 % dbpath = './sacdata/';
 % eventfile = 'eventlist';
 dbpath = parameters.dbpath;
@@ -17,9 +19,14 @@ workingdir = parameters.workingdir;
 outpath = [workingdir,'eventmat/'];
 minMw = parameters.minMw;
 maxdepth = parameters.maxdepth;
+max_dist_tol = parameters.max_dist_tol;
+snr_tol = parameters.snr_tol;
 
 if ~exist(outpath)
 	mkdir(outpath);
+end
+if iscleanevs
+    system(['rm ',outpath,'*']);
 end
 
 eventids = textread([dbpath,eventfile],'%s');
@@ -37,6 +44,7 @@ for ie = 1:length(eventids)
     if isempty(saclist)
         continue
     end
+    iisac = 0;
 	for isac = 1:length(saclist)
 		% read sac file
 		sacfilename = [datapath,saclist(isac).name];
@@ -58,21 +66,35 @@ for ie = 1:length(eventids)
 			event.id = char(eventids(ie));
 			event.otimestr = datestr(datenum(sac.NZYEAR-1,12,31,sac.NZHOUR,sac.NZMIN,sac.NZSEC)+sac.NZJDAY);
             event.Mw = sac.MAG;
-		end
+        end
+        % calculate snr
+        snr = calc_SNR(sac,parameters,isplotsnr);
+        if snr <= snr_tol
+%             disp('low snr... skipping')
+            continue
+        end
+        iisac = iisac+1;
 		% build up event.stadata structure
-		event.stadata(isac).stla = sac.STLA;
-		event.stadata(isac).stlo = sac.STLO;
-		event.stadata(isac).stel = sac.STEL;
-		event.stadata(isac).dist = vdist(sac.STLA,sac.STLO,sac.EVLA,sac.EVLO)/1e3;
-		event.stadata(isac).otime = otime+sac.B;
-		event.stadata(isac).delta = sac.DELTA;
-		event.stadata(isac).data = sac.DATA1;
-		event.stadata(isac).cmp = sac.KCMPNM;
-		event.stadata(isac).stnm = sac.KSTNM;
-		event.stadata(isac).filename = sacfilename;
+		event.stadata(iisac).stla = sac.STLA;
+		event.stadata(iisac).stlo = sac.STLO;
+		event.stadata(iisac).stel = sac.STEL;
+		event.stadata(iisac).dist = vdist(sac.STLA,sac.STLO,sac.EVLA,sac.EVLO)/1e3;
+		event.stadata(iisac).otime = otime+sac.B;
+		event.stadata(iisac).delta = sac.DELTA;
+		event.stadata(iisac).data = sac.DATA1;
+		event.stadata(iisac).cmp = sac.KCMPNM;
+		event.stadata(iisac).stnm = sac.KSTNM;
+		event.stadata(iisac).filename = sacfilename;
+        event.stadata(iisac).snr = snr;
 %		if sac.DELTA == 1
 %			event.stadata(isac).cmp = 'LHZ';
 %		end
+    end
+    try
+        if mean([event.stadata(:).dist]) > max_dist_tol
+            disp(['Max distance exceeded for ',char(eventids(ie)),', Skip!']);
+            continue;
+        end
     end
     if ~is_skip_mag_dep
         matfilename = [outpath,char(eventids(ie)),'_',comp,'.mat'];
