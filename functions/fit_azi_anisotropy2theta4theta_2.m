@@ -14,6 +14,7 @@ function [fitstr, isophv, A2_2, phi2_2]=fit_azi_anisotropy2theta4theta_2(azi,phV
         phvstd=phV;
 		phvstd(:)=1;
     end
+    phvstd(phvstd==0) = nanmean(phvstd);
     
     n=0;
     for i=1:length(azi)
