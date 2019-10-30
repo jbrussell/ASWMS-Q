@@ -35,7 +35,7 @@ peakamptol = 0.5;   % the ratio of accepted peak compare to the largest peak
 peak_search_range = 1;
 groupv_diff_tol = 0.2;
 positive_disp_weight = 5;
-min_sta_num = 10;
+min_sta_num = parameters.min_sta_num; %10;
 bad_f_num_tol = bandnum*0.6;
 
 minf = 1/periods(end);
