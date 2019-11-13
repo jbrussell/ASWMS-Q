@@ -134,6 +134,7 @@ while 1
 			end
 			trace_amp = amp*diff(dist_range)/(2*N_trace);
 			plot(timeaxis,data*trace_amp+dists(ista),'k');
+			text(max(timeaxis),dists(ista),num2str(stadata(ista).snr));
 			if isfill
 				data(find(data > 0)) = 0;
 				area(timeaxis,data*trace_amp+dists(ista),dists(ista),'facecolor','b');
