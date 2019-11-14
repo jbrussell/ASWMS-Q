@@ -9,9 +9,13 @@ clear
 
 % setup parameters
 setup_parameters
+setup_ErrorCode
 
 % JBR
 cohere_tol = parameters.cohere_tol;
+
+min_stadist_wavelength = 0; %0.5; % minimum station separation in wavelengths
+ref_phv = 4;
 
 % debug setting
 isfigure = 1;
@@ -167,10 +171,15 @@ for ie = 1:length(csmatfiles)
 		w = zeros(length(eventcs.CS),1);
 		for ics = 1:length(eventcs.CS)
             if eventcs.CS(ics).cohere(ip)<cohere_tol && eventcs.CS(ics).isgood(ip)>0
-                eventcs.CS(ics).isgood(ip) = -1;
+                eventcs.CS(ics).isgood(ip) = ErrorCode.low_cohere;
             elseif eventcs.CS(ics).cohere(ip)>=cohere_tol && eventcs.CS(ics).isgood(ip)==-1
                 eventcs.CS(ics).isgood(ip) = 1;
             end
+			if eventcs.CS(ics).ddist < ref_phv*periods(ip)*min_stadist_wavelength
+				eventcs.CS(ics).isgood(ip) = ErrorCode.min_stadist_wavelength;
+			else
+				eventcs.CS(ics).isgood(ip) = 1;
+			end
 			if eventcs.CS(ics).isgood(ip) > 0 
 				dt(ics) = eventcs.CS(ics).dtp(ip);
 				w(ics) = 1;
