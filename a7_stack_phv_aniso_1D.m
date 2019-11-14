@@ -16,8 +16,9 @@ workingdir = parameters.workingdir;
 phase_v_path = [workingdir,'eikonal/'];
 
 dc_thresh = 5; % in percent
-% min_goodnum = 10; % minimum number of GSDF measurements
+min_goodnum = 10; % minimum number of GSDF measurements
 min_Mw = 5.0; % minimum magnitude
+max_evdp = 50; % [km] maximum event depth
 
 r = 0.05;
 isfigure = 1;
@@ -70,6 +71,10 @@ for ie = 1:length(phvmatfiles)
 	disp(eventphv(1).id);
 	evla(ie) = eventphv(ip).evla;
 	evlo(ie) = eventphv(ip).evlo;
+	if eventphv(ip).goodnum<min_goodnum || ...
+                eventphv(ip).Mw<min_Mw || 
+                % eventphv(ip).evdp>max_evdp
+	end
 	for ip=1:length(periods)
         GV_mat(:,:,ie,ip) = eventphv(ip).GV;
         raydense_mat(:,:,ie,ip) = eventphv(ip).raydense;
