@@ -172,14 +172,11 @@ for ie = 1:length(csmatfiles)
 		for ics = 1:length(eventcs.CS)
             if eventcs.CS(ics).cohere(ip)<cohere_tol && eventcs.CS(ics).isgood(ip)>0
                 eventcs.CS(ics).isgood(ip) = ErrorCode.low_cohere;
-            elseif eventcs.CS(ics).cohere(ip)>=cohere_tol && eventcs.CS(ics).isgood(ip)==-1
+			elseif eventcs.CS(ics).ddist < ref_phv*periods(ip)*min_stadist_wavelength && eventcs.CS(ics).isgood(ip)>0
+				eventcs.CS(ics).isgood(ip) = ErrorCode.min_stadist_wavelength;
+            elseif eventcs.CS(ics).cohere(ip)>=cohere_tol && eventcs.CS(ics).isgood(ip)==ErrorCode.low_cohere
                 eventcs.CS(ics).isgood(ip) = 1;
             end
-			if eventcs.CS(ics).ddist < ref_phv*periods(ip)*min_stadist_wavelength
-				eventcs.CS(ics).isgood(ip) = ErrorCode.min_stadist_wavelength;
-			else
-				eventcs.CS(ics).isgood(ip) = 1;
-			end
 			if eventcs.CS(ics).isgood(ip) > 0 
 				dt(ics) = eventcs.CS(ics).dtp(ip);
 				w(ics) = 1;
