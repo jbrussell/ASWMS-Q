@@ -16,7 +16,7 @@ workingdir = parameters.workingdir;
 phase_v_path = [workingdir,'eikonal/'];
 
 dc_thresh = 5; % [%] remove velocity perturbations larger than this
-min_goodnum = 20; % minimum number of GSDF measurements
+min_goodnum = 0; % minimum number of GSDF measurements
 min_Mw = 5.0; % minimum magnitude
 % max_evdp = 20; % [km] maximum event depth
 
@@ -35,7 +35,7 @@ max_phv_tol = parameters.max_phv_tol;
 is_raydense_weight = parameters.is_raydense_weight;
 min_event_num = parameters.min_event_num;
 err_std_tol = parameters.err_std_tol;
-smsize = parameters.smsize;
+% smsize = parameters.smsize;
 off_azi_tol = parameters.off_azi_tol;
 is_one_phi = parameters.is_one_phi;
 
@@ -44,6 +44,7 @@ ynode=lolim(1):gridsize:lolim(2);
 Nx=length(xnode);
 Ny=length(ynode);
 [xi yi]=ndgrid(xnode,ynode);
+smsize = Nx+Ny;
 
 for ip=1:length(periods)
 	avgphv(ip).sumV = zeros(Nx,Ny);
@@ -202,7 +203,7 @@ for ip = 1:length(periods)
                 subplot(M,N,ip);
 %                 clf
                 hold on
-                plot(azi,phV,'x');
+                plot(azi,phV,'.');
                 allazi = -200:200;
                 plot(allazi,para.a*(1+para.d*cosd(2*(allazi-para.e))),'r')
 %                 plot(allazi,para.a*(1+para.d*cosd(2*(allazi-fastdir_plot))),'--k');
