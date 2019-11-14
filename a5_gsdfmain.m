@@ -15,9 +15,10 @@
 %      * string comp
 
 clear;
+%plot native
 
 isdebug = 1;
-is_overwrite = 0;
+is_overwrite = 1;
 
 % Setup parameters
 setup_parameters
@@ -240,6 +241,7 @@ for ie = 1:length(matfiles)
 	eventcs.stnms = stnms;
 	eventcs.evla = event.evla;
 	eventcs.evlo = event.evlo;
+	eventcs.evdp = event.evdp;
 	eventcs.dists = dists;
 	eventcs.eventmatfile = [eventmatpath,matfiles(ie).name];
     eventcs.Mw = event.Mw;
