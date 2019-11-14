@@ -9,3 +9,7 @@ id
 *.m~
 *.mat
 .DS_Store
+*.pdf
+*.win
+*.ipynb
+*.png
