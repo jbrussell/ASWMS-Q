@@ -16,7 +16,7 @@ workingdir = parameters.workingdir;
 phase_v_path = [workingdir,'eikonal/'];
 
 dc_thresh = 5; % [%] remove velocity perturbations larger than this
-min_goodnum = 10; % minimum number of GSDF measurements
+min_goodnum = 20; % minimum number of GSDF measurements
 min_Mw = 5.0; % minimum magnitude
 % max_evdp = 20; % [km] maximum event depth
 
@@ -169,7 +169,8 @@ for ip = 1:length(periods)
             end
 			parastd=confint(para,.95);
             isophv(mi,mj)=para.a;
-            isophv_std(mi,mj)=parastd(2,1)-parastd(1,1);
+            % isophv_std(mi,mj)=parastd(2,1)-parastd(1,1);
+			isophv_std(mi,mj)=parastd(2,1)-para.a;
             aniso_strength(mi,mj)=para.d;
             aniso_azi(mi,mj)=para.e;
             if para.e > 180
