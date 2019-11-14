@@ -15,10 +15,10 @@ setup_parameters
 workingdir = parameters.workingdir;
 phase_v_path = [workingdir,'eikonal/'];
 
-dc_thresh = 5; % in percent
+dc_thresh = 5; % [%] remove velocity perturbations larger than this
 min_goodnum = 10; % minimum number of GSDF measurements
 min_Mw = 5.0; % minimum magnitude
-max_evdp = 50; % [km] maximum event depth
+% max_evdp = 20; % [km] maximum event depth
 
 r = 0.05;
 isfigure = 1;
@@ -72,8 +72,9 @@ for ie = 1:length(phvmatfiles)
 	evla(ie) = eventphv(ip).evla;
 	evlo(ie) = eventphv(ip).evlo;
 	if eventphv(ip).goodnum<min_goodnum || ...
-                eventphv(ip).Mw<min_Mw || 
+    	eventphv(ip).Mw<min_Mw 
                 % eventphv(ip).evdp>max_evdp
+		continue;
 	end
 	for ip=1:length(periods)
         GV_mat(:,:,ie,ip) = eventphv(ip).GV;
@@ -157,13 +158,16 @@ for ip = 1:length(periods)
                 aniso_azi_std(mi,mj)=NaN;
                 continue;
             end
+			
+			% Get rid of large outliers
+			phV(abs((phV-nanmean(phV))/nanmean(phV))*100>dc_thresh) = nan;
 
             if is_one_phi
                 [para fiterr]=fit_azi_anisotropy_1phi(azi,phV);
             else
                 [para fiterr]=fit_azi_anisotropy(azi,phV);
             end
-			parastd=confint(para);
+			parastd=confint(para,.95);
             isophv(mi,mj)=para.a;
             isophv_std(mi,mj)=parastd(2,1)-parastd(1,1);
             aniso_strength(mi,mj)=para.d;
@@ -179,8 +183,10 @@ for ip = 1:length(periods)
                 aniso_strength_std(mi,mj)=parastd(2,4)-parastd(1,4);
                 aniso_azi_std(mi,mj)=parastd(2,5)-parastd(1,5);
             else
-                aniso_strength_std(mi,mj)=parastd(2,2)-parastd(1,2);
-                aniso_azi_std(mi,mj)=parastd(2,3)-parastd(1,3);
+                % aniso_strength_std(mi,mj)=parastd(2,2)-parastd(1,2);
+                % aniso_azi_std(mi,mj)=parastd(2,3)-parastd(1,3);				
+				aniso_strength_std(mi,mj)=parastd(2,2)-para.d;
+                aniso_azi_std(mi,mj)=parastd(2,3)-para.e;
             end 
 			%plot native         
             if is_one_phi && isfigure
@@ -254,7 +260,9 @@ subplot(3,1,3);
 plot([periods(1),periods(end)],FSD*[1 1],'--k','linewidth',1.5); hold on;
 plot([periods(1),periods(end)],APM*[1 1],'--','color',[0.5 0.5 0.5],'linewidth',1.5);
 errorbar(periods,aniso_azi,aniso_azi_std*2,'-or');
-ylim([65 120]);
+errorbar(periods,aniso_azi+180,aniso_azi_std*2,'-or');
+errorbar(periods,aniso_azi-180,aniso_azi_std*2,'-or');
+ylim([50 140]);
 ylabel('\phi');
 xlabel('Periods (s)');
 
