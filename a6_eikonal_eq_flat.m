@@ -5,6 +5,7 @@
 % JBR 3/19/19 : add first derivative smoothing 
 %
 clear
+%plot native
 
 % setup parameters
 setup_parameters
@@ -335,6 +336,7 @@ for ie = 1:length(csmatfiles)
 		eventphv(ip).stlos = eventcs.stlos;
 		eventphv(ip).stnms = eventcs.stnms;
         eventphv(ip).isgood = w>0;
+		eventphv(ip).Mw = eventcs.Mw;
 		disp(['Period:',num2str(periods(ip)),', Goodnum:',num2str(eventphv(ip).goodnum),...
 				'Badnum:',num2str(eventphv(ip).badnum)]);
 	end % end of periods loop
