@@ -330,6 +330,7 @@ for ie = 1:length(csmatfiles)
 		eventphv(ip).id = eventcs.id;
 		eventphv(ip).evla = eventcs.evla;
 		eventphv(ip).evlo = eventcs.evlo;
+		eventphv(ip).evdp = eventcs.evdp;
 		eventphv(ip).period = periods(ip);
 		eventphv(ip).traveltime = travel_time(ip).tp;
 		eventphv(ip).stlas = eventcs.stlas;
