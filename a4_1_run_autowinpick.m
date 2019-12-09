@@ -1,5 +1,6 @@
 % Scripts to run the auto_win_pick function for all the events and generate a old version "events" file
 clear;
+%plot native;
 
 isfigure = 1;
 is_overwrite = 1;

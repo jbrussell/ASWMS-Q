@@ -3,7 +3,7 @@ function CS = CS_measure(event,sta1,sta2,parameters)
 %
 	setup_ErrorCode;
 	isdebug = 0;
-    isfigure = 0;
+    isfigure = 1;
 
 	refv = parameters.refv;
 	refphv = parameters.refphv;
@@ -212,7 +212,16 @@ function CS = CS_measure(event,sta1,sta2,parameters)
 		xlim([-3*max(periods) 3*max(periods)]);
 %         	pause
         drawnow
-	end
+    end
+    
+    if isfigure
+        figure(46)
+        clf;
+        hold on;
+        plot(periods,CS.fiterr,'o')
+        xlabel('periods (s)');
+        ylabel('fit err');
+    end
 
 
 end % end of function

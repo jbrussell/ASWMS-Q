@@ -13,7 +13,7 @@ function [para,resnorm,residual, exitflag] = gsdffit(xcor,lagtime,freq,nfit)
 % Modified by Ge Jin for industry data
 % Conocophillips
 % June, 2012
-
+    isfigure = 0;
 	xcor = xcor(:);
 	lagtime = lagtime(:);
 
@@ -54,12 +54,17 @@ function [para,resnorm,residual, exitflag] = gsdffit(xcor,lagtime,freq,nfit)
 	resnorm = resnorm*amp0^2;
 	residual = residual*amp0;
 %     
-%     figure(99)
-%     clf
-%     hold on
-%     plot(taxis,cutxcor);
-%     plot(taxis,gsdfwavelet(para,taxis),'r--')
-%     pause;
+    if isfigure && T==41
+        figure(99)
+        fiterr = resnorm./para(1)^2./nfit./T;
+        clf
+        hold on
+        plot(lagtime,xcor);
+        plot(taxis,gsdfwavelet(para,taxis),'r--')
+        title([num2str(T),' s (fiterr = ',num2str(fiterr),')']);
+        xlim([-8 8]*T/delta);
+%         pause;
+    end
 
 end
 

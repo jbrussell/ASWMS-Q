@@ -3,6 +3,10 @@
 % written by Ge Jin, LDEO
 % jinwar@gmail.com, ge.jin@ldeo.columbia.edu
 %
+% This version assumes a 1-D velocity structure (i.e., inputs measurements
+% from a6_eikonal_eq_flat) and includes weighting based on number of good
+% GSDF measurements that go into each phv estimate.
+% JBR - 11/19
 
 
 
@@ -16,9 +20,10 @@ workingdir = parameters.workingdir;
 phase_v_path = [workingdir,'eikonal/'];
 
 dc_thresh = 5; % [%] remove velocity perturbations larger than this
-min_goodnum = 0; % minimum number of GSDF measurements
+min_goodnum = 5; % minimum number of GSDF measurements
 min_Mw = 5.0; % minimum magnitude
 % max_evdp = 20; % [km] maximum event depth
+min_nodes_resolved = 0; % minimum number of resolved nodes in final model
 
 r = 0.05;
 isfigure = 1;
@@ -64,7 +69,7 @@ eventnum =  length(phvmatfiles);
 GV_mat = nan(Nx,Ny,length(phvmatfiles),length(periods));
 azi_mat = nan(Nx,Ny,length(phvmatfiles),length(periods));
 raydense_mat = nan(Nx,Ny,length(phvmatfiles),length(periods));
-
+weights = nan(length(phvmatfiles),length(periods));
 % Gather information
 for ie = 1:length(phvmatfiles)
 	temp = load([phase_v_path,phvmatfiles(ie).name]);
@@ -72,20 +77,22 @@ for ie = 1:length(phvmatfiles)
 	disp(eventphv(1).id);
 	evla(ie) = eventphv(ip).evla;
 	evlo(ie) = eventphv(ip).evlo;
-	if eventphv(ip).goodnum<min_goodnum || ...
-    	eventphv(ip).Mw<min_Mw 
-                % eventphv(ip).evdp>max_evdp
-		continue;
-	end
 	for ip=1:length(periods)
+        if eventphv(ip).goodnum<min_goodnum || ...
+            eventphv(ip).Mw<min_Mw 
+                    % eventphv(ip).evdp>max_evdp
+            continue;
+        end
         GV_mat(:,:,ie,ip) = eventphv(ip).GV;
         raydense_mat(:,:,ie,ip) = eventphv(ip).raydense;
 		azi = angle(eventphv(ip).GVx + eventphv(ip).GVy.*sqrt(-1));
 		azi = rad2deg(azi);
 		azi_mat(:,:,ie,ip) = azi;
+        weights(ie,ip) = eventphv(ip).goodnum.^(-1/2); % jbr;
 	end
 	gcazi_mat(:,:,ie) = azimuth(xi,yi,evla(ie),evlo(ie));
 end
+weights(isinf(weights)) = 0;
 
 % %%
 N=4; M = floor(length(periods)/N)+1;
@@ -98,6 +105,9 @@ for ip = 1:length(periods)
     aniso_azi_std=nan(Nx,Ny);
     aniso_1phi_strength=nan(Nx,Ny);
     aniso_1phi_azi=nan(Nx,Ny);	
+    phV = [];
+    azi = [];
+    gcazi = [];
 	% start to inverse azimuthal anisotropy grid by grid
 	for mi=1
 		disp(['ip:',num2str(ip),' process: ',num2str(mi/Nx)]);
@@ -106,6 +116,12 @@ for ip = 1:length(periods)
             clear phV_best azi phV dist gcazi
 			for ie = 1:eventnum
 				avgV=GV_mat(mi,mj,ie,ip);
+                % Make sure enough grid nodes are resolved
+                I_resolv = ~isnan(GV_mat(:,:,ie,ip));
+                N_resolved = sum(I_resolv(:));
+                if N_resolved < min_nodes_resolved
+                    continue;
+                end
                 lowi=max(1,mi-smsize);
                 upi=min(Nx,mi+smsize);
                 lowj=max(1,mj-smsize);
@@ -117,21 +133,22 @@ for ip = 1:length(periods)
                             azi(n)=azi_mat(ii,jj,ie,ip);
 							gcazi(n) = gcazi_mat(ii,jj,ie);
                             phV(n)=GV_mat(ii,jj,ie,ip);
+                            weight(n) = weights(ie,ip);
                         end
                     end
                 end
 			end  % enent loop
 
 %             if n < min_event_num*((2*smsize).^2)
-            if n < min_event_num*((0.5*smsize).^2)
-                isophv(mi,mj)=NaN;
-                isophv_std(mi,mj)=NaN;
-                aniso_strength(mi,mj)=NaN;
-                aniso_strength_std(mi,mj)=NaN;
-                aniso_azi(mi,mj)=NaN;
-                aniso_azi_std(mi,mj)=NaN;
-                continue;
-            end
+            % if n < min_event_num*((0.5*smsize).^2)
+            %     isophv(mi,mj)=NaN;
+            %     isophv_std(mi,mj)=NaN;
+            %     aniso_strength(mi,mj)=NaN;
+            %     aniso_strength_std(mi,mj)=NaN;
+            %     aniso_azi(mi,mj)=NaN;
+            %     aniso_azi_std(mi,mj)=NaN;
+            %     continue;
+            % end
 
 			% Get rid of significant off circle events
 			diffazi = azi - gcazi;
@@ -150,23 +167,23 @@ for ip = 1:length(periods)
 			end
 
 %             if n < min_event_num*((2*smsize).^2)
-            if n < min_event_num*((0.5*smsize).^2)
-                isophv(mi,mj)=NaN;
-                isophv_std(mi,mj)=NaN;
-                aniso_strength(mi,mj)=NaN;
-                aniso_strength_std(mi,mj)=NaN;
-                aniso_azi(mi,mj)=NaN;
-                aniso_azi_std(mi,mj)=NaN;
-                continue;
-            end
+            % if n < min_event_num*((0.5*smsize).^2)
+            %     isophv(mi,mj)=NaN;
+            %     isophv_std(mi,mj)=NaN;
+            %     aniso_strength(mi,mj)=NaN;
+            %     aniso_strength_std(mi,mj)=NaN;
+            %     aniso_azi(mi,mj)=NaN;
+            %     aniso_azi_std(mi,mj)=NaN;
+            %     continue;
+            % end
 			
 			% Get rid of large outliers
-			phV(abs((phV-nanmean(phV))/nanmean(phV))*100>dc_thresh) = nan;
+			phV(abs((phV-nanmedian(phV))/nanmedian(phV))*100>dc_thresh) = nan;
 
             if is_one_phi
                 [para fiterr]=fit_azi_anisotropy_1phi(azi,phV);
             else
-                [para fiterr]=fit_azi_anisotropy(azi,phV);
+                [para fiterr]=fit_azi_anisotropy(azi,phV,weight);
             end
 			parastd=confint(para,.95);
             isophv(mi,mj)=para.a;
@@ -189,8 +206,7 @@ for ip = 1:length(periods)
                 % aniso_azi_std(mi,mj)=parastd(2,3)-parastd(1,3);				
 				aniso_strength_std(mi,mj)=parastd(2,2)-para.d;
                 aniso_azi_std(mi,mj)=parastd(2,3)-para.e;
-            end 
-			%plot native         
+            end         
             if is_one_phi && isfigure
                 figure(11)
                 clf
@@ -199,14 +215,21 @@ for ip = 1:length(periods)
                 allazi = -200:200;
                 plot(allazi,para.a*(1+para.b*cosd(allazi-para.c)+para.d*cosd(2*(allazi-para.e))),'r')
             elseif ~is_one_phi && isfigure
+				%plot native 
                 figure(11)
                 subplot(M,N,ip);
 %                 clf
                 hold on
-                plot(azi,phV,'.');
-                allazi = -200:200;
-                plot(allazi,para.a*(1+para.d*cosd(2*(allazi-para.e))),'r')
+                azi(azi<0) = azi(azi<0)+360;
+                dv = (phV-isophv(mi,mj))./isophv(mi,mj)*100;
+%                 plot(azi,phV,'.');
+                plot(azi,dv,'.');
+                allazi = 0:360; %-200:200;
+                plot(allazi,para.d*cosd(2*(allazi-para.e))*100,'r');
+                title([num2str(periods(ip)),' s']);
 %                 plot(allazi,para.a*(1+para.d*cosd(2*(allazi-fastdir_plot))),'--k');
+                ylim([-5 5]);
+                xticks([0 90 180 270 360]);
             end
 		end  % mj loop
 	end % mi loop
@@ -247,24 +270,34 @@ for ip = 1:length(periods)
     aniso_azi(ip) = nanmean(avgphv_aniso(ip).aniso_azi(:));
     aniso_azi_std(ip) = nanmean(avgphv_aniso(ip).aniso_azi_std(:));
 end
+c = [3.9936 4.0041 4.0005 3.9999 3.9929 3.9832 3.9813 3.9841 3.9874 3.9996 4.0138 4.0519 4.0930 4.1677 4.2520];
+p2p = [0.0093 0.0119 0.0107 0.0081 0.0125 0.0138 0.0062 0.0027 0.0062 0.0090 0.0045 0.0060 0.0058 0.0051 0.0033];
+fastdir = [67.4502 76.4438 86.2857 82.7528 90.8716 93.6104 93.2020 106.5968 97.9209 102.4597 131.1436 123.1767 115.6864 101.7450 11.1088];
+pers = round(logspace(log10(20),log10(150),15));
 %plot native
-subplot(3,1,1);
-errorbar(periods,avgv,avgv_std*2,'-or');
+subplot(3,1,1); hold on;
+plot(pers,c,'-o','color',[0.8 0.8 0.8]);
+errorbar(periods,avgv,avgv_std,'-or');
 ylim([3.85 4.4]);
+xlim([20 150]);
 ylabel('c (km/s)');
 %plot native
-subplot(3,1,2);
-errorbar(periods,aniso_str*100*2,aniso_str_std*100*2,'-or');
+subplot(3,1,2); hold on;
+plot(pers,p2p*2*100,'-o','color',[0.8 0.8 0.8]);
+errorbar(periods,aniso_str*100*2,aniso_str_std*100,'-or');
 ylim([0 5]);
+xlim([20 150]);
 ylabel('2A');
 %plot native
-subplot(3,1,3);
+subplot(3,1,3); hold on;
 plot([periods(1),periods(end)],FSD*[1 1],'--k','linewidth',1.5); hold on;
 plot([periods(1),periods(end)],APM*[1 1],'--','color',[0.5 0.5 0.5],'linewidth',1.5);
-errorbar(periods,aniso_azi,aniso_azi_std*2,'-or');
-errorbar(periods,aniso_azi+180,aniso_azi_std*2,'-or');
-errorbar(periods,aniso_azi-180,aniso_azi_std*2,'-or');
+plot(pers,fastdir,'-o','color',[0.8 0.8 0.8]);
+errorbar(periods,aniso_azi,aniso_azi_std,'-or');
+errorbar(periods,aniso_azi+180,aniso_azi_std,'-or');
+errorbar(periods,aniso_azi-180,aniso_azi_std,'-or');
 ylim([50 140]);
+xlim([20 150]);
 ylabel('\phi');
 xlabel('Periods (s)');
 

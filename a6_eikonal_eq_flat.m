@@ -14,8 +14,13 @@ setup_ErrorCode
 % JBR
 cohere_tol = parameters.cohere_tol;
 
-min_stadist_wavelength = 0; %0.5; % minimum station separation in wavelengths
-ref_phv = 4;
+fiterr_tol = 1e-2; % wavelet fitting error, throw out measurements greater than this
+maxstadist = 600;
+minstadist = 200;
+cohere_tol = 0.80;
+min_stadist_wavelength = 0.33; %0.5; % minimum station separation in wavelengths
+max_stadist_wavelength = 999;
+ref_phv = [3.9936 4.0041 4.0005 3.9999 3.9929 3.9832 3.9813 3.9841 3.9874 3.9996 4.0138 4.0519 4.0930 4.1677 4.2520]; % for calculating wavelength
 
 % debug setting
 isfigure = 1;
@@ -169,24 +174,36 @@ for ie = 1:length(csmatfiles)
         flweight0 = flweight_array(ip); % JBR
 		dt = zeros(length(eventcs.CS),1);
 		w = zeros(length(eventcs.CS),1);
+        ddist = zeros(length(eventcs.CS),1);
 		for ics = 1:length(eventcs.CS)
             if eventcs.CS(ics).cohere(ip)<cohere_tol && eventcs.CS(ics).isgood(ip)>0
                 eventcs.CS(ics).isgood(ip) = ErrorCode.low_cohere;
-			elseif eventcs.CS(ics).ddist < ref_phv*periods(ip)*min_stadist_wavelength && eventcs.CS(ics).isgood(ip)>0
+            end
+			if (eventcs.CS(ics).ddist < ref_phv(ip)*periods(ip)*min_stadist_wavelength || ...
+                    eventcs.CS(ics).ddist > ref_phv(ip)*periods(ip)*max_stadist_wavelength) && eventcs.CS(ics).isgood(ip)>0
 				eventcs.CS(ics).isgood(ip) = ErrorCode.min_stadist_wavelength;
-            elseif eventcs.CS(ics).cohere(ip)>=cohere_tol && eventcs.CS(ics).isgood(ip)==ErrorCode.low_cohere
+            end
+            if (eventcs.CS(ics).ddist > maxstadist || ...
+                    eventcs.CS(ics).ddist < minstadist) && eventcs.CS(ics).isgood(ip)>0
+                eventcs.CS(ics).isgood(ip) = -13;
+            end
+            if (eventcs.CS(ics).fiterr(ip) > fiterr_tol)
+                eventcs.CS(ics).isgood(ip) = -14;
+            end
+            if eventcs.CS(ics).cohere(ip)>=cohere_tol && eventcs.CS(ics).isgood(ip)==ErrorCode.low_cohere
                 eventcs.CS(ics).isgood(ip) = 1;
             end
 			if eventcs.CS(ics).isgood(ip) > 0 
-				dt(ics) = eventcs.CS(ics).dtp(ip);
-				w(ics) = 1;
+				dt(ics,:) = eventcs.CS(ics).dtp(ip);
+				w(ics,:) = 1;
 			else
-				dt(ics) = 0;
-				w(ics) = 0;
+				dt(ics,:) = eventcs.CS(ics).dtp(ip);
+				w(ics,:) = 0;
 			end
 			if sum(ismember([eventcs.CS(ics).sta1 eventcs.CS(ics).sta2],badstaids)) > 0
-				w(ics) = 0;
-			end
+				w(ics,:) = 0;
+            end
+            ddist(ics,:) = eventcs.CS(ics).ddist;
 		end
 		W = sparse(diag(w));
 
@@ -319,16 +336,19 @@ for ie = 1:length(csmatfiles)
 		end
 		GV=(GVx.^2+GVy.^2).^-.5;
 		% Get rid of uncertain area
+        % Forward calculate phase velocity
+        phv_fwd = ddist./(mat*phaseg(1:Nx*Ny*2));
 
 		% save the result in the structure
 		eventphv(ip).rays = rays;
 		eventphv(ip).w = diag(W);
-		eventphv(ip).goodnum = length(find(w>0));
-		eventphv(ip).badnum = length(find(w==0));
+		eventphv(ip).goodnum = length(find(eventphv(ip).w>0));
+		eventphv(ip).badnum = length(find(eventphv(ip).w==0));
 		eventphv(ip).dt = dt;
 		eventphv(ip).GV = GV;
 		eventphv(ip).GVx = GVx;
 		eventphv(ip).GVy = GVy;
+        eventphv(ip).phv_fwd = phv_fwd;
 		eventphv(ip).raydense = raydense;
 		eventphv(ip).lalim = lalim;
 		eventphv(ip).lolim = lolim;
@@ -342,7 +362,7 @@ for ie = 1:length(csmatfiles)
 		eventphv(ip).stlas = eventcs.stlas;
 		eventphv(ip).stlos = eventcs.stlos;
 		eventphv(ip).stnms = eventcs.stnms;
-        eventphv(ip).isgood = w>0;
+        eventphv(ip).isgood = eventphv(ip).w>0;
 		eventphv(ip).Mw = eventcs.Mw;
 		disp(['Period:',num2str(periods(ip)),', Goodnum:',num2str(eventphv(ip).goodnum),...
 				'Badnum:',num2str(eventphv(ip).badnum)]);

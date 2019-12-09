@@ -1,5 +1,6 @@
 % Manually fix automatic windows
 clear;
+%plot native
 
 % eventmat_files = dir('eventmat/*.mat');
 setup_parameters
