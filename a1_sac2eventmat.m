@@ -69,7 +69,7 @@ for ie = 1:length(eventids)
         end
         % calculate snr
         snr = calc_SNR(sac,parameters,isplotsnr);
-        if snr <= snr_tol
+        if snr <= snr_tol || isnan(snr)
 %             disp('low snr... skipping')
             continue
         end
