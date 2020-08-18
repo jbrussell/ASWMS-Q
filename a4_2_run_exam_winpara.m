@@ -15,8 +15,9 @@ for ie=1:length(eventmat_files)
 			event.isgood = 1;
 		end
 		disp(eventmat_files(ie).name);
-		disp('p for pick window, g for isgood, q for next event');
-		event = exam_winpara(event);
+        disp('p for pick window, g for isgood, q for next event');
+        disp('c for cheat sheet');
+        event = exam_winpara_phase(event);
 	end
 % 	save(fullfile('eventmat',eventmat_files(ie).name),'event');
     save(fullfile(workingdir,'eventmat',eventmat_files(ie).name),'event');
