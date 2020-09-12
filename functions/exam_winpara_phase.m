@@ -105,7 +105,7 @@ is_reduce_v = 0;
 ref_v = 10;
 is_dist = 1;
 is_cheatsheet = 0;
-is_bin = 1;
+is_bin = 0; %1;
 is_mark = 0;
 amp_diff_tol = 5;
 
@@ -245,7 +245,7 @@ while 1
 		refvstr = 'None';
 		raypstr = 'None';
 	end
-	stemp = sprintf('Comp: %s, ampnorm: %d, isgood: %d, winpara: %5.1f %5.1f %5.1f %5.1f',parameters.component,single_norm,event.isgood,event.winpara(1),event.winpara(2),event.winpara(3),event.winpara(4));
+	stemp = sprintf('M%2.1f, Comp: %s, ampnorm: %d, isgood: %d, winpara: %5.1f %5.1f %5.1f %5.1f',event.Mw,parameters.component,single_norm,event.isgood,event.winpara(1),event.winpara(2),event.winpara(3),event.winpara(4));
 	title(stemp,'fontsize',15);
 	xlabel('Time /s','fontsize',15)
 	if is_dist
