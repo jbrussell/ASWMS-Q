@@ -1,10 +1,10 @@
-% Read in the eventcs structures and apply eikonal tomography on each event.
+% Read in the eventcs structures and apply eikonal tomography.
 % Written by Ge Jin, jinwar@gmail.com
 % 2013.1.16
 %
-% JBR 3/19/19 : add first derivative smoothing 
-% JBR 11/19 : Invert all events directly for isotropic velocity and
-% 1-D azimuthal anisotropy.
+% jbrussell 11/20/2020 : Invert all events simultaneously for 2-D isotropic 
+% velocity and 2-D azimuthal anisotropy of the form:
+% c(theta,freq) = c_iso(freq) + Ac2(freq)*cos(2*theta) + As2(freq)*sin(2*theta)
 %
 clear
 %plot native
