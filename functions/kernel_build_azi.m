@@ -1,6 +1,7 @@
 function [G, G_hits] = kernel_build_azi(ray, xnode, ynode, r_azi)
 %input: ray: nray*4 matrix; each row: [x1,y1,x2,y2]
 %       xnode and ynode are grid axis for lat and long
+%       r_azi: back azimuth of earthquake
 % Output: G is the kernal for Vx and Vy
 % g(i,l) = r(i,l) is length of i th ray in lth pixel;
 % build data kernel
@@ -9,6 +10,9 @@ function [G, G_hits] = kernel_build_azi(ray, xnode, ynode, r_azi)
 %
 % JBR 7/22/18 - modified to include 2D azimuthal anisotropy
 % g(i,l) = r(i,l)*[cosd(2*azi), sind(2*azi)]
+%
+% jbrussell 11/20/2020: repurposed for ASWMS eikonal inversion. This requires
+% that we project each raypath along the back azimuth r_azi.
 %
 % When plotting using surface(), the color of each square corresponds to
 % the value of the lower left corner. Therefore, in order to plot fast
