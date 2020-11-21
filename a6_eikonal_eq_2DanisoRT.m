@@ -594,7 +594,7 @@ for ip = 1:length(periods)
 end
 drawnow;
  
-%% Anisotropy
+%% Anisotropy maps
 figure(57)
 clf
 for ip = 1:length(periods)
@@ -603,14 +603,11 @@ for ip = 1:length(periods)
 	set(ax, 'Visible', 'off')
 % 	h1=surfacem(xi,yi,avgphv_aniso(ip).isophv);
 % 	h1=surfacem(xi,yi,avgphv_aniso(ip).aniso_strength);
+    % Plot zero-to-peak anisotropy strength
     h1=pcolorm(xi-gridsize_azi/2,yi-gridsize_azi/2,eventphv_ani(ip).A2*100,'Linestyle','none');
 	colorbar
 	colormap(parula)
 	drawnow
-%  	avgv = nanmean(avgphv_aniso(ip).isophv(:));
-%     if ~isnan(avgv)
-%         caxis([avgv*(1-r) avgv*(1+r)])
-%     end
 %     caxis([0 0.05]);
 	u=eventphv_ani(ip).A2.*cosd(eventphv_ani(ip).phi2)*50;
 	v=eventphv_ani(ip).A2.*sind(eventphv_ani(ip).phi2)*50;%./cosd(mean(lalim));
