@@ -6,12 +6,12 @@
 
 
 clear;
+setup_parameters
 
-phase_v_path = './eikonal/'
+workingdir = parameters.workingdir;
+phase_v_path = [workingdir,'eikonal/'];
 r = 0.05;
 isfigure = 0;
-
-setup_parameters
 
 comp = parameters.component;
 periods = parameters.periods;
