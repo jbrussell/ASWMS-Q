@@ -30,7 +30,6 @@ if iscleanevs
 end
 
 eventids = textread([dbpath,eventfile],'%s');
-is_skip_mag_dep = 0; % Initialize to 0
 for ie = 1:length(eventids)
 	matfilename = [outpath,char(eventids(ie)),'_',comp,'.mat'];
 	if ~isoverwrite && exist(matfilename)
@@ -45,6 +44,7 @@ for ie = 1:length(eventids)
         continue
     end
     iisac = 0;
+    is_skip_mag_dep = 0; % Initialize to 0
 	for isac = 1:length(saclist)
 		% read sac file
 		sacfilename = [datapath,saclist(isac).name];
@@ -97,7 +97,7 @@ for ie = 1:length(eventids)
 %			event.stadata(isac).cmp = 'LHZ';
 %		end
     end
-    try
+    try 
         if mean([event.stadata(:).dist]) > max_dist_tol
             disp(['Max distance exceeded for ',char(eventids(ie)),', Skip!']);
             continue;
@@ -108,6 +108,5 @@ for ie = 1:length(eventids)
         save(matfilename,'event')
         disp(['Save to ',matfilename]);
     end
-    is_skip_mag_dep = 0;
 end % end of loop ie
 
