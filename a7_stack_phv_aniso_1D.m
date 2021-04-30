@@ -270,20 +270,14 @@ for ip = 1:length(periods)
     aniso_azi(ip) = nanmean(avgphv_aniso(ip).aniso_azi(:));
     aniso_azi_std(ip) = nanmean(avgphv_aniso(ip).aniso_azi_std(:));
 end
-c = [3.9936 4.0041 4.0005 3.9999 3.9929 3.9832 3.9813 3.9841 3.9874 3.9996 4.0138 4.0519 4.0930 4.1677 4.2520];
-p2p = [0.0093 0.0119 0.0107 0.0081 0.0125 0.0138 0.0062 0.0027 0.0062 0.0090 0.0045 0.0060 0.0058 0.0051 0.0033];
-fastdir = [67.4502 76.4438 86.2857 82.7528 90.8716 93.6104 93.2020 106.5968 97.9209 102.4597 131.1436 123.1767 115.6864 101.7450 11.1088];
-pers = round(logspace(log10(20),log10(150),15));
 %plot native
 subplot(3,1,1); hold on;
-plot(pers,c,'-o','color',[0.8 0.8 0.8]);
 errorbar(periods,avgv,avgv_std,'-or');
 ylim([3.85 4.4]);
 xlim([20 150]);
 ylabel('c (km/s)');
 %plot native
 subplot(3,1,2); hold on;
-plot(pers,p2p*2*100,'-o','color',[0.8 0.8 0.8]);
 errorbar(periods,aniso_str*100*2,aniso_str_std*100,'-or');
 ylim([0 5]);
 xlim([20 150]);
@@ -292,7 +286,6 @@ ylabel('2A');
 subplot(3,1,3); hold on;
 plot([periods(1),periods(end)],FSD*[1 1],'--k','linewidth',1.5); hold on;
 plot([periods(1),periods(end)],APM*[1 1],'--','color',[0.5 0.5 0.5],'linewidth',1.5);
-plot(pers,fastdir,'-o','color',[0.8 0.8 0.8]);
 errorbar(periods,aniso_azi,aniso_azi_std,'-or');
 errorbar(periods,aniso_azi+180,aniso_azi_std,'-or');
 errorbar(periods,aniso_azi-180,aniso_azi_std,'-or');
