@@ -7,9 +7,12 @@ clear;
 
 isfigure = 1;
 isoverwrite = 1;
+is_save_amp_fig = 1;
 
 % setup parameters
 setup_parameters
+
+r = 0.05;
 
 % input path and files
 % eventcs_path = './CSmeasure/';
@@ -42,6 +45,8 @@ alpha_search_grid = parameters.alpha_search_grid;
 periods = parameters.periods;
 
 eventfiles = dir([eikonal_data_path,'/*_eikonal_',parameters.component,'.mat']);
+
+load seiscmap
 
 if exist('badampsta.lst','file')
 	badstnms = textread('badampsta.lst','%s');
@@ -169,6 +174,7 @@ for ie = 1:length(eventfiles)
 		% fill in informations
 		helmholtz(ip).evla = eventphv(ip).evla;
 		helmholtz(ip).evlo = eventphv(ip).evlo;
+        helmholtz(ip).Mw = eventphv(ip).Mw;
 		helmholtz(ip).raydense = eventphv(ip).raydense;
 		helmholtz(ip).goodnum = eventphv(ip).goodnum;
 		helmholtz(ip).badnum = eventphv(ip).badnum;
@@ -182,6 +188,7 @@ for ie = 1:length(eventfiles)
 		helmholtz(ip).bestalpha = bestalpha;
 		helmholtz(ip).amp_term = amp_term;
 		helmholtz(ip).ampmap = ampmap;
+        helmholtz(ip).amps = amps;
 		helmholtz(ip).period = periods(ip);
 		bestalphas(ip,ie) = bestalpha;
 
@@ -193,11 +200,17 @@ for ie = 1:length(eventfiles)
 			subplot(2,2,1)
 			ax = worldmap(lalim, lolim);
 			surfacem(xi,yi,eventGV);
+            if ~isnan(nanmean(eventGV(:)))
+                caxis([nanmean(eventGV(:))*(1-r) nanmean(eventGV(:))*(1+r)])
+            end
 			colorbar
 			title('before cor');
 			subplot(2,2,2)
 			ax = worldmap(lalim, lolim);
 			surfacem(xi,yi,GV_cor);
+            if ~isnan(nanmean(GV_cor(:)))
+                caxis([nanmean(GV_cor(:))*(1-r) nanmean(GV_cor(:))*(1+r)])
+            end
 			colorbar
 			title('after cor');
 			nanind = find(isnan(eventGV(:)));
@@ -210,6 +223,15 @@ for ie = 1:length(eventfiles)
 			surfacem(xi,yi,ampmap);
 			title('amplitude map')
 			plotm(stlas,stlos,'v')
+            la_gc = [];
+            lo_gc = [];
+            for ista = 1:length(stlas)
+                [la,lo]=track2('gc',eventphv(ip).evla,eventphv(ip).evlo,stlas(ista),stlos(ista));
+                la_gc = [la_gc; la; nan];
+                lo_gc = [lo_gc; lo; nan];
+            end
+            plotm(la_gc,lo_gc,'-k');
+            colormap(seiscmap)
 			colorbar
 			subplot(2,2,4)
 			ax = worldmap(lalim, lolim);
@@ -224,6 +246,41 @@ for ie = 1:length(eventfiles)
                         set(gcf,'renderer','zbuffer');
 			plot(alphas,alpha_errs,'x');
             drawnow;
+            
+            if is_save_amp_fig
+                figure(39);
+                if ip == 1
+                    clf;
+                    set(gcf,'Position',[84           3         744        1022]);
+                    sgtitle([eventphv(ip).id,' M',num2str(eventphv(ip).Mw)],'fontweight','bold','fontsize',18)
+                end
+                N=3; M = floor(length(periods)/N)+1;
+                subplot(M,N,ip)
+                ax = worldmap(lalim, lolim);
+                surfacem(xi,yi,ampmap);
+                plotm(stlas,stlos,'v');
+                plotm(la_gc,lo_gc,'-k');
+                title([num2str(periods(ip)),' s'],'fontsize',15)
+                cb = colorbar;
+                clim = cb.Limits;
+                colormap(seiscmap)
+                
+                figure(40);
+                if ip == 1
+                    clf;
+                    set(gcf,'Position',[84           3         744        1022]);
+                    sgtitle([eventphv(ip).id,' M',num2str(eventphv(ip).Mw)],'fontweight','bold','fontsize',18)
+                end
+                subplot(M,N,ip)
+                ax = worldmap(lalim, lolim);
+                scatterm(stlas,stlos,100,amps,'v','filled','markeredgecolor',[0 0 0]);
+                plotm(la_gc,lo_gc,'-k');
+                title([num2str(periods(ip)),' s'],'fontsize',15)
+                colorbar
+                caxis(clim);
+                colormap(seiscmap)
+            end
+            
 %             pause;
 		end % end of isfigure
 	end  % loop of period
@@ -231,4 +288,12 @@ for ie = 1:length(eventfiles)
 	save(matfilename,'helmholtz');
 	fprintf('\n');
 	disp(['Saved to ',matfilename]);
+    if is_save_amp_fig
+        figdir = [workingdir,'/figs/helmholtz/'];
+        if ~exist(figdir)
+            mkdir(figdir);
+        end
+        save2pdf([figdir,eventphv(1).id,'_helmholtz_',parameters.component,'.pdf'],39,100);
+        save2pdf([figdir,eventphv(1).id,'_helmholtz_',parameters.component,'_StaAmps.pdf'],40,100);
+    end
 end  % loop of events
