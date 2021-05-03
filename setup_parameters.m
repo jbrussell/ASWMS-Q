@@ -110,6 +110,11 @@ parameters.smsize = 10; %1;  % averaging nearby grid number
 parameters.off_azi_tol = 30; % differ from great circle path in degrees
 parameters.is_one_phi = 0; %1;
 
+%%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%%
+% parameters for attenuation estimate
+% beta version
+parameters.tp_var_tol = 2; %%% CURRENTLY UNUSED %%% % how much times change of amplitude of single station to the mean value of nearby stations should be considered as bad measurement
+
 if length(parameters.periods)~=length(parameters.smweight_array) || length(parameters.periods)~=length(parameters.min_csgoodratio)
     error('Length of periods doesn''t match smweight_array and/or min_csgoodratio');
 end
