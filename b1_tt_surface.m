@@ -1,7 +1,7 @@
-% Apply amplitude correction on the result of eikonal tomography
-% also use the stacking result for more accurate correction
-% written by Ge Jin, jinwar@gmail.com
-% 2013-03
+% Estimate travel time surface and gradient as well as amplitude gradient
+% for use in eq (4) of Bao et al. (2016) GJI
+% github.com/jbrussell
+% 2021-05
 
 clear;
 
@@ -148,10 +148,11 @@ for ie = 1:length(eventfiles)
 
 		%% Calculate the traveltime and amplitude fields
 		tp_lap=del2m(mesh_xi,mesh_yi,tpmap);
-        tp_grad=delm(mesh_xi,mesh_yi,tpmap);
+        [tp_grad,tp_gradlat,tp_gradlon]=delm(mesh_xi,mesh_yi,tpmap);
+        tp_ang = 90 - atan2d(tp_gradlat,tp_gradlon);
         
         ampmap = helmholtz(ip).ampmap;
-        amp_grad=delm(mesh_xi,mesh_yi,ampmap);
+        [amp_grad,amp_gradlat,amp_gradlon]=delm(mesh_xi,mesh_yi,ampmap);
         
 		% prepare the avg phase velocity and event phase velocity
 		avgGV = avgphv(ip).GV;
@@ -177,10 +178,14 @@ for ie = 1:length(eventfiles)
 % 		attenuation(ip).bestalpha = bestalpha;
         attenuation(ip).ampmap = helmholtz(ip).ampmap;
         attenuation(ip).amp_grad = amp_grad;
+        attenuation(ip).amp_gradlat = amp_gradlat;
+        attenuation(ip).amp_gradlon = amp_gradlon;
         attenuation(ip).amps = helmholtz(ip).amps;
 		attenuation(ip).tpmap = tpmap;
         attenuation(ip).tp_lap = tp_lap;
         attenuation(ip).tp_grad = tp_grad;
+        attenuation(ip).tp_gradlat = tp_gradlat;
+        attenuation(ip).tp_gradlon = tp_gradlon;
         attenuation(ip).tp = tp;
 		attenuation(ip).period = periods(ip);
 % 		bestalphas(ip,ie) = bestalpha;
@@ -211,6 +216,10 @@ for ie = 1:length(eventfiles)
 			tpmap(nanind) = NaN;
             tp_grad = tp_grad';
 			tp_grad(nanind) = NaN;
+            tp_gradlat = tp_gradlat';
+			tp_gradlat(nanind) = NaN;
+            tp_gradlon = tp_gradlon';
+			tp_gradlon(nanind) = NaN;
 			tp_lap = tp_lap';
 			tp_lap(nanind) = NaN;
 			subplot(2,2,1)
@@ -275,6 +284,7 @@ for ie = 1:length(eventfiles)
                 surfacem(xi,yi,tpmap);
                 plotm(stlas,stlos,'v');
                 plotm(la_gc,lo_gc,'-k');
+                quiverm(xi,yi,tp_gradlat,tp_gradlon,'-k')
                 title([num2str(periods(ip)),' s'],'fontsize',15)
                 cb = colorbar;
                 clim = cb.Limits;
