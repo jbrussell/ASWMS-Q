@@ -245,7 +245,7 @@ ip = demoip
 N=3; M = floor(length(periods)/N)+1;
 figure(89)
 clf
-title('stack for dynamics phv')
+sgtitle('stack for dynamic phv','fontweight','bold','fontsize',18)
 for ip = 1:length(periods)
 	subplot(M,N,ip)
 	ax = worldmap(lalim, lolim);
@@ -267,7 +267,7 @@ drawnow;
 %%
 figure(90)
 clf
-title('Std for dynamics phv')
+sgtitle('Std for dynamic phv','fontweight','bold','fontsize',18)
 for ip = 1:length(periods)
 	subplot(M,N,ip)
 	ax = worldmap(lalim, lolim);
@@ -288,7 +288,7 @@ drawnow;
 %%
 figure(91)
 clf
-title('stack for structure phv')
+sgtitle('stack for structure phv','fontweight','bold','fontsize',18)
 for ip = 1:length(periods)
 	subplot(M,N,ip)
 	ax = worldmap(lalim, lolim);
@@ -310,7 +310,7 @@ drawnow;
 %%
 figure(92)
 clf
-title('Std for structure phv')
+sgtitle('Std for structure phv','fontweight','bold','fontsize',18)
 for ip = 1:length(periods)
 	subplot(M,N,ip)
 	ax = worldmap(lalim, lolim);
@@ -332,7 +332,7 @@ drawnow;
 %%
 figure(93)
 clf
-title('diff phv')
+sgtitle('diff phv','fontweight','bold','fontsize',18)
 for ip = 1:length(periods)
 	subplot(M,N,ip)
 	ax = worldmap(lalim, lolim);
@@ -353,6 +353,7 @@ drawnow;
 %%
 figure(95)
 clf
+sgtitle('Ray density','fontweight','bold','fontsize',18)
 for ip = 1:length(periods)
 	subplot(M,N,ip)
 	ax = worldmap(lalim, lolim);
