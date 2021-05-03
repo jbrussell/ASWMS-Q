@@ -143,8 +143,12 @@ for ie = 1:length(eventfiles)
 		stlas(badstaids) = [];
 		stlos(badstaids) = [];
 		tp(badstaids) = [];
-		[tpmap,mesh_xi,mesh_yi]=gridfit_jg(stlas,stlos,tp,xnode,ynode,...
-							'smooth',2,'regularizer','del4','solver','normal');
+        if length(tp(~isnan(tp)))<3
+            tpmap = nan(size(mesh_xi));
+        else
+            [tpmap,mesh_xi,mesh_yi]=gridfit_jg(stlas,stlos,tp,xnode,ynode,...
+                                'smooth',2,'regularizer','del4','solver','normal');
+        end
 
 		%% Calculate the traveltime and amplitude fields
 		tp_lap=del2m(mesh_xi,mesh_yi,tpmap);
