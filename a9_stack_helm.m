@@ -13,7 +13,7 @@ setup_parameters
 workingdir = parameters.workingdir;
 phase_v_path = [workingdir,'helmholtz/'];
 
-r = 0.10;
+r = 0.05;
 
 comp = parameters.component;
 periods = parameters.periods;
@@ -241,6 +241,7 @@ ip = demoip
 	load seiscmap
 	colormap(seiscmap)
 
+%%
 N=3; M = floor(length(periods)/N)+1;
 figure(89)
 clf
@@ -263,6 +264,7 @@ for ip = 1:length(periods)
 end
 drawnow;
 
+%%
 figure(90)
 clf
 title('Std for dynamics phv')
@@ -283,6 +285,7 @@ for ip = 1:length(periods)
 end
 drawnow;
 
+%%
 figure(91)
 clf
 title('stack for structure phv')
@@ -304,6 +307,7 @@ for ip = 1:length(periods)
 end
 drawnow;
 
+%%
 figure(92)
 clf
 title('Std for structure phv')
@@ -325,6 +329,7 @@ for ip = 1:length(periods)
 end
 drawnow;
 
+%%
 figure(93)
 clf
 title('diff phv')
@@ -332,16 +337,20 @@ for ip = 1:length(periods)
 	subplot(M,N,ip)
 	ax = worldmap(lalim, lolim);
 	set(ax, 'Visible', 'off')
-	h1=surfacem(xi,yi,avgphv(ip).GV_cor-avgphv(ip).GV);
+    phvdiff = (avgphv(ip).GV_cor-avgphv(ip).GV)./avgphv(ip).GV*100;
+    h1=surfacem(xi,yi,phvdiff);
+% 	h1=surfacem(xi,yi,avgphv(ip).GV_cor-avgphv(ip).GV);
 	% set(h1,'facecolor','interp');
 	title(['Periods: ',num2str(periods(ip))],'fontsize',15)
 	colorbar
 	load seiscmap
 	colormap(seiscmap)
 %	caxis([0 0.5])
+    caxis(max(abs(phvdiff(:)))*[-1 1])
 end
 drawnow;
 
+%%
 figure(95)
 clf
 for ip = 1:length(periods)
