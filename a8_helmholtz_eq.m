@@ -208,8 +208,8 @@ for ie = 1:length(eventfiles)
 			subplot(2,2,2)
 			ax = worldmap(lalim, lolim);
 			surfacem(xi,yi,GV_cor);
-            if ~isnan(nanmean(GV_cor(:)))
-                caxis([nanmean(GV_cor(:))*(1-r) nanmean(GV_cor(:))*(1+r)])
+            if ~isnan(nanmean(eventGV(:)))
+                caxis([nanmean(eventGV(:))*(1-r) nanmean(eventGV(:))*(1+r)])
             end
 			colorbar
 			title('after cor');
@@ -253,14 +253,36 @@ for ie = 1:length(eventfiles)
                     clf;
                     set(gcf,'Position',[84           3         744        1022]);
                     sgtitle([eventphv(ip).id,' M',num2str(eventphv(ip).Mw)],'fontweight','bold','fontsize',18)
+                    
+                    axes('Position',[.4 .005 .35*.6 .4*.6])
+                    landareas = shaperead('landareas.shp','UseGeoCoords',true);
+                    ax = axesm('eqdazim', 'Frame', 'on', 'Grid', 'off');
+                    ax.XAxis.Visible = 'off';
+                    ax.YAxis.Visible = 'off';
+                    box off;
+                    % setm(ax,'Origin',[mean(lalim),mean(lolim)])
+                    setm(ax,'Origin',[mean(lalim),mean(lolim)],'FLatLimit',[-125 125]+mean(lalim),'FLonLimit',[],'MapLonLimit',[-125 125]+mean(lolim))
+                    geoshow(ax, landareas,'FaceColor',[0.8 0.8 0.8],'EdgeColor','none'); hold on;
+                    for ii = [30 60 90 120]
+                        [latc,longc] = scircle1(mean(lalim),mean(lolim),ii);
+                        plotm(latc,longc,'-','color',[0.6 0.6 0.6],'linewidth',1)
+                    end
+                    [la_gcev,lo_gcev]=track2('gc',eventphv(ip).evla,eventphv(ip).evlo,mean(lalim),mean(lolim));
+                    plotm(la_gcev,lo_gcev,'-k','linewidth',2);
+                    plotm(mean(lalim),mean(lolim),'p','color',[0 0.2 0.4],'MarkerFaceColor',[0 0.5 1],'MarkerSize',24,'linewidth',1);
+                    plotm(eventphv(ip).evla,eventphv(ip).evlo,'o','color',[0.4 0 0],'MarkerFaceColor',[0.85 0 0],'MarkerSize',10,'linewidth',1);
                 end
                 N=3; M = floor(length(periods)/N)+1;
                 subplot(M,N,ip)
                 ax = worldmap(lalim, lolim);
-                surfacem(xi,yi,ampmap);
+                % Plot as percent of median
+                ampmap_perc = (ampmap-nanmedian(ampmap(:)))./nanmedian(ampmap(:))*100;
+%                 surfacem(xi,yi,ampmap);
+                surfacem(xi,yi,ampmap_perc);
                 plotm(stlas,stlos,'v');
                 plotm(la_gc,lo_gc,'-k');
                 title([num2str(periods(ip)),' s'],'fontsize',15)
+                caxis([-40 40]);
                 cb = colorbar;
                 clim = cb.Limits;
                 colormap(seiscmap)
@@ -270,10 +292,31 @@ for ie = 1:length(eventfiles)
                     clf;
                     set(gcf,'Position',[84           3         744        1022]);
                     sgtitle([eventphv(ip).id,' M',num2str(eventphv(ip).Mw)],'fontweight','bold','fontsize',18)
+                    
+                    axes('Position',[.4 .005 .35*.6 .4*.6])
+                    landareas = shaperead('landareas.shp','UseGeoCoords',true);
+                    ax = axesm('eqdazim', 'Frame', 'on', 'Grid', 'off');
+                    ax.XAxis.Visible = 'off';
+                    ax.YAxis.Visible = 'off';
+                    box off;
+                    % setm(ax,'Origin',[mean(lalim),mean(lolim)])
+                    setm(ax,'Origin',[mean(lalim),mean(lolim)],'FLatLimit',[-125 125]+mean(lalim),'FLonLimit',[],'MapLonLimit',[-125 125]+mean(lolim))
+                    geoshow(ax, landareas,'FaceColor',[0.8 0.8 0.8],'EdgeColor','none'); hold on;
+                    for ii = [30 60 90 120]
+                        [latc,longc] = scircle1(mean(lalim),mean(lolim),ii);
+                        plotm(latc,longc,'-','color',[0.6 0.6 0.6],'linewidth',1)
+                    end
+                    [la_gcev,lo_gcev]=track2('gc',eventphv(ip).evla,eventphv(ip).evlo,mean(lalim),mean(lolim));
+                    plotm(la_gcev,lo_gcev,'-k','linewidth',2);
+                    plotm(mean(lalim),mean(lolim),'p','color',[0 0.2 0.4],'MarkerFaceColor',[0 0.5 1],'MarkerSize',24,'linewidth',1);
+                    plotm(eventphv(ip).evla,eventphv(ip).evlo,'o','color',[0.4 0 0],'MarkerFaceColor',[0.85 0 0],'MarkerSize',10,'linewidth',1);
                 end
                 subplot(M,N,ip)
                 ax = worldmap(lalim, lolim);
-                scatterm(stlas,stlos,100,amps,'v','filled','markeredgecolor',[0 0 0]);
+                % Plot as percent of median
+                amps_perc = (amps-nanmedian(ampmap(:)))./nanmedian(ampmap(:))*100;
+%                 scatterm(stlas,stlos,100,amps,'v','filled','markeredgecolor',[0 0 0]);
+                scatterm(stlas,stlos,100,amps_perc,'v','filled','markeredgecolor',[0 0 0]);
                 plotm(la_gc,lo_gc,'-k');
                 title([num2str(periods(ip)),' s'],'fontsize',15)
                 colorbar
