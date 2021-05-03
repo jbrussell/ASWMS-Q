@@ -6,7 +6,7 @@
 clear;
 
 isfigure = 1;
-isoverwrite = 1;
+isoverwrite = 0;
 is_save_amp_fig = 1;
 
 % setup parameters
@@ -230,15 +230,17 @@ for ie = 1:length(eventfiles)
 			ax = worldmap(lalim, lolim);
 			surfacem(xi,yi,tpmap);
 			title('travel time map')
-			plotm(stlas,stlos,'v')
-            la_gc = [];
-            lo_gc = [];
-            for ista = 1:length(stlas)
-                [la,lo]=track2('gc',eventphv(ip).evla,eventphv(ip).evlo,stlas(ista),stlos(ista));
-                la_gc = [la_gc; la; nan];
-                lo_gc = [lo_gc; lo; nan];
+            if ~isempty(stlas) 
+                plotm(stlas,stlos,'v')
+                la_gc = [];
+                lo_gc = [];
+                for ista = 1:length(stlas)
+                    [la,lo]=track2('gc',eventphv(ip).evla,eventphv(ip).evlo,stlas(ista),stlos(ista));
+                    la_gc = [la_gc; la; nan];
+                    lo_gc = [lo_gc; lo; nan];
+                end
+                plotm(la_gc,lo_gc,'-k');
             end
-            plotm(la_gc,lo_gc,'-k');
             colormap(seiscmap)
 			colorbar
             subplot(2,2,3)
@@ -286,7 +288,9 @@ for ie = 1:length(eventfiles)
                 subplot(M,N,ip)
                 ax = worldmap(lalim, lolim);
                 surfacem(xi,yi,tpmap);
-                plotm(stlas,stlos,'v');
+                if ~isempty(stlas) 
+                    plotm(stlas,stlos,'v');
+                end
                 plotm(la_gc,lo_gc,'-k');
                 quiverm(xi,yi,tp_gradlat,tp_gradlon,'-k')
                 title([num2str(periods(ip)),' s'],'fontsize',15)
@@ -321,7 +325,9 @@ for ie = 1:length(eventfiles)
                 subplot(M,N,ip)
                 ax = worldmap(lalim, lolim);
                 scatterm(stlas,stlos,100,tp,'v','filled','markeredgecolor',[0 0 0]);
-                plotm(la_gc,lo_gc,'-k');
+                if ~isempty(stlas) 
+                    plotm(la_gc,lo_gc,'-k');
+                end
                 title([num2str(periods(ip)),' s'],'fontsize',15)
                 colorbar
                 caxis(clim);
