@@ -21,7 +21,7 @@ else
 end
 
 for ip = 1:length(periods)
-	ip
+% 	ip
 	clear coefmat dt
 	sta_connect_num = zeros(length(eventcs.stlas),1);
 	coefmat = zeros(1,length(eventcs.stlas));
