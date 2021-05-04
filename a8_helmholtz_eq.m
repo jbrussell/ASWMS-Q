@@ -43,6 +43,7 @@ amp_var_tol = parameters.amp_var_tol;
 alpha_range = parameters.alpha_range;
 alpha_search_grid = parameters.alpha_search_grid;
 periods = parameters.periods;
+min_sta_num = parameters.min_sta_num;
 
 eventfiles = dir([eikonal_data_path,'/*_eikonal_',parameters.component,'.mat']);
 
@@ -126,7 +127,8 @@ for ie = 1:length(eventfiles)
 				continue;
 			end
 			meanamp = median(amps(nearstaids));
-			if amps(ista) < meanamp./amp_var_tol | amps(ista) > meanamp.*amp_var_tol
+% 			if amps(ista) < meanamp./amp_var_tol | amps(ista) > meanamp.*amp_var_tol
+            if amps(ista) < meanamp.*(1-amp_var_tol) | amps(ista) > meanamp.*(1+amp_var_tol)
 				badstanum = badstanum+1;
 				badstaids(badstanum) = ista;
 			end
@@ -134,16 +136,22 @@ for ie = 1:length(eventfiles)
 		stlas(badstaids) = [];
 		stlos(badstaids) = [];
 		amps(badstaids) = [];
-		[ampmap,mesh_xi,mesh_yi]=gridfit_jg(stlas,stlos,amps,xnode,ynode,...
-							'smooth',2,'regularizer','del4','solver','normal');
+        if length(amps(~isnan(amps)))<min_sta_num
+            ampmap = nan(size(mesh_xi));
+        else
+            [ampmap,mesh_xi,mesh_yi]=gridfit_jg(stlas,stlos,amps,xnode,ynode,...
+                                'smooth',2,'regularizer','del4','solver','normal');
+        end
 
 		%% Calculate the correction term
 		dAmp=del2m(mesh_xi,mesh_yi,ampmap);
 		amp_term=-dAmp./ampmap./(2*pi/periods(ip)).^2;
 		% smooth the correction term 
 		smD=max([300 periods(ip).*parameters.refv]);
-		amp_term = gridfit_jg(mesh_xi(:),mesh_yi(:),amp_term(:),xnode,ynode,...
-							'smooth',floor(smD./deg2km(gridsize)),'regularizer','laplacian','solver','normal');
+        if length(amps(~isnan(amps)))>min_sta_num
+            amp_term = gridfit_jg(mesh_xi(:),mesh_yi(:),amp_term(:),xnode,ynode,...
+                                'smooth',floor(smD./deg2km(gridsize)),'regularizer','laplacian','solver','normal');
+        end
 		% prepare the avg phase velocity and event phase velocity
 		avgGV = avgphv(ip).GV;
 		if sum(size(avgGV)==size(xi)) < 2
