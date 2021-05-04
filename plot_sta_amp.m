@@ -4,6 +4,11 @@ clear
 setup_parameters;
 comp = parameters.component;
 
+avg_band = 12:15; %3:6;
+
+outfile = 'NoMelt_sta_info';
+outfile_corr = 'NoMelt_sta_info_corr';
+
 % CSfiles = dir(['CSmeasure/*_',comp,'*.mat']);
 workingdir = parameters.workingdir;
 CSfiles = dir([workingdir,'CSmeasure/*_',comp,'*.mat']);
@@ -35,14 +40,12 @@ for ie = 1:length(CSfiles)
 	end
 end
 
-save('png_amp_stainfo.mat','stainfo');
+save([outfile,'.mat'],'stainfo');
 
-load png_amp_stainfo
+load(outfile)
 
-avg_band = 3:6;
-
-badstnms = textread('badampsta.lst','%s');
-OBSstnms = textread('OBS.lst','%s');
+badstnms = ['dummy']; %textread('badampsta.lst','%s');
+OBSstnms = textread('stalist_nomelt.txt','%s');
 
 % calculate the means
 for ista = 1:length(stainfo)
@@ -102,7 +105,8 @@ stnms = {};
 stainfo = [];
 for ie = 1:length(CSfiles)
 	clear eventcs amps
-	load(fullfile('CSmeasure',CSfiles(ie).name));
+% 	load(fullfile('CSmeasure',CSfiles(ie).name));
+    load(fullfile(workingdir,'CSmeasure',CSfiles(ie).name));
 	disp(CSfiles(ie).name)
 	for ista = 1:length(eventcs.stnms)
 		if ismember(eventcs.stnms(ista),OBSstnms)
@@ -143,11 +147,11 @@ for ista = 1:length(stainfo)
 	end
 end
 
-save('png_amp_stainfo_cor.mat','stainfo');
+save([outfile_corr,'.mat'],'stainfo');
 
 clear stainfo
 
-load('png_amp_stainfo_cor');
+load(outfile_corr);
 
 % after the correction
 figure(24)
