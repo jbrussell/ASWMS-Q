@@ -388,7 +388,9 @@ for ie = 1:length(csmatfiles)
 % 				continue;
 % 			end
 % 			colorbar
-%             caxis(lims{ip});
+%             if ~isempty(lims{ip})
+%                 caxis(lims{ip});
+%             end
 % 			load seiscmap
 % 			colormap(seiscmap)
 % 		end
