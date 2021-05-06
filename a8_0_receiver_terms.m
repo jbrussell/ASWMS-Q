@@ -9,6 +9,10 @@
 % amplitude in the differential amplitude dataset, we enforce the sum of
 % log amplitudes to equal zero.
 %
+% Corrections to single-station amplitude measurements is then
+% Amp_corr = Amp / Amp_rec
+% where Amp_rec is the receiver term
+%
 % github.com/jbrussell
 % 2021-05
 
