@@ -9,21 +9,20 @@ isfigure = 1;
 isoverwrite = 1;
 is_save_amp_fig = 1;
 
+is_receiver_terms = 1; % Use receiver terms calculated from a8_0_receiver_terms ?
+
 % setup parameters
 setup_parameters
 
 r = 0.05;
 
 % input path and files
-% eventcs_path = './CSmeasure/';
-% eikonal_data_path = './eikonal/';
-% eikonal_stack_file = ['eikonal_stack_',parameters.component];
-% helmholtz_path = './helmholtz/';
 workingdir = parameters.workingdir;
 eventcs_path = [workingdir,'CSmeasure/'];
 eikonal_data_path = [workingdir,'eikonal/'];
 eikonal_stack_file = [workingdir,'eikonal_stack_',parameters.component];
 helmholtz_path = [workingdir,'helmholtz/'];
+receiverterms_path = [workingdir];
 
 if ~exist(helmholtz_path,'dir')
 	mkdir(helmholtz_path);
@@ -45,6 +44,7 @@ alpha_search_grid = parameters.alpha_search_grid;
 periods = parameters.periods;
 min_sta_num = parameters.min_sta_num;
 
+
 eventfiles = dir([eikonal_data_path,'/*_eikonal_',parameters.component,'.mat']);
 
 load seiscmap
@@ -55,6 +55,10 @@ if exist('badampsta.lst','file')
 	for ista = 1:length(badstnms)
 	disp(badstnms(ista))
 	end
+end
+
+if is_receiver_terms==1
+    load([receiverterms_path,'receiver_terms_',parameters.component,'.mat']);
 end
 
 for ie = 1:length(eventfiles)
@@ -103,12 +107,26 @@ for ie = 1:length(eventfiles)
 		end
 		% change from power spectrum to amplitude
 		amps = amps.^.5;
+        
+        % Correct amplitude for local receiver effects
+        if is_receiver_terms==1
+            Amp_rec = receiver(ip).Amp_rec;
+            for ista = 1:length(stnms)
+                Istation = find(strcmp(stnms(ista),receiver(ip).stas));
+                if isempty(Istation)
+                    disp(['No station term for ',stnms(ista)]);
+                    continue
+                end
+                amps(ista) = amps(ista) ./ Amp_rec(Istation);
+            end
+        end
 
 		% get rid of bad stations
 		badstaids = find(isnan(amps));
 		stlas(badstaids) = [];
 		stlos(badstaids) = [];
 		amps(badstaids) = [];
+        stnms(badstaids) = [];
 		badstanum = 0; badstaids = [];
 		for ista = 1:length(amps)
 			if stlas(ista) < lalim(1) || stlas(ista) > lalim(2) || ...
@@ -136,6 +154,8 @@ for ie = 1:length(eventfiles)
 		stlas(badstaids) = [];
 		stlos(badstaids) = [];
 		amps(badstaids) = [];
+        stnms(badstaids) = [];
+        
         if length(amps(~isnan(amps)))<min_sta_num
             ampmap = nan(size(mesh_xi));
         else
