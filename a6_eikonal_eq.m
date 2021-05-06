@@ -319,6 +319,7 @@ for ie = 1:length(csmatfiles)
 		N=3; M = floor(length(periods)/N) +1;
 		figure(88)
 		clf
+        sgtitle('Dynamic phase velocity','fontweight','bold','fontsize',18);
 		for ip = 1:length(periods)
 			subplot(M,N,ip)
 			ax = worldmap(lalim, lolim);
