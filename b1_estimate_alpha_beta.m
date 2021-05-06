@@ -5,8 +5,8 @@
 
 clear;
 
-isfigure = 1;
 isoverwrite = 0;
+isfigure = 1;
 is_save_amp_fig = 1;
 
 min_Mw = 5.5; % minimum magnitude
@@ -19,24 +19,19 @@ setup_parameters
 
 r = 0.05;
 
-% input path and files
-% eventcs_path = './CSmeasure/';
-% eikonal_data_path = './eikonal/';
-% eikonal_stack_file = ['eikonal_stack_',parameters.component];
-% attenuation_path = './attenuation/';
 workingdir = parameters.workingdir;
 eventcs_path = [workingdir,'CSmeasure/'];
 phase_v_path = [workingdir,'eikonal/'];
+helmholtz_path = [workingdir,'helmholtz/'];
 helmholtz_stack_file = [workingdir,'helmholtz_stack_',parameters.component];
-attenuation_path = [workingdir,'attenuation/'];
+traveltime_path = [workingdir,'traveltime/'];
 
-if ~exist(attenuation_path,'dir')
-	mkdir(attenuation_path);
+if ~exist(traveltime_path,'dir')
+	mkdir(traveltime_path);
 end
 
 % load stacked phase velocity map
 load(helmholtz_stack_file);
-
 
 % set up useful variables
 lalim = parameters.lalim;
@@ -50,7 +45,7 @@ alpha_range = parameters.alpha_range;
 alpha_search_grid = parameters.alpha_search_grid;
 periods = parameters.periods;
 
-eventfiles = dir([attenuation_path,'/*_attenuation_',parameters.component,'.mat']);
+eventfiles = dir([traveltime_path,'/*_traveltime_',parameters.component,'.mat']);
 
 load seiscmap
 
@@ -62,16 +57,16 @@ if exist('badampsta.lst','file')
 	end
 end
 
-clear avgattenuation
+clear attenuation
 for ip = 1:length(avgphv)
     clear amp_term azi
     evcnt = 0;
     for ie = 1:length(eventfiles)
     %for ie = 59
         % read in data for this event
-        clear eventphv eventcs attenuation
-        load(fullfile(attenuation_path,eventfiles(ie).name));
-        eventid = attenuation(1).id;
+        clear eventphv eventcs traveltime
+        load(fullfile(traveltime_path,eventfiles(ie).name));
+        eventid = traveltime(1).id;
         disp(eventid);    
         eventcsfile = [eventcs_path,'/',eventid,'_cs_',parameters.component,'.mat'];
         if exist(eventcsfile,'file')
@@ -81,16 +76,29 @@ for ip = 1:length(avgphv)
             continue;
         end
         eventeikonalfile = [phase_v_path,'/',eventid,'_eikonal_',parameters.component,'.mat'];
-		load(eventeikonalfile);
+		if exist(eventeikonalfile,'file')
+            load(eventeikonalfile);
+        else
+            disp(['Cannot find eikonal file for ',eventid,', Skipped']);
+            continue;
+        end
+        helmholtzfile = [helmholtz_path,'/',eventid,'_helmholtz_',parameters.component,'.mat'];
+        if exist(helmholtzfile,'file')
+            temp = load(helmholtzfile);
+            helmholtz = temp.helmholtz;
+        else
+            disp(['Cannot find Helmholtz file for ',eventid,', Skipped']);
+            continue;
+        end
         
-        if attenuation(1).Mw < min_Mw
+        if traveltime(1).Mw < min_Mw
             continue
         end
         
 %         % Remove grid cells with outlier propagation azimuth
 %         max_degrelmean = 20;
-%         Inan = isnan(attenuation(ip).GV_cor);
-%         azi_prop = 90 - atan2d(attenuation(ip).tp_gradlat',attenuation(ip).tp_gradlon');
+%         Inan = isnan(traveltime(ip).GV_cor);
+%         azi_prop = 90 - atan2d(traveltime(ip).tp_gradlat',traveltime(ip).tp_gradlon');
 %         azi_prop(azi_prop<0) = azi_prop(azi_prop<0)+360;
 %         azi_prop(Inan) = nan;
 % %         Ibad_prop = abs(azi_prop-nanmean(azi_prop(:))) > max_degrelmean;
@@ -105,9 +113,9 @@ for ip = 1:length(avgphv)
 %         end
 %         Ibad_prop = diffdeg > max_degrelmean;
 %         avgphv(ip).GV_cor(Ibad_prop) = nan;
-%         attenuation(ip).GV_cor(Ibad_prop) = nan;
+%         traveltime(ip).GV_cor(Ibad_prop) = nan;
         
-        Inotnan = find(~isnan(attenuation(ip).GV_cor));
+        Inotnan = find(~isnan(traveltime(ip).GV_cor));
 %         Inotnan = find(~isnan(azi_prop));
         if length(Inotnan) < min_Ngrcells
             continue
@@ -122,36 +130,38 @@ for ip = 1:length(avgphv)
 		stlos = eventcs.stlos;
 		stnms = eventcs.stnms;
         
-        % Load amplitude and travel time fields
-        amp = attenuation(ip).ampmap';
-        amp_grad = attenuation(ip).amp_grad';
-        amp_gradlat = attenuation(ip).amp_gradlat';
-        amp_gradlon = attenuation(ip).amp_gradlon';
-%         tp_grad = attenuation(ip).tp_grad';
-        tp_grad = 1./attenuation(ip).GV;
-        tp_gradlat = attenuation(ip).tp_gradlat';
-        tp_gradlon = attenuation(ip).tp_gradlon';
-        tp_lap = attenuation(ip).tp_lap';
+        % Load amplitude fields
+        amp = helmholtz(ip).ampmap;
+        amp_grad = helmholtz(ip).amp_grad;
+        amp_gradlat = helmholtz(ip).amp_gradlat;
+        amp_gradlon = helmholtz(ip).amp_gradlon;
+        
+        % Load travel-time fields
+        tp_grad = traveltime(ip).tp_grad;
+        tp_gradlat = traveltime(ip).tp_gradlat;
+        tp_gradlon = traveltime(ip).tp_gradlon;
+        tp_lap = traveltime(ip).tp_lap;
+        
+        % Get propagation azimuth at each grid cell
+        azi_prop = traveltime(ip).tp_ang;
+        azi_prop(azi_prop<0) = azi_prop(azi_prop<0)+360;
+        
+        % Get structural phase velocity
         phv = avgphv(ip).GV_cor ;
-%         phv(isnan(attenuation(ip).GV_cor)) = nan;
+        phv(isnan(traveltime(ip).GV_cor)) = nan;
 
-%         Inan = isnan(phv);
 %         amp(Inan)=nan; amp_grad(Inan)=nan; amp_gradlat(Inan)=nan; amp_gradlon(Inan)=nan;
 %         tp_lap(Inan)=nan; tp_grad(Inan)=nan; tp_gradlat(Inan)=nan; tp_gradlon(Inan)=nan;
         
 %         figure(1);
 %         subplot(1,2,1);
-%         tp_grad(isnan(attenuation(ip).GV)) = nan;
+%         tp_grad(isnan(traveltime(ip).GV)) = nan;
 %         imagesc(tp_grad);
 %         cb = colorbar;
 %         subplot(1,2,2);
-%         imagesc(1./attenuation(ip).GV);
+%         imagesc(1./traveltime(ip).GV);
 %         colorbar;
 %         caxis(cb.Limits);
-        
-        % Calculate propagation azimuth at each grid cell
-        azi_prop = 90 - atan2d(tp_gradlat,tp_gradlon);
-        azi_prop(azi_prop<0) = azi_prop(azi_prop<0)+360;
 
         % Calculate terms from Bao et al. (2016) equation 4
         % Amplitude decay term
@@ -167,11 +177,14 @@ for ip = 1:length(avgphv)
             tp_focus = gridfit_jg(xi(:),yi(:),tp_focus(:),xnode,ynode,...
                                 'smooth',floor(smD./deg2km(gridsize)),'regularizer','laplacian','solver','normal')';
         end
+        Inan = isnan(phv);
+        amp_decay(Inan) = nan;
+        tp_focus(Inan) = nan;
         
         % Corrected amplitude decay
         corr_amp_decay = amp_decay + tp_focus;
         
-        amp_term(:,:,evcnt) = (phv/2) .* corr_amp_decay;
+        amp_term(:,:,evcnt) = (phv/2) .* corr_amp_decay;        
         azi(:,:,evcnt) = azi_prop;
     end
     
@@ -204,13 +217,13 @@ for ip = 1:length(avgphv)
     dlnbeta_dx_err = (parastd(2,1)-parastd(1,1))/2;
     dlnbeta_dy_err = (parastd(2,2)-parastd(1,2))/2;
     alpha_err = (parastd(2,3)-parastd(1,3))/2;
-    avgattenuation(ip).alpha_1d = alpha;
-    avgattenuation(ip).dlnbeta_dx_1d = dlnbeta_dx;
-    avgattenuation(ip).dlnbeta_dy_1d = dlnbeta_dy;
-    avgattenuation(ip).alpha_1d_err = alpha_err;
-    avgattenuation(ip).dlnbeta_dx_1d_err = dlnbeta_dx_err;
-    avgattenuation(ip).dlnbeta_dy_1d_err = dlnbeta_dy_err;
-    avgattenuation(ip).para_1d = para;
+    attenuation(ip).alpha_1d = alpha;
+    attenuation(ip).dlnbeta_dx_1d = dlnbeta_dx;
+    attenuation(ip).dlnbeta_dy_1d = dlnbeta_dy;
+    attenuation(ip).alpha_1d_err = alpha_err;
+    attenuation(ip).dlnbeta_dx_1d_err = dlnbeta_dx_err;
+    attenuation(ip).dlnbeta_dy_1d_err = dlnbeta_dy_err;
+    attenuation(ip).para_1d = para;
     
     % Binned 1-D sinusoidal fit
     [para, alpha, dlnbeta_dx, dlnbeta_dy]=fit_alpha_beta(azi_bin(:),amp_bin(:));
@@ -218,18 +231,18 @@ for ip = 1:length(avgphv)
     dlnbeta_dx_err = (parastd(2,1)-parastd(1,1))/2;
     dlnbeta_dy_err = (parastd(2,2)-parastd(1,2))/2;
     alpha_err = (parastd(2,3)-parastd(1,3))/2;
-    avgattenuation(ip).alpha_1d_bin = alpha;
-    avgattenuation(ip).dlnbeta_dx_1d_bin = dlnbeta_dx;
-    avgattenuation(ip).dlnbeta_dy_1d_bin = dlnbeta_dy;
-    avgattenuation(ip).alpha_1d_bin_err = alpha_err;
-    avgattenuation(ip).dlnbeta_dx_1d_bin_err = dlnbeta_dx_err;
-    avgattenuation(ip).dlnbeta_dy_1d_bin_err = dlnbeta_dy_err;
-    avgattenuation(ip).para_1d_bin = para;
+    attenuation(ip).alpha_1d_bin = alpha;
+    attenuation(ip).dlnbeta_dx_1d_bin = dlnbeta_dx;
+    attenuation(ip).dlnbeta_dy_1d_bin = dlnbeta_dy;
+    attenuation(ip).alpha_1d_bin_err = alpha_err;
+    attenuation(ip).dlnbeta_dx_1d_bin_err = dlnbeta_dx_err;
+    attenuation(ip).dlnbeta_dy_1d_bin_err = dlnbeta_dy_err;
+    attenuation(ip).para_1d_bin = para;
     
     % Unbinned 1-D azimuthal average
     alpha_1d_avg = nanmean(-amp_term(:));
-    avgattenuation(ip).alpha_1d_avg = alpha_1d_avg;
-    avgattenuation(ip).alpha_1d_avg_err = nanstd(-amp_term(:)-alpha_1d_avg);
+    attenuation(ip).alpha_1d_avg = alpha_1d_avg;
+    attenuation(ip).alpha_1d_avg_err = nanstd(-amp_term(:)-alpha_1d_avg);
     
     % Unbinned 2-D sinusoidal fit
     for ix = 1:length(xnode)
@@ -251,17 +264,17 @@ for ip = 1:length(avgphv)
                 dlnbeta_dy_err = nan;
                 para = [];
             end            
-            avgattenuation(ip).alpha_2d(ix,iy) = alpha;
-            avgattenuation(ip).dlnbeta_dx_2d(ix,iy) = dlnbeta_dx;
-            avgattenuation(ip).dlnbeta_dy_2d(ix,iy) = dlnbeta_dy;
-            avgattenuation(ip).alpha_2d_err(ix,iy) = alpha_err;
-            avgattenuation(ip).dlnbeta_dx_2d_err(ix,iy) = dlnbeta_dx_err;
-            avgattenuation(ip).dlnbeta_dy_2d_err(ix,iy) = dlnbeta_dy_err;
-            avgattenuation(ip).para_2d{ix,iy} = para;
-            avgattenuation(ip).amp_term_2d = amp_term;
-            avgattenuation(ip).azi = azi;
-            avgattenuation(ip).period = periods(ip);
-            avgattenuation(ip).evcnt = evcnt;
+            attenuation(ip).alpha_2d(ix,iy) = alpha;
+            attenuation(ip).dlnbeta_dx_2d(ix,iy) = dlnbeta_dx;
+            attenuation(ip).dlnbeta_dy_2d(ix,iy) = dlnbeta_dy;
+            attenuation(ip).alpha_2d_err(ix,iy) = alpha_err;
+            attenuation(ip).dlnbeta_dx_2d_err(ix,iy) = dlnbeta_dx_err;
+            attenuation(ip).dlnbeta_dy_2d_err(ix,iy) = dlnbeta_dy_err;
+            attenuation(ip).para_2d{ix,iy} = para;
+            attenuation(ip).amp_term_2d = amp_term;
+            attenuation(ip).azi = azi;
+            attenuation(ip).period = periods(ip);
+            attenuation(ip).evcnt = evcnt;
         end
     end
     
@@ -275,7 +288,7 @@ for ip = 1:length(avgphv)
     plot(azi(Ibad),amp_term(Ibad),'o');
     plot(azi_bin(:),amp_bin(:),'o');
     x = [0:360];
-    pred = avgattenuation(ip).dlnbeta_dx_1d*sind(x)+avgattenuation(ip).dlnbeta_dy_1d*cosd(x)-avgattenuation(ip).alpha_1d;
+    pred = attenuation(ip).dlnbeta_dx_1d*sind(x)+attenuation(ip).dlnbeta_dy_1d*cosd(x)-attenuation(ip).alpha_1d;
     plot(x,pred,'-r');
     title([num2str(attenuation(ip).period),' s'])
     xlabel('azimuth');
@@ -287,16 +300,16 @@ end
 figure(42); clf; set(gcf,'color','w');
 alpha_zhitu = [4.1 7.3 8.2 8.9 6.9]*1e-5;
 f_mhz_zhitu = [10 15 20 25 30];
-alphas = [avgattenuation(:).alpha_1d];
-alphas_err = [avgattenuation(:).alpha_1d_err];
-alphas_bin = [avgattenuation(:).alpha_1d_bin];
-alphas_bin_err = [avgattenuation(:).alpha_1d_bin_err];
-alphas_avg = [avgattenuation(:).alpha_1d_avg];
-alphas_avg_err = [avgattenuation(:).alpha_1d_avg_err];
-for ip = 1:length(avgattenuation)
-    alphas_2d(ip) = nanmean(avgattenuation(ip).alpha_2d(:));
-%     alphas_2d_err(ip) = nanmean(avgattenuation(ip).alpha_2d_err(:));
-    alphas_2d_err(ip) = nanstd(avgattenuation(ip).alpha_2d(:));
+alphas = [attenuation(:).alpha_1d];
+alphas_err = [attenuation(:).alpha_1d_err];
+alphas_bin = [attenuation(:).alpha_1d_bin];
+alphas_bin_err = [attenuation(:).alpha_1d_bin_err];
+alphas_avg = [attenuation(:).alpha_1d_avg];
+alphas_avg_err = [attenuation(:).alpha_1d_avg_err];
+for ip = 1:length(attenuation)
+    alphas_2d(ip) = nanmean(attenuation(ip).alpha_2d(:));
+%     alphas_2d_err(ip) = nanmean(attenuation(ip).alpha_2d_err(:));
+    alphas_2d_err(ip) = nanstd(attenuation(ip).alpha_2d(:));
 end
 errorbar(periods,alphas_bin,alphas_bin_err,'-om'); hold on;
 errorbar(periods,alphas,alphas_err,'-ok');
@@ -314,8 +327,8 @@ xlim([min(periods)-10 max(periods)+10]);
 %% Plot 2D maps of alpha
 figure(43); clf; set(gcf,'position',[146           1         726        1024],'color','w');
 N=3; M = floor(length(periods)/N)+1;
-for ip = 1:length(avgattenuation)    
-    alpha_2d = avgattenuation(ip).alpha_2d;    
+for ip = 1:length(attenuation)    
+    alpha_2d = attenuation(ip).alpha_2d;    
     subplot(M,N,ip)
     ax = worldmap(lalim, lolim);
     surfacem(xi,yi,alpha_2d);
@@ -330,7 +343,7 @@ end
 
 
 %% Save
-% matfilename = fullfile(attenuation_path,[eventphv(1).id,'_attenuation_',parameters.component,'.mat']);
+% matfilename = fullfile(traveltime_path,[eventphv(1).id,'_attenuation_',parameters.component,'.mat']);
 % save(matfilename,'attenuation');
 % fprintf('\n');
 % disp(['Saved to ',matfilename]);

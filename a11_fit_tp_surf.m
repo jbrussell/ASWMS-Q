@@ -4,30 +4,26 @@
 % 2021-05
 
 clear;
-
-isfigure = 1;
-isoverwrite = 0;
-is_save_amp_fig = 1;
-
-% setup parameters
 setup_parameters
+
+isoverwrite = 1;
+isfigure = 0;
+is_save_amp_fig = 0;
+
+is_eikonal_phasegrad = 1; % 1: use eikonal tomography values for phase gradient; 0: use travel-time field estimates
 
 r = 0.05;
 
 % input path and files
-% eventcs_path = './CSmeasure/';
-% eikonal_data_path = './eikonal/';
-% eikonal_stack_file = ['eikonal_stack_',parameters.component];
-% attenuation_path = './attenuation/';
 workingdir = parameters.workingdir;
 eventcs_path = [workingdir,'CSmeasure/'];
 eikonal_data_path = [workingdir,'eikonal/'];
 eikonal_stack_file = [workingdir,'eikonal_stack_',parameters.component];
 helmholtz_path = [workingdir,'helmholtz/'];
-attenuation_path = [workingdir,'attenuation/'];
+traveltime_path = [workingdir,'traveltime/'];
 
-if ~exist(attenuation_path,'dir')
-	mkdir(attenuation_path);
+if ~exist(traveltime_path,'dir')
+	mkdir(traveltime_path);
 end
 
 % load stacked phase velocity map
@@ -60,10 +56,10 @@ end
 for ie = 1:length(eventfiles)
 %for ie = 59
 	% read in data for this event
-	clear eventphv eventcs attenuation;
+	clear eventphv eventcs traveltime;
 	load(fullfile(eikonal_data_path,eventfiles(ie).name));
 	eventid = eventphv(1).id;
-	matfilename = fullfile(attenuation_path,[eventphv(1).id,'_attenuation_',parameters.component,'.mat']);
+	matfilename = fullfile(traveltime_path,[eventphv(1).id,'_traveltime_',parameters.component,'.mat']);
 	if exist(matfilename,'file') && ~isoverwrite
 		disp(['exist: ',matfilename,', skip!'])
 		continue;
@@ -151,12 +147,25 @@ for ie = 1:length(eventfiles)
         end
 
 		%% Calculate the traveltime and amplitude fields
-		tp_lap=del2m(mesh_xi,mesh_yi,tpmap);
-        [tp_grad,tp_gradlat,tp_gradlon]=delm(mesh_xi,mesh_yi,tpmap);
-        tp_ang = 90 - atan2d(tp_gradlat,tp_gradlon);
         
-        ampmap = helmholtz(ip).ampmap;
-        [amp_grad,amp_gradlat,amp_gradlon]=delm(mesh_xi,mesh_yi,ampmap);
+        if is_eikonal_phasegrad == 1
+            tp_grad = 1./eventphv(ip).GV'; % phase slowness magnitude
+            tp_gradlat = -eventphv(ip).GVx; % phase slowness in x-direction
+            tp_gradlon = -eventphv(ip).GVy; % phase slowness in y-direction
+            [~,tp_laplat,~]=delm(xi,yi,tp_gradlat);
+            [~,~,tp_laplon]=delm(xi,yi,tp_gradlon);
+            tp_lap = tp_laplat + tp_laplon;
+            tp_ang = 90 - atan2d(tp_gradlat,tp_gradlon);
+            tp_gradlat = tp_gradlat';
+            tp_gradlon = tp_gradlon';
+            tp_laplat = tp_laplat';
+            tp_lap = tp_lap';
+            tp_ang = tp_ang';
+        else
+            tp_lap=del2m(mesh_xi,mesh_yi,tpmap);
+            [tp_grad,tp_gradlat,tp_gradlon]=delm(mesh_xi,mesh_yi,tpmap);
+            tp_ang = 90 - atan2d(tp_gradlat,tp_gradlon);            
+        end
         
 		% prepare the avg phase velocity and event phase velocity
 		avgGV = avgphv(ip).GV;
@@ -166,32 +175,25 @@ for ie = 1:length(eventfiles)
 		eventGV = eventphv(ip).GV;
 
 		% fill in informations
-		attenuation(ip).evla = eventphv(ip).evla;
-		attenuation(ip).evlo = eventphv(ip).evlo;
-        attenuation(ip).Mw = eventphv(ip).Mw;
-		attenuation(ip).raydense = eventphv(ip).raydense;
-		attenuation(ip).goodnum = eventphv(ip).goodnum;
-		attenuation(ip).badnum = eventphv(ip).badnum;
-		attenuation(ip).id = eventphv(ip).id;
-		attenuation(ip).xi = xi;
-		attenuation(ip).yi = yi;
-		attenuation(ip).GV_cor = helmholtz(ip).GV_cor;
-		attenuation(ip).GV = eventGV;
-% 		attenuation(ip).alpha_errs = alpha_errs;
-% 		attenuation(ip).alphas = alphas;
-% 		attenuation(ip).bestalpha = bestalpha;
-        attenuation(ip).ampmap = helmholtz(ip).ampmap;
-        attenuation(ip).amp_grad = amp_grad;
-        attenuation(ip).amp_gradlat = amp_gradlat;
-        attenuation(ip).amp_gradlon = amp_gradlon;
-        attenuation(ip).amps = helmholtz(ip).amps;
-		attenuation(ip).tpmap = tpmap;
-        attenuation(ip).tp_lap = tp_lap;
-        attenuation(ip).tp_grad = tp_grad;
-        attenuation(ip).tp_gradlat = tp_gradlat;
-        attenuation(ip).tp_gradlon = tp_gradlon;
-        attenuation(ip).tp = tp;
-		attenuation(ip).period = periods(ip);
+		traveltime(ip).evla = eventphv(ip).evla;
+		traveltime(ip).evlo = eventphv(ip).evlo;
+        traveltime(ip).Mw = eventphv(ip).Mw;
+		traveltime(ip).raydense = eventphv(ip).raydense;
+		traveltime(ip).goodnum = eventphv(ip).goodnum;
+		traveltime(ip).badnum = eventphv(ip).badnum;
+		traveltime(ip).id = eventphv(ip).id;
+		traveltime(ip).xi = xi;
+		traveltime(ip).yi = yi;
+		traveltime(ip).GV_cor = helmholtz(ip).GV_cor;
+		traveltime(ip).GV = eventGV;
+		traveltime(ip).tpmap = tpmap';
+        traveltime(ip).tp_lap = tp_lap';
+        traveltime(ip).tp_grad = tp_grad';
+        traveltime(ip).tp_gradlat = tp_gradlat';
+        traveltime(ip).tp_gradlon = tp_gradlon';
+        traveltime(ip).tp_ang = tp_ang';
+        traveltime(ip).tp = tp;
+		traveltime(ip).period = periods(ip);
 % 		bestalphas(ip,ie) = bestalpha;
 
 		% plot to check
@@ -337,16 +339,16 @@ for ie = 1:length(eventfiles)
 %             pause;
 		end % end of isfigure
 	end  % loop of period
-	matfilename = fullfile(attenuation_path,[eventphv(1).id,'_attenuation_',parameters.component,'.mat']);
-	save(matfilename,'attenuation');
+	matfilename = fullfile(traveltime_path,[eventphv(1).id,'_traveltime_',parameters.component,'.mat']);
+	save(matfilename,'traveltime');
 	fprintf('\n');
 	disp(['Saved to ',matfilename]);
     if is_save_amp_fig
-        figdir = [workingdir,'/figs/attenuation/'];
+        figdir = [workingdir,'/figs/traveltime/'];
         if ~exist(figdir)
             mkdir(figdir);
         end
-        save2pdf([figdir,eventphv(1).id,'_attenuation_',parameters.component,'.pdf'],39,100);
-        save2pdf([figdir,eventphv(1).id,'_attenuation_',parameters.component,'_StaAmps.pdf'],40,100);
+        save2pdf([figdir,eventphv(1).id,'_traveltime_',parameters.component,'.pdf'],39,100);
+        save2pdf([figdir,eventphv(1).id,'_traveltime_',parameters.component,'_StaAmps.pdf'],40,100);
     end
 end  % loop of events
