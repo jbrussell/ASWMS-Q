@@ -252,7 +252,7 @@ for ip = 1:length(periods)
 	end          
 end % end of period loop
 
-filename = [workingdir,'eikonal_stack_aniso_',comp,'.mat'];
+filename = [workingdir,'eikonal_stack_aniso1D_',comp,'.mat'];
 save(filename,'avgphv_aniso');
 
 %%

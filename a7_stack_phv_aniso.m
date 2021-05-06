@@ -190,7 +190,7 @@ for ip = 1:length(periods)
 	end          
 end % end of period loop
 
-filename = ['eikonal_stack_aniso_',comp,'.mat'];
+filename = [workingdir,'eikonal_stack_aniso_',comp,'.mat'];
 save(filename,'avgphv_aniso');
 
 N=3; M = floor(length(periods)/N)+1;
