@@ -16,6 +16,8 @@ setup_ErrorCode
 % JBR
 cohere_tol = parameters.cohere_tol;
 
+is_offgc_propagation = 1; % Account for off-great-circle propagation using eikonal tomography maps? Otherwise will assume great-circle propagation.
+
 % % Smoothing parameters
 % flweight_array = 100*ones(length(parameters.periods)); %parameters.flweight_array
 % dterrtol = 2;    % largest variance of the inversion error allowed
@@ -93,7 +95,7 @@ xnode=lalim(1):gridsize:lalim(2);
 ynode=lolim(1):gridsize:lolim(2);
 Nx=length(xnode);
 Ny=length(ynode);
-[xi yi]=ndgrid(xnode,ynode);
+[xi, yi]=ndgrid(xnode,ynode);
 
 % Setup universal smoothing kernel
 disp('initial the smoothing kernel')
@@ -169,22 +171,12 @@ for ip = 1:length(periods)
 			disp(['Exist ',matfilename,', skip']);
 			continue;
         end
-        
-%        % Load wavefield azimuth from previous eikonal solution
-%         matfilename_in = [eikonl_output_path,'/',eventcs.id,'_eikonal_',comp,'.mat'];
-%         if exist(matfilename_in,'file')==2
-%             temp = load(matfilename_in);
-%             azi_ev = angle( nanmedian(temp.eventphv(ip).GVx(:)) + nanmedian(temp.eventphv(ip).GVy(:)).*sqrt(-1));
-%             azi_ev = rad2deg(azi_ev);
-% %             azi_ev = nanmedian(azi_ev(:));
-%             azi_flag = 1;
-%             if isnan(azi_ev)
-%                 azi_flag = 0;
-%             end
-%         else
-%             azi_flag = 0;
-%         end
-
+        if is_offgc_propagation==1
+            eikonal_in = [eikonl_output_path,'/',eventcs.id,'_eikonal_',comp,'.mat'];
+            temp = load(eikonal_in);
+            phase_lat = temp.eventphv(ip).GVx; % phase slowness in x-direction
+            phase_lon = temp.eventphv(ip).GVy; % phase slowness in y-direction
+        end
 
 		if exist('badstnms','var')
 			badstaids = find(ismember(eventcs.stnms,badstnms));
@@ -261,20 +253,28 @@ for ip = 1:length(periods)
             mean_stala = mean([eventcs.stlas(eventcs.CS(ics).sta1), eventcs.stlas(eventcs.CS(ics).sta2)]);
             mean_stalo = mean([eventcs.stlos(eventcs.CS(ics).sta1), eventcs.stlos(eventcs.CS(ics).sta2)]);
             
-%           % Build azimuth vector. Use wavefield if available, if not use back azimuth from station-pair midpoint
-% 	        if azi_flag==1
-%                 azi(raynum,:) = azi_ev;
-%             else
-%                 [~,azi(raynum,:)]=distance(mean_stala,mean_stalo,...
-%                                             evla,evlo);
-% %                 w(raynum,:) = 0;
-%             end
-            azi(raynum,:)=azimuth(mean_stala,mean_stalo,...
-                                       evla,evlo);
             
-% 	        if azi(raynum) > 180
-% 	            azi(raynum,:) = azi(raynum) - 360;
-% 	        end
+            if is_offgc_propagation==1
+                % Calculate average back azimuth along ray path from eikonal map
+                [r, ~] = distance(rays(raynum,1),rays(raynum,2),rays(raynum,3),rays(raynum,4),referenceEllipsoid('GRS80'));
+                dr = deg2km(mean(diff(xnode)));
+                Nr = floor(r/dr);
+                [lat_way,lon_way] = gcwaypts(rays(raynum,1),rays(raynum,2),rays(raynum,3),rays(raynum,4),Nr);
+                rayazi_phase_lat = interp2(yi,xi,phase_lat,lon_way,lat_way);
+                rayazi_phase_lon = interp2(yi,xi,phase_lon,lon_way,lat_way);
+                rayazi_prop = 90 - atan2d(nanmean(rayazi_phase_lat(:)),nanmean(rayazi_phase_lon(:)));
+                azi(raynum,:) = rayazi_prop;
+                if isnan(azi(raynum,:))
+                    w(raynum,:) = 0;
+                end
+            else
+                azi(raynum,:)=azimuth(mean_stala,mean_stalo,...
+                                           evla,evlo);
+            end
+            if azi(raynum,:) < 0
+                azi(raynum,:) = azi(raynum,:) + 360;
+            end
+            
 	    	mat_azi(raynum,:) = ddist(raynum) * [cosd(2*azi(raynum)), sind(2*azi(raynum)), cosd(4*azi(raynum)), sind(4*azi(raynum)) ];
         end
     end
@@ -628,7 +628,7 @@ for ip = 1:length(periods)
     fit_azi_bin_res.phi2_95(ip)=parastd(2,2)-para.e;
 end
 
-matfilename = [eikonl_ani_output_path,'/eikonal_ani_',comp,'.mat'];
+matfilename = [eikonl_ani_output_path,'/eikonal_ani1D_',comp,'.mat'];
 save(matfilename,'eventphv_ani','fit_azi','fit_azi_bin','fit_azi_bin_res');
 disp(['Save the result to: ',matfilename])
  
