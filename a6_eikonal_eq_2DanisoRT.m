@@ -637,7 +637,8 @@ for ip = 1:length(periods)
     phi2(phi2<0) = phi2(phi2<0) + 180;
     aniso_azi(ip) = nanmean(phi2(:));
     aniso_azi_std(ip) = nanstd(phi2(:));
-end%plot native
+end
+%plot native
 subplot(3,1,1); hold on;
 errorbar(periods,avgv,avgv_std*2,'-or');
 ylim([3.85 4.4]);
