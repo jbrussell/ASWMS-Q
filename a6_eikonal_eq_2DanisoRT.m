@@ -16,6 +16,8 @@ setup_ErrorCode
 % JBR
 % cohere_tol = parameters.cohere_tol;
 
+is_offgc_propagation = 1; % Account for off-great-circle propagation using eikonal tomography maps? Otherwise will assume great-circle propagation.
+
 % Smoothing parameters
 flweight_array = 0*ones(length(parameters.periods)); %100*ones(length(parameters.periods)); %parameters.flweight_array
 dterrtol = 2;    % largest variance of the inversion error allowed
@@ -157,22 +159,12 @@ for ip = 1:length(periods)
             disp(['Exist ',matfilename,', skip']);
 			continue;
         end
-        
-%        % Load wavefield azimuth from previous eikonal solution
-%         matfilename_in = [eikonl_output_path,'/',eventcs.id,'_eikonal_',comp,'.mat'];
-%         if exist(matfilename_in,'file')==2
-%             temp = load(matfilename_in);
-%             azi_ev = angle( nanmedian(temp.eventphv(ip).GVx(:)) + nanmedian(temp.eventphv(ip).GVy(:)).*sqrt(-1));
-%             azi_ev = rad2deg(azi_ev);
-% %             azi_ev = nanmedian(azi_ev(:));
-%             azi_flag = 1;
-%             if isnan(azi_ev)
-%                 azi_flag = 0;
-%             end
-%         else
-%             azi_flag = 0;
-%         end
-
+        if is_offgc_propagation==1
+            eikonal_in = [eikonl_output_path,'/',eventcs.id,'_eikonal_',comp,'.mat'];
+            temp = load(eikonal_in);
+            phase_lat = temp.eventphv(ip).GVx; % phase slowness in x-direction
+            phase_lon = temp.eventphv(ip).GVy; % phase slowness in y-direction
+        end
 
 		if exist('badstnms','var')
 			badstaids = find(ismember(eventcs.stnms,badstnms));
@@ -249,21 +241,28 @@ for ip = 1:length(periods)
             mean_stala = mean([eventcs.stlas(eventcs.CS(ics).sta1), eventcs.stlas(eventcs.CS(ics).sta2)]);
             mean_stalo = mean([eventcs.stlos(eventcs.CS(ics).sta1), eventcs.stlos(eventcs.CS(ics).sta2)]);
             
-%           % Build azimuth vector. Use wavefield if available, if not use back azimuth from station-pair midpoint
-% 	        if azi_flag==1
-%                 azi(raynum,:) = azi_ev;
-%             else
-%                 [~,azi(raynum,:)]=distance(mean_stala,mean_stalo,...
-%                                             evla,evlo);
-% %                 w(raynum,:) = 0;
-%             end
-            azi(raynum,:)=azimuth(mean_stala,mean_stalo,...
-                                       evla,evlo);
             
-% 	        if azi(raynum) > 180
-% 	            azi(raynum,:) = azi(raynum) - 360;
-% 	        end
-% 	    	mat_azi(raynum,:) = ddist(raynum) * [cosd(2*azi(raynum)), sind(2*azi(raynum)), cosd(4*azi(raynum)), sind(4*azi(raynum)) ];
+            if is_offgc_propagation==1
+                % Calculate average back azimuth along ray path from eikonal map
+                [r, ~] = distance(rays(raynum,1),rays(raynum,2),rays(raynum,3),rays(raynum,4),referenceEllipsoid('GRS80'));
+                dr = deg2km(mean(diff(xnode)));
+                Nr = floor(r/dr);
+                [lat_way,lon_way] = gcwaypts(rays(raynum,1),rays(raynum,2),rays(raynum,3),rays(raynum,4),Nr);
+                rayazi_phase_lat = interp2(yi,xi,phase_lat,lon_way,lat_way);
+                rayazi_phase_lon = interp2(yi,xi,phase_lon,lon_way,lat_way);
+                rayazi_prop = 90 - atan2d(nanmean(rayazi_phase_lat(:)),nanmean(rayazi_phase_lon(:)));
+                azi(raynum,:) = rayazi_prop;
+                if isnan(azi(raynum,:))
+                    w(raynum,:) = 0;
+                end
+            else
+                azi(raynum,:)=azimuth(mean_stala,mean_stalo,...
+                                           evla,evlo);
+            end
+            if azi(raynum,:) < 0
+                azi(raynum,:) = azi(raynum,:) + 360;
+            end
+            
         end
     end
     W = sparse(diag(w));
@@ -485,6 +484,7 @@ for ip = 1:length(periods)
     As2 = As.*GV; % s/km -> %
     A2 = sqrt(Ac2.^2+As2.^2);
     phi2 = 1/2*atan2d(As2,Ac2);
+    phi2(phi2<0) = phi2(phi2<0)+180;
 
     % save the result in the structure
     eventphv_ani(ip).rays = rays;
@@ -601,6 +601,7 @@ for ip = 1:length(periods)
 	subplot(M,N,ip);
 	ax = worldmap(lalim+[-gridsize_azi +gridsize_azi], lolim+[-gridsize_azi +gridsize_azi]);
 	set(ax, 'Visible', 'off')
+    title([num2str(periods(ip)),' s'])
 % 	h1=surfacem(xi,yi,avgphv_aniso(ip).isophv);
 % 	h1=surfacem(xi,yi,avgphv_aniso(ip).aniso_strength);
     % Plot zero-to-peak anisotropy strength
@@ -622,3 +623,40 @@ for ip = 1:length(periods)
 		end
 	end
 end
+ %%
+figure(58);
+set(gcf,'position',[351   677   560   668]);
+clf
+clear avgv avgv_std aniso_str aniso_str_std aniso_azi aniso_azi_std
+for ip = 1:length(periods)
+    avgv(ip) = eventphv_ani(ip).GV_av;
+    avgv_std(ip) = nanstd(eventphv_ani(ip).GV(:));
+    aniso_str(ip) = nanmean(eventphv_ani(ip).A2(:));
+    aniso_str_std(ip) = nanstd(eventphv_ani(ip).A2(:));
+    phi2 = eventphv_ani(ip).phi2(:);
+    phi2(phi2<0) = phi2(phi2<0) + 180;
+    aniso_azi(ip) = nanmean(phi2(:));
+    aniso_azi_std(ip) = nanstd(phi2(:));
+end%plot native
+subplot(3,1,1); hold on;
+errorbar(periods,avgv,avgv_std*2,'-or');
+ylim([3.85 4.4]);
+xlim([20 150]);
+ylabel('c (km/s)');
+%plot native
+subplot(3,1,2); hold on;
+errorbar(periods,aniso_str*100*2,aniso_str_std*100*2,'-or');
+ylim([0 5]);
+xlim([20 150]);
+ylabel('2A');
+%plot native
+subplot(3,1,3);
+plot([periods(1),periods(end)],FSD*[1 1],'--k','linewidth',1.5); hold on;
+plot([periods(1),periods(end)],APM*[1 1],'--','color',[0.5 0.5 0.5],'linewidth',1.5);
+errorbar(periods,aniso_azi,aniso_azi_std*2,'-or');
+errorbar(periods,aniso_azi+180,aniso_azi_std*2,'-or');
+errorbar(periods,aniso_azi-180,aniso_azi_std*2,'-or');
+ylim([50 180]);
+xlim([20 150]);
+ylabel('\phi');
+xlabel('Periods (s)');
