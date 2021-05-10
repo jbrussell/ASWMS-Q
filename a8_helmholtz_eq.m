@@ -9,7 +9,8 @@ isfigure = 1;
 isoverwrite = 1;
 is_save_amp_fig = 1;
 
-is_receiver_terms = 1; % Use receiver terms calculated from a8_0_receiver_terms ?
+is_receiver_terms = 0; % Use receiver terms calculated from a8_0_receiver_terms ?
+is_eikonal_ampgrad = 1; % 1: use eikonal tomography values for amplitude gradient; 0: use amplitude field estimates
 
 % setup parameters
 setup_parameters
@@ -23,6 +24,7 @@ eikonal_data_path = [workingdir,'eikonal/'];
 eikonal_stack_file = [workingdir,'eikonal_stack_',parameters.component];
 helmholtz_path = [workingdir,'helmholtz/'];
 receiverterms_path = [workingdir];
+ampgrad_output_path = [workingdir,'ampgrad/'];
 
 if ~exist(helmholtz_path,'dir')
 	mkdir(helmholtz_path);
@@ -79,7 +81,12 @@ for ie = 1:length(eventfiles)
 	else
 		disp(['Cannot find CS file for ',eventid,', Skipped']);
 		continue;
-	end
+    end
+    ampgradfile = [ampgrad_output_path,'/',eventid,'_ampgrad_',parameters.component,'.mat'];
+    if is_eikonal_ampgrad && exist(ampgradfile,'file')
+        temp = load(ampgradfile);
+        ampgrad = temp.ampgrad;
+    end
 	if length(eventphv) ~= length(eventcs.avgphv)
 		disp('Inconsist of period number for CS file and eikonal file');
 		continue;
@@ -164,7 +171,34 @@ for ie = 1:length(eventfiles)
         end
 
 		%% Calculate the correction term
-		dAmp=del2m(mesh_xi,mesh_yi,ampmap);
+        
+        if is_eikonal_ampgrad == 1
+            amp_grad = ampgrad(ip).dAmp';
+            amp_gradlat = -ampgrad(ip).dAmpx;
+            amp_gradlon = -ampgrad(ip).dAmpy;
+            [~,amp_laplat,~]=delm(xi,yi,amp_gradlat);
+            [~,~,amp_laplon]=delm(xi,yi,amp_gradlon);
+            dAmp = amp_laplat + amp_laplon;
+            dAmp = dAmp';
+            amp_gradlat = amp_gradlat';
+            amp_gradlon = amp_gradlon';
+        else
+            [amp_grad,amp_gradlat,amp_gradlon]=delm(mesh_xi,mesh_yi,ampmap);
+            dAmp=del2m(mesh_xi,mesh_yi,ampmap);
+        end
+%         dAmp_test = del2m(mesh_xi,mesh_yi,ampmap);
+%         inan = isnan(dAmp);
+%         dAmp_test(inan) = nan;
+%         figure(1); clf;
+%         subplot(1,2,1);
+%         imagesc(dAmp);
+%         cb = colorbar;
+%         subplot(1,2,2);
+%         imagesc(dAmp_test);
+%         colorbar;
+%         caxis(cb.Limits);
+        
+        
 		amp_term=-dAmp./ampmap./(2*pi/periods(ip)).^2;
 		% smooth the correction term 
 		smD=max([300 periods(ip).*parameters.refv]);
@@ -214,10 +248,16 @@ for ie = 1:length(eventfiles)
 		helmholtz(ip).alpha_errs = alpha_errs;
 		helmholtz(ip).alphas = alphas;
 		helmholtz(ip).bestalpha = bestalpha;
-		helmholtz(ip).amp_term = amp_term;
-		helmholtz(ip).ampmap = ampmap;
         helmholtz(ip).amps = amps;
+		helmholtz(ip).amp_term = amp_term';
+        helmholtz(ip).ampmap = ampmap';
+        helmholtz(ip).amp_grad = amp_grad';
+        helmholtz(ip).amp_gradlat = amp_gradlat';
+        helmholtz(ip).amp_gradlon = amp_gradlon';
+        helmholtz(ip).amp_lap = dAmp';
 		helmholtz(ip).period = periods(ip);
+        helmholtz(ip).stainfo.stlas = stlas;
+        helmholtz(ip).stainfo.stlos = stlos;
 		bestalphas(ip,ie) = bestalpha;
 
 		% plot to check
@@ -275,86 +315,105 @@ for ie = 1:length(eventfiles)
 			plot(alphas,alpha_errs,'x');
             drawnow;
             
-            if is_save_amp_fig
-                figure(39);
-                if ip == 1
-                    clf;
-                    set(gcf,'Position',[84           3         744        1022]);
-                    sgtitle([eventphv(ip).id,' M',num2str(eventphv(ip).Mw)],'fontweight','bold','fontsize',18)
-                    
-                    axes('Position',[.4 .005 .35*.6 .4*.6])
-                    landareas = shaperead('landareas.shp','UseGeoCoords',true);
-                    ax = axesm('eqdazim', 'Frame', 'on', 'Grid', 'off');
-                    ax.XAxis.Visible = 'off';
-                    ax.YAxis.Visible = 'off';
-                    box off;
-                    % setm(ax,'Origin',[mean(lalim),mean(lolim)])
-                    setm(ax,'Origin',[mean(lalim),mean(lolim)],'FLatLimit',[-125 125]+mean(lalim),'FLonLimit',[],'MapLonLimit',[-125 125]+mean(lolim))
-                    geoshow(ax, landareas,'FaceColor',[0.8 0.8 0.8],'EdgeColor','none'); hold on;
-                    for ii = [30 60 90 120]
-                        [latc,longc] = scircle1(mean(lalim),mean(lolim),ii);
-                        plotm(latc,longc,'-','color',[0.6 0.6 0.6],'linewidth',1)
-                    end
-                    [la_gcev,lo_gcev]=track2('gc',eventphv(ip).evla,eventphv(ip).evlo,mean(lalim),mean(lolim));
-                    plotm(la_gcev,lo_gcev,'-k','linewidth',2);
-                    plotm(mean(lalim),mean(lolim),'p','color',[0 0.2 0.4],'MarkerFaceColor',[0 0.5 1],'MarkerSize',24,'linewidth',1);
-                    plotm(eventphv(ip).evla,eventphv(ip).evlo,'o','color',[0.4 0 0],'MarkerFaceColor',[0.85 0 0],'MarkerSize',10,'linewidth',1);
-                end
-                N=3; M = floor(length(periods)/N)+1;
-                subplot(M,N,ip)
-                ax = worldmap(lalim, lolim);
-                % Plot as percent of median
-                ampmap_perc = (ampmap-nanmedian(ampmap(:)))./nanmedian(ampmap(:))*100;
-%                 surfacem(xi,yi,ampmap);
-                surfacem(xi,yi,ampmap_perc);
-                plotm(stlas,stlos,'v');
-                plotm(la_gc,lo_gc,'-k');
-                title([num2str(periods(ip)),' s'],'fontsize',15)
-                caxis([-40 40]);
-                cb = colorbar;
-                clim = cb.Limits;
-                colormap(seiscmap)
-                
-                figure(40);
-                if ip == 1
-                    clf;
-                    set(gcf,'Position',[84           3         744        1022]);
-                    sgtitle([eventphv(ip).id,' M',num2str(eventphv(ip).Mw)],'fontweight','bold','fontsize',18)
-                    
-                    axes('Position',[.4 .005 .35*.6 .4*.6])
-                    landareas = shaperead('landareas.shp','UseGeoCoords',true);
-                    ax = axesm('eqdazim', 'Frame', 'on', 'Grid', 'off');
-                    ax.XAxis.Visible = 'off';
-                    ax.YAxis.Visible = 'off';
-                    box off;
-                    % setm(ax,'Origin',[mean(lalim),mean(lolim)])
-                    setm(ax,'Origin',[mean(lalim),mean(lolim)],'FLatLimit',[-125 125]+mean(lalim),'FLonLimit',[],'MapLonLimit',[-125 125]+mean(lolim))
-                    geoshow(ax, landareas,'FaceColor',[0.8 0.8 0.8],'EdgeColor','none'); hold on;
-                    for ii = [30 60 90 120]
-                        [latc,longc] = scircle1(mean(lalim),mean(lolim),ii);
-                        plotm(latc,longc,'-','color',[0.6 0.6 0.6],'linewidth',1)
-                    end
-                    [la_gcev,lo_gcev]=track2('gc',eventphv(ip).evla,eventphv(ip).evlo,mean(lalim),mean(lolim));
-                    plotm(la_gcev,lo_gcev,'-k','linewidth',2);
-                    plotm(mean(lalim),mean(lolim),'p','color',[0 0.2 0.4],'MarkerFaceColor',[0 0.5 1],'MarkerSize',24,'linewidth',1);
-                    plotm(eventphv(ip).evla,eventphv(ip).evlo,'o','color',[0.4 0 0],'MarkerFaceColor',[0.85 0 0],'MarkerSize',10,'linewidth',1);
-                end
-                subplot(M,N,ip)
-                ax = worldmap(lalim, lolim);
-                % Plot as percent of median
-                amps_perc = (amps-nanmedian(ampmap(:)))./nanmedian(ampmap(:))*100;
-%                 scatterm(stlas,stlos,100,amps,'v','filled','markeredgecolor',[0 0 0]);
-                scatterm(stlas,stlos,100,amps_perc,'v','filled','markeredgecolor',[0 0 0]);
-                plotm(la_gc,lo_gc,'-k');
-                title([num2str(periods(ip)),' s'],'fontsize',15)
-                colorbar
-                caxis(clim);
-                colormap(seiscmap)
-            end
-            
 %             pause;
 		end % end of isfigure
 	end  % loop of period
+    
+    if is_save_amp_fig
+        clim = {};
+        for ip = 1:length(eventphv)
+            figure(39);
+            ampmap = helmholtz(ip).ampmap;
+            ampmap = ampmap';
+			ampmap(nanind) = NaN;
+            if ip == 1
+                clf;
+                set(gcf,'Position',[84           3         744        1022]);
+                sgtitle([eventphv(ip).id,' M',num2str(eventphv(ip).Mw)],'fontweight','bold','fontsize',18)
+
+                axes('Position',[.4 .005 .35*.6 .4*.6])
+                landareas = shaperead('landareas.shp','UseGeoCoords',true);
+                ax = axesm('eqdazim', 'Frame', 'on', 'Grid', 'off');
+                ax.XAxis.Visible = 'off';
+                ax.YAxis.Visible = 'off';
+                box off;
+                % setm(ax,'Origin',[mean(lalim),mean(lolim)])
+                setm(ax,'Origin',[mean(lalim),mean(lolim)],'FLatLimit',[-125 125]+mean(lalim),'FLonLimit',[],'MapLonLimit',[-125 125]+mean(lolim))
+                geoshow(ax, landareas,'FaceColor',[0.8 0.8 0.8],'EdgeColor','none'); hold on;
+                for ii = [30 60 90 120]
+                    [latc,longc] = scircle1(mean(lalim),mean(lolim),ii);
+                    plotm(latc,longc,'-','color',[0.6 0.6 0.6],'linewidth',1)
+                end
+                [la_gcev,lo_gcev]=track2('gc',eventphv(ip).evla,eventphv(ip).evlo,mean(lalim),mean(lolim));
+                plotm(la_gcev,lo_gcev,'-k','linewidth',2);
+                plotm(mean(lalim),mean(lolim),'p','color',[0 0.2 0.4],'MarkerFaceColor',[0 0.5 1],'MarkerSize',24,'linewidth',1);
+                plotm(eventphv(ip).evla,eventphv(ip).evlo,'o','color',[0.4 0 0],'MarkerFaceColor',[0.85 0 0],'MarkerSize',10,'linewidth',1);
+            end
+            la_gc = [];
+            lo_gc = [];
+            for ista = 1:length(helmholtz(ip).stainfo.stlas)
+                [la,lo]=track2('gc',eventphv(ip).evla,eventphv(ip).evlo,helmholtz(ip).stainfo.stlas(ista),helmholtz(ip).stainfo.stlos(ista));
+                la_gc = [la_gc; la; nan];
+                lo_gc = [lo_gc; lo; nan];
+            end
+            N=3; M = floor(length(periods)/N)+1;
+            subplot(M,N,ip)
+            ax = worldmap(lalim, lolim);
+            % Plot as percent of median
+            ampmap_perc = (ampmap-nanmedian(ampmap(:)))./nanmedian(ampmap(:))*100;
+%                 surfacem(xi,yi,ampmap);
+            surfacem(xi,yi,ampmap_perc);
+            plotm(helmholtz(ip).stainfo.stlas,helmholtz(ip).stainfo.stlos,'v');
+            plotm(la_gc,lo_gc,'-k');
+            title([num2str(periods(ip)),' s'],'fontsize',15)
+            caxis([-40 40]);
+            cb = colorbar;
+            clim{ip} = cb.Limits;
+            colormap(seiscmap)
+        end
+        for ip = 1:length(eventphv)
+            figure(40);
+            ampmap = helmholtz(ip).ampmap;
+            ampmap = ampmap';
+			ampmap(nanind) = NaN;
+            amps = helmholtz(ip).amps;
+            if ip == 1
+                clf;
+                set(gcf,'Position',[84           3         744        1022]);
+                sgtitle([eventphv(ip).id,' M',num2str(eventphv(ip).Mw)],'fontweight','bold','fontsize',18)
+
+                axes('Position',[.4 .005 .35*.6 .4*.6])
+                landareas = shaperead('landareas.shp','UseGeoCoords',true);
+                ax = axesm('eqdazim', 'Frame', 'on', 'Grid', 'off');
+                ax.XAxis.Visible = 'off';
+                ax.YAxis.Visible = 'off';
+                box off;
+                % setm(ax,'Origin',[mean(lalim),mean(lolim)])
+                setm(ax,'Origin',[mean(lalim),mean(lolim)],'FLatLimit',[-125 125]+mean(lalim),'FLonLimit',[],'MapLonLimit',[-125 125]+mean(lolim))
+                geoshow(ax, landareas,'FaceColor',[0.8 0.8 0.8],'EdgeColor','none'); hold on;
+                for ii = [30 60 90 120]
+                    [latc,longc] = scircle1(mean(lalim),mean(lolim),ii);
+                    plotm(latc,longc,'-','color',[0.6 0.6 0.6],'linewidth',1)
+                end
+                [la_gcev,lo_gcev]=track2('gc',eventphv(ip).evla,eventphv(ip).evlo,mean(lalim),mean(lolim));
+                plotm(la_gcev,lo_gcev,'-k','linewidth',2);
+                plotm(mean(lalim),mean(lolim),'p','color',[0 0.2 0.4],'MarkerFaceColor',[0 0.5 1],'MarkerSize',24,'linewidth',1);
+                plotm(eventphv(ip).evla,eventphv(ip).evlo,'o','color',[0.4 0 0],'MarkerFaceColor',[0.85 0 0],'MarkerSize',10,'linewidth',1);
+            end
+            subplot(M,N,ip)
+            ax = worldmap(lalim, lolim);
+            % Plot as percent of median
+            amps_perc = (amps-nanmedian(ampmap(:)))./nanmedian(ampmap(:))*100;
+%                 scatterm(stlas,stlos,100,amps,'v','filled','markeredgecolor',[0 0 0]);
+            scatterm(helmholtz(ip).stainfo.stlas,helmholtz(ip).stainfo.stlos,100,amps_perc,'v','filled','markeredgecolor',[0 0 0]);
+            plotm(la_gc,lo_gc,'-k');
+            title([num2str(periods(ip)),' s'],'fontsize',15)
+            colorbar
+            caxis(clim{ip});
+            colormap(seiscmap)
+        end
+    end
+    
 	matfilename = fullfile(helmholtz_path,[eventphv(1).id,'_helmholtz_',parameters.component,'.mat']);
 	save(matfilename,'helmholtz');
 	fprintf('\n');
