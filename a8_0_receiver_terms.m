@@ -193,6 +193,7 @@ for ip = 1:length(amplitudes)
             else
                 dlogAmp_avg(ipair,:) = nansum(dlogAmp) / Ne;
             end
+            dlogAmp_avg_unbinned = nansum(dlogAmp) / Ne;
             
             if isfigure
                 figure(1); clf;
@@ -204,8 +205,9 @@ for ip = 1:length(amplitudes)
                 set(gca,'fontsize',15)
                 subplot(2,1,2);
                 plot(azis,dlogAmp,'ob'); hold on;
-                plot([0 360],dlogAmp_avg(ipair,:)*[1 1],'-b');
                 plot(azis_bin,dlogAmp_bin,'or');
+                plot([0 360],dlogAmp_avg(ipair,:)*[1 1],'-k','linewidth',2);
+                plot([0 360],dlogAmp_avg_unbinned*[1 1],'-b');
                 plot([0 360],dlogAmp_avg_bin*[1 1],'-r');
                 xlim([0 360]);
                 xlabel('Azimuth (deg)')
