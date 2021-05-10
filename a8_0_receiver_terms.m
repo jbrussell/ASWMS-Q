@@ -233,7 +233,7 @@ for ip = 1:length(amplitudes)
     std_err(ipair+1,:) = mean(std_err)*5;
     
     % Invert for receiver amplitude terms
-    W = diag(1./std_err);
+    W = diag(1./std_err).^2;
     F = W.^(0.5)*G;
     f = W.^(0.5)*dlogAmp_avg;
     logAmp_rec = (F'*F)\F'*f;
