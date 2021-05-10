@@ -186,21 +186,23 @@ for ip = 1:length(amplitudes)
             azis_bin = azis_bin(1:length(dlogAmp_bin));
             dlogAmp_avg_bin = nanmean(dlogAmp_bin);
             
-            % Data vector for inversion
+            % Unbinned average
             Ne = length(dlogAmp);
+            dlogAmp_avg_unbinned = nansum(dlogAmp) / Ne;
+            
+            % Data vector for inversion
             if is_azibin==1
                 dlogAmp_avg(ipair,:) = dlogAmp_avg_bin;
             else
                 dlogAmp_avg(ipair,:) = nansum(dlogAmp) / Ne;
             end
-            dlogAmp_avg_unbinned = nansum(dlogAmp) / Ne;
             
             if isfigure
                 figure(1); clf;
                 subplot(2,1,1);
                 histogram(azis,25);
                 xlim([0 360]);
-                title([sta1,'-',sta2])
+                title([sta1,'-',sta2,' ',num2str(periods(ip)),' s'])
                 ylabel('Number of events')
                 set(gca,'fontsize',15)
                 subplot(2,1,2);
