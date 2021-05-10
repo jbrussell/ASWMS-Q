@@ -162,7 +162,11 @@ for ip = 1:length(amplitudes)
             azis = [];
             imeas = 0;
             for iev = 1:length(evids1)
-                iev2 = find(ismember(evids1(iev),evids2));
+                iev2 = find(strcmp(evids1(iev),evids2));
+                if ~strcmp(evids1(iev),evids2(iev2))
+                    disp('WRONG EVENT')
+                    continue
+                end
                 if isempty(iev2)  || isnan(logamps1(iev)) || isnan(logamps2(iev2)) 
                     continue
                 end
