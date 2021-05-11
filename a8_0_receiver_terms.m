@@ -22,6 +22,8 @@ setup_parameters
 max_sta_dist = 150; % [km] maximum separation allowed between station pairs
 is_azibin = 1; % bin data by propagation azimuth?
 deg_bins = 15; % [deg] size of azimuthal bins in degrees
+avg_type = 'median'; % 'median'; 'mean'
+min_Mw = 5.5; %6.0;
 
 isfigure = 1;
 is_save_mat = 1;
@@ -82,6 +84,9 @@ for ip = 1:length(periods)
         if length(eventphv) ~= length(eventcs.avgphv)
             disp('Inconsist of period number for CS file and eikonal file');
             continue;
+        end
+        if eventphv(1).Mw < min_Mw
+            continue
         end
 
 		%% Get amplitude measurements
@@ -188,17 +193,24 @@ for ip = 1:length(amplitudes)
             dlogAmp_bin = accumarray(loc(:),dlogAmp(:))./accumarray(loc(:),1);
             azis_bin = 0.5*(edges(1:end-1)+edges(2:end));
             azis_bin = azis_bin(1:length(dlogAmp_bin));
-            dlogAmp_avg_bin = nanmean(dlogAmp_bin);
             
             % Unbinned average
             Ne = length(dlogAmp);
-            dlogAmp_avg_unbinned = nansum(dlogAmp) / Ne;
+            if strcmp(avg_type,'mean')
+                dlogAmp_avg_bin = nanmean(dlogAmp_bin);
+                dlogAmp_avg_unbinned = nansum(dlogAmp) / Ne;
+            elseif strcmp(avg_type,'median')
+                dlogAmp_avg_bin = nanmedian(dlogAmp_bin);
+                dlogAmp_avg_unbinned = nanmedian(dlogAmp);
+            else
+                error('avg_type must be ''mean'' or ''median''');
+            end
             
             % Data vector for inversion
             if is_azibin==1
                 dlogAmp_avg(ipair,:) = dlogAmp_avg_bin;
             else
-                dlogAmp_avg(ipair,:) = nansum(dlogAmp) / Ne;
+                dlogAmp_avg(ipair,:) = dlogAmp_avg_unbinned;
             end
             
             if isfigure
