@@ -13,6 +13,7 @@ min_Mw = 5.5; % minimum magnitude
 min_Ngrcells = 20; % minimum numbe of grid cells required in order to use event
 azi_bin_deg = 30; % [deg] size of azimuthal bins
 min_nbin = 10; % minimum number of measurements in order to include bin
+N_min_evts = 10; % minimum number of events contributing to grid cell required in order to be considered
 
 % setup parameters
 setup_parameters
@@ -187,6 +188,14 @@ for ip = 1:length(avgphv)
         amp_term(:,:,evcnt) = (phv/2) .* corr_amp_decay;        
         azi(:,:,evcnt) = azi_prop;
     end
+
+%     % Select central grid points
+%     nanmat = nan(length(xnode),length(ynode),evcnt);
+% %     nanmat(9,9,:) = 1;
+%     nanmat([9-1:9+1],[9-1:9+1],:) = 1;
+%     amp_term = amp_term .* nanmat;
+%     azi = azi .* nanmat;
+    
     
     % Remove large outliers
     Ibad = amp_term>abs(nanmedian(amp_term(:)))*100 | amp_term<abs(nanmedian(amp_term(:)))*-100;
@@ -249,7 +258,7 @@ for ip = 1:length(avgphv)
         for iy = 1:length(ynode)
             amps = squeeze(amp_term(ix,iy,:));
             azis = squeeze(azi(ix,iy,:));
-            if length(find(~isnan(amps)))>10
+            if length(find(~isnan(amps)))>N_min_evts
                 [para, alpha, dlnbeta_dx, dlnbeta_dy]=fit_alpha_beta(azis,amps);
                 parastd=confint(para,.95);
                 dlnbeta_dx_err = (parastd(2,1)-parastd(1,1))/2;
