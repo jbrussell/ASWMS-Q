@@ -31,11 +31,6 @@ is_save_mat = 1;
 % input path and files
 workingdir = parameters.workingdir;
 eventcs_path = [workingdir,'CSmeasure/'];
-eikonal_data_path = [workingdir,'eikonal/'];
-eikonal_stack_file = [workingdir,'eikonal_stack_',parameters.component];
-
-% load stacked phase velocity map
-load(eikonal_stack_file);
 
 % set up useful variables
 lalim = parameters.lalim;
@@ -51,7 +46,7 @@ periods = parameters.periods;
 min_sta_num = parameters.min_sta_num;
 comp = parameters.component;
 
-eventfiles = dir([eikonal_data_path,'/*_eikonal_',parameters.component,'.mat']);
+eventfiles = dir([eventcs_path,'/*_cs_',parameters.component,'.mat']);
 
 load seiscmap
 
@@ -71,21 +66,10 @@ for ip = 1:length(periods)
         %for ie = 59
         % read in data for this event
         clear eventphv eventcs;
-        load(fullfile(eikonal_data_path,eventfiles(ie).name));
-        eventid = eventphv(1).id;
+        load(fullfile(eventcs_path,eventfiles(ie).name));
+        eventid = eventcs.id;
         disp(eventid);
-        eventcsfile = [eventcs_path,'/',eventid,'_cs_',parameters.component,'.mat'];
-        if exist(eventcsfile,'file')
-            load(eventcsfile);
-        else
-            disp(['Cannot find CS file for ',eventid,', Skipped']);
-            continue;
-        end
-        if length(eventphv) ~= length(eventcs.avgphv)
-            disp('Inconsist of period number for CS file and eikonal file');
-            continue;
-        end
-        if eventphv(1).Mw < min_Mw
+        if eventcs.Mw < min_Mw
             continue
         end
 
@@ -138,6 +122,7 @@ for ip = 1:length(amplitudes)
     G = [];
     dlogAmp_avg = [];
     std_err = [];
+    std_save = [];
     stla = []; stlo = [];
     ipair = 0;
     stas = fields(amplitudes(ip));
@@ -241,6 +226,8 @@ for ip = 1:length(amplitudes)
             g_row(1,ista1) = 1;
             g_row(1,ista2) = -1;
             G(ipair,:) = g_row;
+            
+            std_save(ipair,:) = std(dlogAmp);
         end
     end
     % Add final row to ensure all amplitude terms sum to zero
@@ -255,10 +242,17 @@ for ip = 1:length(amplitudes)
     logAmp_rec = (F'*F)\F'*f;
     Amp_rec = exp(logAmp_rec);
     
+    % Estimate chi2 misfit
+    dlogAmp_avg_pre = G * logAmp_rec;
+    e = (dlogAmp_avg(1:end-1,:) - dlogAmp_avg_pre(1:end-1,:)) ./ std_save;
+    chi2 = (e'*e)/length(dlogAmp_avg(1:end-1));
+    
 %     amplitudes(ip).dlogAmp_avg;
 %     amplitudes(ip).std_err;
 %     amplitudes(ip).G = G;
     receiver(ip).Amp_rec = Amp_rec;
+    receiver(ip).std_pair = std_save;
+    receiver(ip).chi2 = chi2;
     receiver(ip).stas = stas;
     receiver(ip).stlas = stla;
     receiver(ip).stlos = stlo;
@@ -284,6 +278,21 @@ end
 
 %% Plot results
 if isfigure
+    figure(49); clf; set(gcf,'color','w');
+    subplot(2,1,1);
+    for ip = 1:length(periods)
+        plot(periods(ip),receiver(ip).std_pair,'ob','linewidth',2); hold on;
+    end
+    xlabel('Period (s)');
+    ylabel('\sigma log residuals');
+    set(gca,'linewidth',1.5,'fontsize',15);
+    subplot(2,1,2);
+    plot(periods,[receiver(:).chi2],'-or','linewidth',2); hold on;
+    xlabel('Period (s)');
+    ylabel('\chi^2 misfit');
+    set(gca,'linewidth',1.5,'fontsize',15);
+    
+    %%    
     figure(47); clf;
     set(gcf,'Position',[84           3         744        1022],'color','w');
     N=3; M = floor(length(periods)/N)+1;
