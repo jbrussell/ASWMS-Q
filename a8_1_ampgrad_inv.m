@@ -13,17 +13,13 @@ isfigure = 1;
 isdisp = 0;
 is_overwrite = 1;
 
-is_receiver_terms = 0; % Correct amplitudes using receiver terms calculated from a8_0_receiver_terms?
-
-% % input path
-% eventcs_path = './CSmeasure/';
-% % output path
-% ampgrad_output_path = './eikonal/';
+is_receiver_terms = 1; % Correct amplitudes using receiver terms calculated from a8_0_receiver_terms?
 
 % setup parameters
 setup_parameters
 
 workingdir = parameters.workingdir;
+receiverterms_path = [workingdir];
 % input path
 eventcs_path = [workingdir,'CSmeasure/'];
 % output path
@@ -178,10 +174,10 @@ for ie = 1:length(csmatfiles)
         % Correct amplitude for local receiver effects
         if is_receiver_terms==1
             Amp_rec = receiver(ip).Amp_rec;
-            for ista = 1:length(stnms)
-                Istation = find(strcmp(stnms(ista),receiver(ip).stas));
+            for ista = 1:length(eventcs.stnms)
+                Istation = find(strcmp(eventcs.stnms(ista),receiver(ip).stas));
                 if isempty(Istation)
-                    disp(['No station term for ',stnms(ista)]);
+                    disp(['No station term for ',eventcs.stnms(ista)]);
                     continue
                 end
                 amps(ista) = amps(ista) ./ Amp_rec(Istation);
