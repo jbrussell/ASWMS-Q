@@ -290,15 +290,17 @@ for ie = 1:length(eventfiles)
 			ax = worldmap(lalim, lolim);
 			surfacem(xi,yi,ampmap);
 			title('amplitude map')
-			plotm(stlas,stlos,'v')
-            la_gc = [];
-            lo_gc = [];
-            for ista = 1:length(stlas)
-                [la,lo]=track2('gc',eventphv(ip).evla,eventphv(ip).evlo,stlas(ista),stlos(ista));
-                la_gc = [la_gc; la; nan];
-                lo_gc = [lo_gc; lo; nan];
+			if ~isempty(stlas)
+                plotm(stlas,stlos,'v')
+                la_gc = [];
+                lo_gc = [];
+                for ista = 1:length(stlas)
+                    [la,lo]=track2('gc',eventphv(ip).evla,eventphv(ip).evlo,stlas(ista),stlos(ista));
+                    la_gc = [la_gc; la; nan];
+                    lo_gc = [lo_gc; lo; nan];
+                end
+                plotm(la_gc,lo_gc,'-k');
             end
-            plotm(la_gc,lo_gc,'-k');
             colormap(seiscmap)
 			colorbar
 			subplot(2,2,4)
