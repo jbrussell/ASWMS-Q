@@ -13,6 +13,8 @@ isfigure = 1;
 isdisp = 0;
 is_overwrite = 1;
 
+is_receiver_terms = 0; % Correct amplitudes using receiver terms calculated from a8_0_receiver_terms?
+
 % % input path
 % eventcs_path = './CSmeasure/';
 % % output path
@@ -89,6 +91,10 @@ if exist('badsta.lst')
 	badstnms = textread('badsta.lst','%s');
 	disp('Found Bad stations:')
 	disp(badstnms)
+end
+
+if is_receiver_terms==1
+    load([receiverterms_path,'receiver_terms_',parameters.component,'.mat']);
 end
 
 csmatfiles = dir([eventcs_path,'/*cs_',comp,'.mat']);
@@ -168,6 +174,21 @@ for ie = 1:length(csmatfiles)
 		end
 		% change from power spectrum to amplitude
 		amps = amps.^.5;
+        
+        % Correct amplitude for local receiver effects
+        if is_receiver_terms==1
+            Amp_rec = receiver(ip).Amp_rec;
+            for ista = 1:length(stnms)
+                Istation = find(strcmp(stnms(ista),receiver(ip).stas));
+                if isempty(Istation)
+                    disp(['No station term for ',stnms(ista)]);
+                    continue
+                end
+                amps(ista) = amps(ista) ./ Amp_rec(Istation);
+            end
+        end
+        
+        
         amplitudes(ip).amps = amps;
         
         
