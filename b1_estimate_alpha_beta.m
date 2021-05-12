@@ -173,8 +173,8 @@ for ip = 1:length(avgphv)
         % smooth the terms
         for ii=1
 			if isempty(find(~isnan(amp_decay))) || isempty(find(~isnan(tp_focus)))
-                continue
-            end
+				continue
+			end
             smD=max([300 periods(ip).*parameters.refv]);
             amp_decay = gridfit_jg(xi(:),yi(:),amp_decay(:),xnode,ynode,...
                                 'smooth',floor(smD./deg2km(gridsize)),'regularizer','laplacian','solver','normal')';
