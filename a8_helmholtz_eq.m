@@ -325,8 +325,8 @@ for ie = 1:length(eventfiles)
         clim = {};
         for ip = 1:length(eventphv)
             figure(39);
+            nanind = find(isnan(helmholtz(ip).GV(:)));
             ampmap = helmholtz(ip).ampmap;
-            ampmap = ampmap';
 			ampmap(nanind) = NaN;
             if ip == 1
                 clf;
@@ -375,8 +375,8 @@ for ie = 1:length(eventfiles)
         end
         for ip = 1:length(eventphv)
             figure(40);
+            nanind = find(isnan(helmholtz(ip).GV(:)));
             ampmap = helmholtz(ip).ampmap;
-            ampmap = ampmap';
 			ampmap(nanind) = NaN;
             amps = helmholtz(ip).amps;
             if ip == 1
