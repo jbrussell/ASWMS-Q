@@ -87,7 +87,7 @@ for ip = 1:length(periods)
 			list_badstaids = [];
 		end
 		for ista = 1:length(eventcs.autocor)
-			if eventcs.autocor(ista).exitflag(ip)>0
+			if eventcs.autocor(ista).exitflag(ip)>0 && ~ismember(ista,list_badstaids)
 				amp = eventcs.autocor(ista).amp(ip);
 			else
 				amp = NaN;
@@ -128,12 +128,18 @@ for ip = 1:length(amplitudes)
     stas = fields(amplitudes(ip));
     for ista1 = 1:length(stas)
         sta1 = stas{ista1};
+        if ismember(sta1,badstnms)
+            continue
+        end
         stla(ista1) = amplitudes(ip).(sta1).stla;
         stlo(ista1) = amplitudes(ip).(sta1).stlo;
         logamps1 = amplitudes(ip).(sta1).logamp;
         evids1 = amplitudes(ip).(sta1).evid;
         for ista2 = 1:length(stas)
             sta2 = stas{ista2};
+            if ismember(sta2,badstnms)
+                continue
+            end
             if strcmp(sta1,sta2)
                 continue
             end
@@ -230,6 +236,15 @@ for ip = 1:length(amplitudes)
             std_save(ipair,:) = std(dlogAmp);
         end
     end
+    
+    % Remove columns for stations with no pairs
+    ista_nopairs = find(~any(G,1));
+    stas_bad = stas(ista_nopairs);
+    G(:,ista_nopairs) = [];
+    stas(ista_nopairs) = [];
+    stla(ista_nopairs) = [];
+    stlo(ista_nopairs) = [];
+    
     % Add final row to ensure all amplitude terms sum to zero
     G(ipair+1,:) = ones(1,length(stas));
     dlogAmp_avg(ipair+1,:) = 0;
@@ -256,6 +271,7 @@ for ip = 1:length(amplitudes)
     receiver(ip).stas = stas;
     receiver(ip).stlas = stla;
     receiver(ip).stlos = stlo;
+    receiver(ip).stas_bad = stas_bad;
 end
 
 %% Fit a smooth surface to the receiver terms
