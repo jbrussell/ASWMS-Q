@@ -365,8 +365,10 @@ for ie = 1:length(eventfiles)
             ampmap_perc = (ampmap-nanmedian(ampmap(:)))./nanmedian(ampmap(:))*100;
 %                 surfacem(xi,yi,ampmap);
             surfacem(xi,yi,ampmap_perc);
-            plotm(helmholtz(ip).stainfo.stlas,helmholtz(ip).stainfo.stlos,'v');
-            plotm(la_gc,lo_gc,'-k');
+            if ~isempty(helmholtz(ip).stainfo.stlas)
+                plotm(helmholtz(ip).stainfo.stlas,helmholtz(ip).stainfo.stlos,'v');
+                plotm(la_gc,lo_gc,'-k');
+            end
             title([num2str(periods(ip)),' s'],'fontsize',15)
             caxis([-40 40]);
             cb = colorbar;
@@ -402,13 +404,22 @@ for ie = 1:length(eventfiles)
                 plotm(mean(lalim),mean(lolim),'p','color',[0 0.2 0.4],'MarkerFaceColor',[0 0.5 1],'MarkerSize',24,'linewidth',1);
                 plotm(eventphv(ip).evla,eventphv(ip).evlo,'o','color',[0.4 0 0],'MarkerFaceColor',[0.85 0 0],'MarkerSize',10,'linewidth',1);
             end
+            la_gc = [];
+            lo_gc = [];
+            for ista = 1:length(helmholtz(ip).stainfo.stlas)
+                [la,lo]=track2('gc',eventphv(ip).evla,eventphv(ip).evlo,helmholtz(ip).stainfo.stlas(ista),helmholtz(ip).stainfo.stlos(ista));
+                la_gc = [la_gc; la; nan];
+                lo_gc = [lo_gc; lo; nan];
+            end
             subplot(M,N,ip)
             ax = worldmap(lalim, lolim);
             % Plot as percent of median
             amps_perc = (amps-nanmedian(ampmap(:)))./nanmedian(ampmap(:))*100;
 %                 scatterm(stlas,stlos,100,amps,'v','filled','markeredgecolor',[0 0 0]);
-            scatterm(helmholtz(ip).stainfo.stlas,helmholtz(ip).stainfo.stlos,100,amps_perc,'v','filled','markeredgecolor',[0 0 0]);
-            plotm(la_gc,lo_gc,'-k');
+            if ~isempty(helmholtz(ip).stainfo.stlas)
+                scatterm(helmholtz(ip).stainfo.stlas,helmholtz(ip).stainfo.stlos,100,amps_perc,'v','filled','markeredgecolor',[0 0 0]);
+                plotm(la_gc,lo_gc,'-k');
+            end
             title([num2str(periods(ip)),' s'],'fontsize',15)
             colorbar
             caxis(clim{ip});
