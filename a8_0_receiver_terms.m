@@ -19,14 +19,20 @@
 clear;
 setup_parameters
 
-max_sta_dist = 150; % [km] maximum separation allowed between station pairs
-is_azibin = 1; % bin data by propagation azimuth?
-deg_bins = 15; % [deg] size of azimuthal bins in degrees
-avg_type = 'median'; % 'median'; 'mean'
-min_Mw = 5.5; %6.0;
+% max_sta_dist = 150; % [km] maximum separation allowed between station pairs
+% is_azibin = 1; % bin data by propagation azimuth?
+% deg_bins = 15; % [deg] size of azimuthal bins in degrees
+% avg_type = 'median'; % 'median'; 'mean'
+% min_Mw = 5.5; %6.0;
 
 isfigure = 1;
 is_save_mat = 1;
+
+max_sta_dist = parameters.max_sta_dist; % [km] maximum separation allowed between station pairs
+is_azibin = parameters.is_azibin; % bin data by propagation azimuth?
+deg_bins = parameters.deg_bins; % [deg] size of azimuthal bins in degrees
+avg_type = parameters.avg_type; % 'median'; 'mean'
+min_Mw = parameters.min_Mw_rec; %6.0;
 
 % input path and files
 workingdir = parameters.workingdir;

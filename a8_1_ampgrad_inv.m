@@ -7,16 +7,15 @@
 % dA/dx = grad(A)
 %
 clear
+% setup parameters
+setup_parameters
 
 % debug setting
 isfigure = 1;
 isdisp = 0;
 is_overwrite = 1;
 
-is_receiver_terms = 1; % Correct amplitudes using receiver terms calculated from a8_0_receiver_terms?
-
-% setup parameters
-setup_parameters
+is_receiver_terms = parameters.is_receiver_terms; % Correct amplitudes using receiver terms calculated from a8_0_receiver_terms?
 
 workingdir = parameters.workingdir;
 receiverterms_path = [workingdir];

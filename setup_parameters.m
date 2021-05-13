@@ -111,10 +111,31 @@ parameters.off_azi_tol = 30; % differ from great circle path in degrees
 parameters.is_one_phi = 0; %1;
 
 %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%%
-% parameters for attenuation estimate
-% beta version
-parameters.tp_var_tol = 2; %%% CURRENTLY UNUSED %%% % how much times change of amplitude of single station to the mean value of nearby stations should be considered as bad measurement
+% Attenuation
+% parameters for amplitude/gradient field estimates and receiver terms
+parameters.is_receiver_terms = 1; % Correct amplitudes using receiver terms calculated from a8_0_receiver_terms?
+parameters.is_eikonal_ampgrad = 1; % 1: use eikonal tomography values for amplitude gradient; 0: use amplitude field estimates
+parameters.is_eikonal_phasegrad = 1; % 1: use eikonal tomography values for phase gradient; 0: use travel-time field estimates
 
+%%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%%
+% parameters for solving for receiver terms
+% (a8_0_receiver_terms)
+parameters.max_sta_dist = 150; % [km] maximum separation allowed between station pairs
+parameters.is_azibin = 1; % bin data by propagation azimuth?
+parameters.deg_bins = 15; % [deg] size of azimuthal bins in degrees
+parameters.avg_type = 'median'; % 'median'; 'mean'
+parameters.min_Mw_rec = 5.5; %6.0;
+
+%%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%%
+% parameters for solving for estimating attenuation coefficient alpha
+% (b1_estimate_alpha_beta)
+parameters.min_Mw_alpha = 5.5; % minimum magnitude
+parameters.min_Ngrcells = 20; % minimum numbe of grid cells required in order to use event
+parameters.azi_bin_deg = 30; % [deg] size of azimuthal bins
+parameters.min_nbin = 10; % minimum number of measurements in order to include bin
+parameters.N_min_evts = 10; % minimum number of events contributing to grid cell required in order to be considered
+
+%%
 if length(parameters.periods)~=length(parameters.smweight_array) || length(parameters.periods)~=length(parameters.min_csgoodratio)
     error('Length of periods doesn''t match smweight_array and/or min_csgoodratio');
 end

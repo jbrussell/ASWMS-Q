@@ -4,19 +4,24 @@
 % 2021-05
 
 clear;
+% setup parameters
+setup_parameters
 
 isoverwrite = 0;
 isfigure = 1;
 is_save_amp_fig = 1;
 
-min_Mw = 5.5; % minimum magnitude
-min_Ngrcells = 20; % minimum numbe of grid cells required in order to use event
-azi_bin_deg = 30; % [deg] size of azimuthal bins
-min_nbin = 10; % minimum number of measurements in order to include bin
-N_min_evts = 10; % minimum number of events contributing to grid cell required in order to be considered
+% min_Mw = 5.5; % minimum magnitude
+% min_Ngrcells = 20; % minimum numbe of grid cells required in order to use event
+% azi_bin_deg = 30; % [deg] size of azimuthal bins
+% min_nbin = 10; % minimum number of measurements in order to include bin
+% N_min_evts = 10; % minimum number of events contributing to grid cell required in order to be considered
 
-% setup parameters
-setup_parameters
+min_Mw = parameters.min_Mw_alpha; % minimum magnitude
+min_Ngrcells = parameters.min_Ngrcells; % minimum numbe of grid cells required in order to use event
+azi_bin_deg = parameters.azi_bin_deg; % [deg] size of azimuthal bins
+min_nbin = parameters.min_nbin; % minimum number of measurements in order to include bin
+N_min_evts = parameters.N_min_evts; % minimum number of events contributing to grid cell required in order to be considered
 
 r = 0.05;
 
