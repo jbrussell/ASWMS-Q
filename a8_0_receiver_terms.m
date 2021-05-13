@@ -55,7 +55,9 @@ if exist('badampsta.lst','file')
 	disp('Found Bad amplitude stations:')
 	for ista = 1:length(badstnms)
 	disp(badstnms(ista))
-	end
+    end
+else
+    badstnms = {};
 end
 
 
