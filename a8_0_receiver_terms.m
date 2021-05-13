@@ -253,10 +253,17 @@ for ip = 1:length(amplitudes)
     stla(ista_nopairs) = [];
     stlo(ista_nopairs) = [];
     
+    % Remove measurements without enough data
+    ibad = find(std_err==0);
+    dlogAmp_avg(ibad) = [];
+    std_err(ibad) = [];
+    std_save(ibad) = [];
+    G(ibad,:) = [];
+    
     % Add final row to ensure all amplitude terms sum to zero
-    G(ipair+1,:) = ones(1,length(stas));
-    dlogAmp_avg(ipair+1,:) = 0;
-    std_err(ipair+1,:) = mean(std_err)*5;
+    G(end+1,:) = ones(1,length(stas));
+    dlogAmp_avg(end+1,:) = 0;
+    std_err(end+1,:) = mean(std_err)*5;
     
     % Invert for receiver amplitude terms
     W = diag(1./std_err).^2;
