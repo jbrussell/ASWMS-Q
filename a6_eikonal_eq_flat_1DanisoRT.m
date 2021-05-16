@@ -48,7 +48,7 @@ minstadist = 200;
 cohere_tol = 0.80; % 0.65
 min_stadist_wavelength = 0.33; %0.5; % minimum station separation in wavelengths
 max_stadist_wavelength = 999;
-ref_phv = [3.9936 4.0041 4.0005 3.9999 3.9929 3.9832 3.9813 3.9841 3.9874 3.9996 4.0138 4.0519 4.0930 4.1677 4.2520]; % for calculating wavelength
+ref_phv = 4*ones(1,length(parameters.periods)); % for calculating wavelength
 APM = 114; % absolute plate motion (GSRM 2.1; NNR) https://www.unavco.org/software/geodetic-utilities/plate-motion-calculator/plate-motion-calculator.html
 FSD = 75; 
 
