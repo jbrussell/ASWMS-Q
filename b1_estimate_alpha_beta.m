@@ -10,6 +10,7 @@ setup_parameters
 isoverwrite = 0;
 isfigure = 1;
 is_save_amp_fig = 1;
+is_save_mat = 1;
 
 % min_Mw = 5.5; % minimum magnitude
 % min_Ngrcells = 20; % minimum numbe of grid cells required in order to use event
@@ -359,10 +360,12 @@ end
 
 
 %% Save
-% matfilename = fullfile(traveltime_path,[eventphv(1).id,'_attenuation_',parameters.component,'.mat']);
-% save(matfilename,'attenuation');
-% fprintf('\n');
-% disp(['Saved to ',matfilename]);
+matfilename = fullfile(workingdir,['attenuation_',parameters.component,'.mat']);
+if is_save_mat
+    save(matfilename,'attenuation');
+    fprintf('\n');
+    disp(['Saved to ',matfilename]);
+end
 % if is_save_amp_fig
 %     figdir = [workingdir,'/figs/attenuation/'];
 %     if ~exist(figdir)
