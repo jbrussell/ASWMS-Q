@@ -11,9 +11,9 @@ dAlon=zeros(m,n);
 for i=2:m-1
 	for j=2:n-1
 		h1=vdist(xi(i-1,j),yi(i-1,j),xi(i+1,j),yi(i+1,j))/1e3/2;
-		dAlon(i,j)=(A(i+1,j)-A(i-1,j))/h1/2;
+		dAlat(i,j)=(A(i+1,j)-A(i-1,j))/h1/2;
 		h2=vdist(xi(i,j-1),yi(i,j-1),xi(i,j+1),yi(i,j+1))/1e3/2;
-		dAlat(i,j)=(A(i,j+1)-A(i,j-1))/h2/2;
+		dAlon(i,j)=(A(i,j+1)-A(i,j-1))/h2/2;
 	end
 end
 dA = (dAlon.^2 + dAlat.^2).^0.5;
