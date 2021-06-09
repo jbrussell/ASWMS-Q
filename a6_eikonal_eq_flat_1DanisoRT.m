@@ -208,12 +208,12 @@ for ip = 1:length(periods)
 			if eventcs.CS(ics).cohere(ip)<cohere_tol && eventcs.CS(ics).isgood(ip)>0
                 eventcs.CS(ics).isgood(ip) = ErrorCode.low_cohere;
             end
-			if (eventcs.CS(ics).ddist < ref_phv(ip)*periods(ip)*min_stadist_wavelength || ...
-                    eventcs.CS(ics).ddist > ref_phv(ip)*periods(ip)*max_stadist_wavelength) && eventcs.CS(ics).isgood(ip)>0
+			if (abs(eventcs.CS(ics).ddist) < ref_phv(ip)*periods(ip)*min_stadist_wavelength || ...
+                abs(eventcs.CS(ics).ddist) > ref_phv(ip)*periods(ip)*max_stadist_wavelength) && eventcs.CS(ics).isgood(ip)>0
 				eventcs.CS(ics).isgood(ip) = ErrorCode.min_stadist_wavelength;
             end
-            if (eventcs.CS(ics).ddist > maxstadist || ...
-                    eventcs.CS(ics).ddist < minstadist) && eventcs.CS(ics).isgood(ip)>0
+            if (abs(eventcs.CS(ics).ddist) > maxstadist || ...
+                abs(eventcs.CS(ics).ddist) < minstadist) && eventcs.CS(ics).isgood(ip)>0
                 eventcs.CS(ics).isgood(ip) = -13;
             end
             if (eventcs.CS(ics).fiterr(ip) > fiterr_tol)
