@@ -121,11 +121,12 @@ for ip = 1:length(avgphv)
 %         avgphv(ip).GV_cor(Ibad_prop) = nan;
 %         traveltime(ip).GV_cor(Ibad_prop) = nan;
         
-        Inotnan = find(~isnan(traveltime(ip).GV_cor));
-%         Inotnan = find(~isnan(azi_prop));
-        if length(Inotnan) < min_Ngrcells
-            continue
-        end
+		Inotnan = find(~isnan(traveltime(ip).GV_cor));
+		Inotnan_tp = find(~isnan(traveltime(ip).tp_grad));
+		%         Inotnan = find(~isnan(azi_prop));
+		if length(Inotnan) < min_Ngrcells || length(Inotnan_tp) < min_Ngrcells
+			continue
+		end
         
         evcnt = evcnt+1;
 
