@@ -298,7 +298,10 @@ for ie = 1:length(csmatfiles)
             rhs=[W*dt;zeros(size(F,1),1);zeros(size(F2,1),1);zeros(size(dumpmatT,1),1);dumpweightR*ones(size(dumpmatR,1),1)./avgv];
             phaseg=(A'*A)\(A'*rhs);
         end	
-
+		
+		% Estimate travel-time residuals
+        dt_res = dt - mat*phaseg;
+		
         % Calculate the kernel density
         %sumG=sum(abs(mat),1);
         ind=1:Nx*Ny;
@@ -345,6 +348,7 @@ for ie = 1:length(csmatfiles)
 		eventphv(ip).goodnum = length(find(eventphv(ip).w>0));
 		eventphv(ip).badnum = length(find(eventphv(ip).w==0));
 		eventphv(ip).dt = dt;
+		eventphv(ip).dt_res = dt_res; % data residuals
 		eventphv(ip).GV = GV;
 		eventphv(ip).GVx = GVx;
 		eventphv(ip).GVy = GVy;
@@ -412,3 +416,37 @@ for ie = 1:length(csmatfiles)
 	save(matfilename,'eventphv');
 	disp(['Save the result to: ',matfilename])
 end % end of loop ie
+
+%% Plot residuals
+eventfiles = dir([eikonl_output_path,'/*_eikonal_',parameters.component,'.mat']);
+clear residuals
+for ie = 1:length(eventfiles)
+	temp = load(fullfile(eikonl_output_path,eventfiles(ie).name));
+    eventphv = temp.eventphv;
+    for ip = 1:length(eventphv)
+        if ie == 1
+            residuals(ip).rms_dt_res = [];
+            residuals(ip).mean_dt_res = [];
+        end
+        isgood = eventphv(ip).isgood;
+        dt_res = eventphv(ip).dt_res(isgood);
+        residuals(ip).rms_dt_res = [residuals(ip).rms_dt_res(:); rms(dt_res(:))];
+        residuals(ip).mean_dt_res = [residuals(ip).mean_dt_res(:); mean(dt_res(:))];
+    end
+end
+
+%%
+figure(87); clf; set(gcf,'color','w','position',[1035         155         560         781]);
+for ip = 1:length(periods)
+    subplot(2,1,1);
+    plot(periods(ip),residuals(ip).mean_dt_res,'o','color',[0.7 0.7 0.7]); hold on;
+    plot(periods(ip),nanmean(residuals(ip).mean_dt_res),'rs','linewidth',2,'markersize',10);
+    ylabel('mean (dt_{obs}-dt_{pre})')
+    set(gca,'linewidth',1.5,'fontsize',15);
+    subplot(2,1,2);
+    plot(periods(ip),residuals(ip).rms_dt_res,'o','color',[0.7 0.7 0.7]); hold on;
+    plot(periods(ip),nanmean(residuals(ip).rms_dt_res),'rs','linewidth',2,'markersize',10);
+    xlabel('Period (s)');
+    ylabel('RMS (dt_{obs}-dt_{pre})')
+    set(gca,'linewidth',1.5,'fontsize',15);
+end
