@@ -41,11 +41,15 @@ if 0
         for i=1:Nx
             for j=1:Ny
                 n=Ny*(i-1)+j;
-                Fgrid(i,j)= F(ieq,n);
+                Fgridx(i,j)= F(ieq,2*n-1);
+                Fgridy(i,j)= F(ieq,2*n);
             end
         end
         figure(99); clf;
-        imagesc(xnode,ynode,Fgrid);
+        subplot(1,2,1);
+        imagesc(xnode,ynode,Fgridx);
+        subplot(1,2,2);
+        imagesc(xnode,ynode,Fgridy);
         pause;
     end
 end
