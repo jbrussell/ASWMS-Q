@@ -16,7 +16,7 @@ setup_ErrorCode
 % JBR
 % cohere_tol = parameters.cohere_tol;
 
-is_offgc_propagation = 1; % Account for off-great-circle propagation using eikonal tomography maps? Otherwise will assume great-circle propagation.
+is_offgc_propagation = 1; % Account for off-great-circle propagation using eikonal tomography maps using eikonal results (a6_eikonal_eq)? Otherwise will assume great-circle propagation.
 
 % Smoothing parameters
 flweight_array = 0*ones(length(parameters.periods)); %100*ones(length(parameters.periods)); %parameters.flweight_array
@@ -24,12 +24,12 @@ dterrtol = 2;    % largest variance of the inversion error allowed
 inverse_err_tol = 2; %2  % count be number of standard devition
 % Main QC parameters
 fiterr_tol = 1e-2; % wavelet fitting error, throw out measurements greater than this
-maxstadist = 600;
-minstadist = 50;
-cohere_tol = 0.80; % 0.65
-min_stadist_wavelength = 0.33; %0.5; % minimum station separation in wavelengths
-max_stadist_wavelength = 999;
-ref_phv = 4*ones(1,length(parameters.periods)); % for calculating wavelength
+maxstadist = 600; % maximum epicentral distance difference
+minstadist = 50; % minimum epicentral distance difference
+cohere_tol = 0.80; % 0.65 % minimum coherence allowed
+min_stadist_wavelength = 0.33; %0.5; % minimum number of wavelengths required between stations
+max_stadist_wavelength = 999; % maximum number of wavelengths allowed between stations
+ref_phv = 4*ones(1,length(parameters.periods)); % reference velocity for calculating wavelength
 APM = 114; % absolute plate motion (GSRM 2.1; NNR) https://www.unavco.org/software/geodetic-utilities/plate-motion-calculator/plate-motion-calculator.html
 FSD = 75; 
 
@@ -241,30 +241,23 @@ for ip = 1:length(periods)
             mean_stala = mean([eventcs.stlas(eventcs.CS(ics).sta1), eventcs.stlas(eventcs.CS(ics).sta2)]);
             mean_stalo = mean([eventcs.stlos(eventcs.CS(ics).sta1), eventcs.stlos(eventcs.CS(ics).sta2)]);
             
-            
+            % Use event eikonal tomography results to get propagation azimuth?
             if is_offgc_propagation==1
-                % Calculate average back azimuth along ray path from eikonal map
-                [r, ~] = distance(rays(raynum,1),rays(raynum,2),rays(raynum,3),rays(raynum,4),referenceEllipsoid('GRS80'));
-                dr = deg2km(mean(diff(xnode)));
-                Nr = floor(r/dr);
-                [lat_way,lon_way] = gcwaypts(rays(raynum,1),rays(raynum,2),rays(raynum,3),rays(raynum,4),Nr);
-                rayazi_phase_lat = interp2(yi,xi,phase_lat,lon_way,lat_way);
-                rayazi_phase_lon = interp2(yi,xi,phase_lon,lon_way,lat_way);
-                rayazi_prop = 90 - atan2d(nanmean(rayazi_phase_lat(:)),nanmean(rayazi_phase_lon(:)));
-                azi(raynum,:) = rayazi_prop;
-                if isnan(azi(raynum,:))
-                    w(raynum,:) = 0;
-                end
+                azimat = 90 - atan2d(phase_lat,phase_lon);
+                [~, azimat_ev] = distance(xi,yi,evla,evlo,referenceEllipsoid('GRS80'));
+                azimat(isnan(azimat)) = azimat_ev(isnan(azimat));
             else
-                azi(raynum,:)=azimuth(mean_stala,mean_stalo,...
-                                           evla,evlo);
+                [~, azimat] = distance(xi,yi,evla,evlo,referenceEllipsoid('GRS80'));
             end
-            if azi(raynum,:) < 0
-                azi(raynum,:) = azi(raynum,:) + 360;
+            for i=1:Nx
+                for j=1:Ny
+                    n=Ny*(i-1)+j;
+                    azi(raynum,n)=azimat(i,j);
+                end
             end
-            
         end
     end
+    azi(azi<0) = azi(azi<0) + 360;
     W = sparse(diag(w));
 
     % Build the kernel
@@ -322,14 +315,7 @@ for ip = 1:length(periods)
     flweight_azi = flweight0_azi*NA/NR;
 
     % Set up matrix on both side
-    if isRsmooth
-        % A=[W*mat;smweight*F*R;flweight*F1*R;dumpweightT*dumpmatT;dumpweightR*dumpmatR];
-        A=[W*mat;smweight*F*R;flweight*F1*R;dumpweightT*dumpmatT;dumpweightR*dumpmatR;aziweight0*F_azi_damp; smweight_azi*F_azic; smweight_azi*F_azis; flweight_azi*J_azic; flweight_azi*J_azis];
-        % A=[W*mat; smweight*F; aziweight*F_azi_damp];
-    else
-        % A=[W*mat;smweight*F;flweight*F1;dumpweightT*dumpmatT;dumpweightR*dumpmatR];
-        A=[W*mat;smweight*F;flweight*F1;dumpweightT*dumpmatT;dumpweightR*dumpmatR;aziweight0*F_azi_damp; smweight_azi*F_azic; smweight_azi*F_azis; flweight_azi*J_azic; flweight_azi*J_azis];
-    end
+    A=[W*mat;smweight*F;flweight*F1;dumpweightT*dumpmatT;dumpweightR*dumpmatR;aziweight0*F_azi_damp; smweight_azi*F_azic; smweight_azi*F_azis; flweight_azi*J_azic; flweight_azi*J_azis];
 
     avgv = eventcs.avgphv(ip);
     % rhs=[W*dt;zeros(size(F,1),1);zeros(size(F1,1),1);zeros(size(dumpmatT,1),1);dumpweightR*ones(size(dumpmatR,1),1)./avgv];
@@ -406,18 +392,15 @@ for ip = 1:length(periods)
         NA=norm(W*mat,1);
         flweight_azi = flweight0_azi*NA/NR;
 
-        if isRsmooth
-            % A=[W*mat;smweight*F*R;flweight*F1*R;dumpweightT*dumpmatT;dumpweightR*dumpmatR];
-            A=[W*mat;smweight*F*R;flweight*F1*R;dumpweightT*dumpmatT;dumpweightR*dumpmatR;aziweight0*F_azi_damp; smweight_azi*F_azic; smweight_azi*F_azis; flweight_azi*J_azic; flweight_azi*J_azis];
-            % A=[W*mat; smweight*F; aziweight*F_azi_damp];
-        else
-            % A=[W*mat;smweight*F;flweight*F1;dumpweightT*dumpmatT;dumpweightR*dumpmatR];
-            A=[W*mat;smweight*F;flweight*F1;dumpweightT*dumpmatT;dumpweightR*dumpmatR;aziweight0*F_azi_damp; smweight_azi*F_azic; smweight_azi*F_azis; flweight_azi*J_azic; flweight_azi*J_azis];
-        end
+        A=[W*mat;smweight*F;flweight*F1;dumpweightT*dumpmatT;dumpweightR*dumpmatR;aziweight0*F_azi_damp; smweight_azi*F_azic; smweight_azi*F_azis; flweight_azi*J_azic; flweight_azi*J_azis];
+
         % rhs=[W*dt;zeros(size(F,1),1);zeros(size(F1,1),1);zeros(size(dumpmatT,1),1);dumpweightR*ones(size(dumpmatR,1),1)./avgv];
         rhs=[W*dt;zeros(size(F,1),1);zeros(size(F1,1),1);zeros(size(dumpmatT,1),1);dumpweightR*ones(size(dumpmatR,1),1)./avgv;zeros(size(F_azi_damp,1),1); zeros(size(F_azic,1),1); zeros(size(F_azis,1),1); zeros(size(J_azic,1),1); zeros(size(J_azis,1),1)];
         phaseg=(A'*A)\(A'*rhs);
     end	
+    
+    % Estimate travel-time residuals
+    dt_res = dt - mat*phaseg;
 
     % Calculate the kernel density
     %sumG=sum(abs(mat),1);
@@ -492,6 +475,7 @@ for ip = 1:length(periods)
     eventphv_ani(ip).goodnum = length(find(eventphv_ani(ip).w>0));
     eventphv_ani(ip).badnum = length(find(eventphv_ani(ip).w==0));
     eventphv_ani(ip).dt = dt;
+    eventphv_ani(ip).dt_res = dt_res; % data residuals
     eventphv_ani(ip).GV = GV;
     eventphv_ani(ip).GV_azi = GV_azi;
     eventphv_ani(ip).GV_av = GV_av;
@@ -662,3 +646,37 @@ ylim([50 180]);
 xlim([20 150]);
 ylabel('\phi');
 xlabel('Periods (s)');
+
+%% Plot residuals
+clear residuals
+for ip = 1:length(eventphv_ani)
+    isgood = eventphv_ani(ip).isgood;
+    dt_res = eventphv_ani(ip).dt_res(isgood);
+    residuals(ip).rms_dt_res = rms(dt_res(:));
+    residuals(ip).mean_dt_res = mean(dt_res(:));
+    residuals(ip).dt_res = dt_res(:);
+end
+
+%%
+figure(87); clf; set(gcf,'color','w','position',[1035         155         560         781]);
+for ip = 1:length(periods)
+    subplot(2,1,1);
+    plot(periods(ip),residuals(ip).mean_dt_res,'o','color',[0.7 0.7 0.7]); hold on;
+    plot(periods(ip),nanmean(residuals(ip).mean_dt_res),'rs','linewidth',2,'markersize',10);
+    ylabel('mean (dt_{obs}-dt_{pre})')
+    set(gca,'linewidth',1.5,'fontsize',15);
+    subplot(2,1,2);
+    plot(periods(ip),residuals(ip).rms_dt_res,'o','color',[0.7 0.7 0.7]); hold on;
+    plot(periods(ip),nanmean(residuals(ip).rms_dt_res),'rs','linewidth',2,'markersize',10);
+    xlabel('Period (s)');
+    ylabel('RMS (dt_{obs}-dt_{pre})')
+    set(gca,'linewidth',1.5,'fontsize',15);
+end
+
+figure(86); clf;
+for ip = 1:length(periods)
+    subplot(M,N,ip)
+    histogram(residuals(ip).dt_res);
+    title([num2str(periods(ip)),' s'],'fontsize',15)
+    xlabel('Residual (s)');
+end

@@ -114,8 +114,8 @@ for i = 1:nray
     % Therefore:
     % r = sqrt( sum(drq.*cosd(azi-r_azi(i))).^2 + sum(drq.*sind(azi-r_azi(i))).^2 )
     % ddist ~ sum(drq.*cosd(azi-r_azi(i)))
-    Gc(i,icount) = Gc(i,icount) + drq*cosd(azi-r_azi(i))*cosd(2*r_azi(i));
-    Gs(i,icount) = Gs(i,icount) + drq*cosd(azi-r_azi(i))*sind(2*r_azi(i));
+    Gc(i,icount) = Gc(i,icount) + drq.*cosd(azi-r_azi(i,icount)).*cosd(2*r_azi(i,icount));
+    Gs(i,icount) = Gs(i,icount) + drq.*cosd(azi-r_azi(i,icount)).*sind(2*r_azi(i,icount));
     G_hits(i, icount) = G_hits(i,icount) + drq;
     
     % plot paths

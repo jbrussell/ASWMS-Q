@@ -91,8 +91,8 @@ else % faster way, or so we hope
     icount = find( count~=0 );
     % G(i,2*icount-1) = G(i,2*icount-1) + count(icount)*dr*cosd(azi-r_azi(i));
     % G(i,2*icount) = G(i,2*icount) + count(icount)*dr*sind(azi-r_azi(i));
-    G(i,2*icount-1) = G(i,2*icount-1) + drq.*cosd(azi-r_azi(i));
-    G(i,2*icount) = G(i,2*icount) + drq.*sind(azi-r_azi(i));
+    G(i,2*icount-1) = G(i,2*icount-1) + drq.*cosd(azi-r_azi(i,icount));
+    G(i,2*icount) = G(i,2*icount) + drq.*sind(azi-r_azi(i,icount));
 end
 end
 

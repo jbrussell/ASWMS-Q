@@ -76,7 +76,7 @@ parameters.tp_tol = 10;  % seconds away from averaged phase velocity
 % parameters for the tomography
 % (eikonal_eq.m helmholtz_eq.m)
 parameters.smweight_array = 3*[0.4 0.3 0.2 0.2 0.2 0.5 0.5 0.5 1 1 1 2 3 3 3]; %3*[0.4 0.3 0.2 0.2 0.2 0.5 1 2 2 3 3] %3*[0.4 0.3 0.2 0.2 0.2 0.5 1 2];  % smoothing weight for the deltaSx and delta Sy
-parameters.flweight_array = 0*ones(length(parameters.periods)); % JBR
+parameters.flweight_array = 0*ones(size(parameters.periods)); % JBR
 parameters.raydensetol=deg2km(parameters.gridsize)*2;
 parameters.Tdumpweight = 0;  % dumping the ray to the girgle circle path
 parameters.Rdumpweight = 0;  % dumping the region to have the same phase velocity
