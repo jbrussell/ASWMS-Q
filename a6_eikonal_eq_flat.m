@@ -206,9 +206,9 @@ for ie = 1:length(csmatfiles)
             ddist(ics,:) = eventcs.CS(ics).ddist;
 		end
 		W = sparse(length(w),length(w));
-	    for id = 1:length(w)
-	        if w(id) == 1
-	            W(id,id) = 1;
+		for id = 1:length(w)
+	        if w(id) > 0
+	            W(id,id) = w(id);
 	        end
 	    end
 

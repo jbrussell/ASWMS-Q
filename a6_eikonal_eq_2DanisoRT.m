@@ -260,8 +260,8 @@ for ip = 1:length(periods)
     azi(azi<0) = azi(azi<0) + 360;
     W = sparse(length(w),length(w));
     for id = 1:length(w)
-        if w(id) == 1
-            W(id,id) = 1;
+        if w(id) > 0
+            W(id,id) = w(id);
         end
     end
 
