@@ -166,7 +166,12 @@ for ie = 1:length(csmatfiles)
 				w(ics) = 0;
 			end
 		end
-		W = sparse(diag(w));
+		W = sparse(length(w),length(w));
+	    for id = 1:length(w)
+	        if w(id) == 1
+	            W(id,id) = 1;
+	        end
+	    end
 
 		% Normalize smoothing kernel
         NR=norm(F,1);

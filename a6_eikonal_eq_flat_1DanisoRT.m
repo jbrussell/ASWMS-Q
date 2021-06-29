@@ -284,7 +284,12 @@ for ip = 1:length(periods)
     end
         azi(azi<0) = azi(azi<0) + 360;
         azi_vec(azi_vec<0) = azi_vec(azi_vec<0) + 360;
-		W = sparse(diag(w));
+        W = sparse(length(w),length(w));
+        for id = 1:length(w)
+            if w(id) == 1
+                W(id,id) = 1;
+            end
+        end
 		
 		% Build the kernel
 		disp('Building up ray path kernel')
