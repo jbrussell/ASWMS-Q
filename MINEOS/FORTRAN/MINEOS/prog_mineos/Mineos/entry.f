@@ -1,0 +1,36 @@
+      SUBROUTINE ENTRY(W,IMAX,KEI)
+c
+c23456789012345678901234567890123456789012345678901234567890123456789012
+c
+c     calls: DETQN
+c
+      IMPLICIT REAL*8(A-H,O-Z)
+c
+      SAVE
+c
+      include 'parameter.h'
+c
+      COMMON/MTAB/WE(nbranch2),DE(nbranch2),KE(nbranch2)
+c
+      CALL DETQN(W,KEI,DEI,0)
+c
+      INDX=MIN0(MAX0(2*(KEI-KE(1)),1),IMAX)
+      IF(INDX.EQ.1.AND.WE(1).LT.W) GOTO 10
+      IF(INDX.EQ.IMAX.AND.WE(IMAX).GT.W) GOTO 10
+      IF(KEI.NE.KE(INDX)) GOTO 5
+      IF(WE(INDX).GT.W) GOTO 10
+      INDX=INDX+1
+      IF(WE(INDX).LT.W) GOTO 10
+c
+      RETURN
+c
+    5 WE(INDX)=W
+      KE(INDX)=KEI
+      DE(INDX)=DEI
+      INDX=INDX+1
+   10 WE(INDX)=W
+      KE(INDX)=KEI
+      DE(INDX)=DEI
+c
+      RETURN
+      END

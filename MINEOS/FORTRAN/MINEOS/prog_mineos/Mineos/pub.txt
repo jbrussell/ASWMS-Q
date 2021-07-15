@@ -1,0 +1,191 @@
+Lakshmi H. Kantha
+
+----------------------------------------------------------------------------
+Professor, Department of Aerospace Engineering Sciences, Colroado Center for
+Astrodynamics Research
+Campus Box 431, University of Colorado, Boulder, CO 80309-0431
+(303)492-3014 (Office), 492-6677 (Secretary), 492-2825 (Fax)
+----------------------------------------------------------------------------
+
+PUBLICATIONS
+
+   * *Kantha, L. H., 1994. A numerical simulation of the seasonal evolution
+     of temperature and CO2 structure in Lake Nyos. Manuscript under
+     preparation to be submitted to J. Volcanology and Geothermal Research.
+
+   * * Kantha, L. H., 1994. A numerical model of Arctic leads. To appear in
+     J. Geophys. Res.
+
+   * * Kantha, L. H. and C. A. Clayson, 1994. An improved mixed layer model
+     for geophysical applications. To appear in J. Geophys. Res.
+
+   * Kantha, L., K. Whitmer and G. Born, 1994. Inverse barometer effect in
+     altimetry: A study in the north Pacific. TOPEX/Poseidon Research News,
+     2, 18-23.
+
+   * * Kantha, L., R. Leben, G. Born, D. Beitzell, S. Harper and J. Kindle,
+     1994. TOPEX near-real time altimetry in the northern Indian Ocean . To
+     appear in WOCE Notes.
+
+   * Kantha, L. H., D. M. Beitzell, S. L. Harper and R.R. Leben, 1994.
+     Altimetry in marginal, semi-enclosed and coastal seas. Part I: Marginal
+     and semi-enclosed seas. Colorado Center for Astrodynamics Research
+     Draft Report, University of Colorado, Boulder, pp 100.
+
+   * Kantha, L. H., P. E. Pontius and V. Anantharaj, 1994. Tidal models of
+     marginal, semi-enclosed and coastal seas. Part I: Sea surface height.
+     Colorado Center for Astrodynamics Research Report, University of
+     Colorado, Boulder, pp 201.
+
+   * * Piacsek, S. and L. H. Kantha, 1993. Ocean Models. In Computational
+     Science Education Project. Dept. of Energy Electronic Book, 273 - 361.
+
+   * * Ly, N. L. and L. H. Kantha, 1993. A numerical study of the nonlinear
+     interaction of hurricane Camille with the Gulf of Mexico Loop Current.
+     Oceanologica Acta, 16, 341 - 348.
+
+   * Kantha, L. H. and R. R. Leben, 1993. Shallow Water Altimetry.
+     Proceedings of the Geosat Follow On Workshop, Applied Physics
+     laboratory, Johns Hopkins University, laurel, Maryland.
+
+   * Kantha, L. H. and R. R. Leben, 1993. Altimetry in marginal seas.
+     Proceedings of the Geosat Follow On Workshop, Applied Physics
+     laboratory, Johns Hopkins University, laurel, Maryland.
+
+   * * Horton, C. , M. Clifford, D. Cole, J. Schmitz and L. Kantha, 1992.
+     Operational modeling: Semi - enclosed basin modeling at the Naval
+     Oceanographic Office. Oceanography, 5, 69 - 72.
+
+   * * Hakkinen, S., G. L. Mellor and L. H. Kantha, 1992. Modeling deep
+     convection in the Greenland Sea. J. Geophys. Res., 97, 5389 - 5408.
+
+   * * Horton, C. , M. Clifford, D. Cole, J. Schmitz and L. Kantha, 1991.
+     Water circulation modeling for the Persian Gulf. The 1991 Marine
+     Technology Society Meeting Proceedings, 557-560.
+
+   * * Ly, N. L. and L. H. Kantha, 1991. Hurricane Camille shelf wave
+     simulation using a numerical circulation model. Estuarine and Coastal
+     Modeling, Second Int'l Conf., Tampa, Florida, Nov. 13- 15, 1991,
+     586-593.
+
+   * * Muench, R. D., K. Jezek and L. H. Kantha, 1991. Introduction: Third
+     marginal ice zone research collection. J. Geophys. Res., 96, 4529
+     -4530.
+
+   * * Kantha, L.H. and A. Rosati, 1990. On the effect of curvature on
+     turbulence in stratified fluids. J. Geophys. Res., 95, 20313 - 20330.
+
+   * * Kantha, L.H., A.F. Blumberg and G.L. Mellor, 1990. Computing phase
+     speeds at an open boundary. J. Hydraulic Engineering, 116, 592 - 597.
+
+   * * Mellor, G.L. and L.H. Kantha, 1989. An ice-ocean coupled model. J.
+     Geophys. Res., 94, 10937-10954.
+
+   * * Kantha, L.H. and G.L. Mellor, 1989. A two-dimensional coupled
+     ocean-ice model of the Bering Sea Marginal Ice Zone. J. Geophys. Res.,
+     94, 10921-10936.
+
+   * * Galperin, B., A. Rosati, L.H. Kantha and G.L. Mellor, 1989. Modelling
+     rotating stratified turbulent flows with application to oceanic mixed
+     layers. J. Phys. Oceanogr., 19, 901-916.
+
+   * * Galperin, B. and L.H. Kantha, 1989. A turbulence model for rotating
+     flows. AIAA J., 27, 750-757 (Also AIAA Paper 88-3752).
+
+   * * Kantha, L.H. and G.L. Mellor, 1989. A numerical model of the
+     atmospheric boundary layer over a marginal ice zone. J. Geophys. Res.,
+     94, 4959-4970.
+
+   * * Kantha, L.H., A. Rosati and B. Galperin, 1989. Effect of rotation on
+     vertical mixing and associated turbulence in stratified fluids. J.
+     Geophys. Res., 94, 4843-4854.
+
+   * * McPhee, M.G. and L.H. Kantha, 1989. Generation of internal waves by
+     sea ice. J. Geophys. Res., 94, 3287-3302.
+
+   * * Galperin, B., L.H. Kantha, S. Hassid and A. Rosati, 1988. A
+     quasi-equilibrium turbulent energy model for geophysical flows. J.
+     Atmos. Sci., 45, 55-62.
+
+   * * Kantha, L.H., 1986. Comments on "A heat balance for the Bering Sea
+     ice edge". J. Phys. Oceanogr, 16, 2205-2207.
+
+   * * Blumberg, A.F., L.H. Kantha, H.J. Herring and G.L. Mellor, 1985. A
+     hindcast of the circulation in the Santa Barbara Channel during Spring
+     1983. Proceedings of the Symposium on "Applications of Real-time
+     Oceanographic Circulation Modelling", at Applied Physics Laboratory,
+     The Johns Hopkins University, May 23-24, 1985.
+
+   * * Kantha, L.H., 1985. Comments on "On tidal motion in a stratified
+     inlet, with particular reference to boundary conditions". J. Phys.
+     Oceanogr., 15, 1608-1609.
+
+   * * Kantha, L.H., A.F. Blumberg, H.J. Herring and G.R. Stegen, 1985. The
+     use and testing of a model for upper ocean dynamics. In The Ocean
+     Surface, eds Y. Toba and H. Mitsuyasu, Reidel Publ. Co., 547-552.
+
+   * * Blumberg, A.F., H.J. Herring, G.L. Mellor, 1985. 3-D orthogonal
+     curvilinear circulation modelling. Proceedings of the 1985 ASCE
+     Hydraulics Division Speciality Conference, Orlando, Florida, August
+     12-17, 1985, 1088-1094.
+
+   * * Blumberg, A.F. and L.H. Kantha, 1985. Open boundary condition for
+     circulation models. J. of Hydraulic Engineering, ASCE, 111, 237-2555.
+
+   * * Kantha, L.H. G.L. Mellor and A.F. Blumberg, 1982. A diagnostic
+     calculation of the general circulation in the South Atlantic Bight. J.
+     Phys. Oceanogr., 12, 805-819.
+
+   * * Kantha, L.H., 1981. 'Basalt Fingers' - Origin of Columnar Joints?
+     Geological Magazine 118, 251-264.
+
+   * * Kantha, L.H., 1980. A note on the effect of viscosity on
+     double-diffusive processes. J. Geophys. Res., 85, 4398-4404.
+
+   * * Kantha, L.H., 1980. Experimental simulation of the 'retreat' of the
+     seasonal thermocline by surface heating. In Fjord Oceanography, edited
+     by H.J. Freeland, D.M. Farmer and C.D. Levings, Plenum Press, 197-204.
+
+   * * Kantha, L.H., 1980. Laboratory experiments on attenuation of internal
+     waves by turbulence in the mixed layer. In proceedings of the Second
+     International Symposium on Stratified Flows, Trondheim, Norway, edited
+     by T. Carstens and T. McClimans, 731-741.
+
+   * * Kantha, L.H., 1980. Turbulent entrainment at a buoyancy interface due
+     to convective turbulence. In Fjord Oceanography, edited by H.J.
+     Freeland, D.M. Farmer and C.D. Levings, Plenum Press, 205-214.
+
+   * * Kantha, L.H., R.R. Long, 1980. Turbulent mixing with stabilizing
+     surface buoyancy flux. Phys. Fluids 23, 2142-2143.
+
+   * * Kantha, L.H., 1979. On generation of internal waves by turbulence in
+     the mixed layer. Dynamics of Atmospheres and Oceans 3, 39-46.
+
+   * * Kantha, L.H., 1979. On leaky modes on a buoyancy interface. Dynamics
+     of Atmospheres and Oceans 3, 47-54.
+
+   * * Kantha, L.H., 1979. Drift currents induced by reflection of
+     propagating inertial and internal waves at a rigid boundary. Dynamics
+     of Atmospheres and Oceans 4, 15-20.
+
+   * * Long, R.R. and L.H. Kantha, 1978. The rise of a strong inversion
+     caused by heating at the ground. Proceedings of the Twelfth Symposium
+     on Naval Hydrodynamics, Washington, D.C.
+
+   * * Marsh, B.D. and L.H. Kantha, 1978. On the heat and mass transfer from
+     an ascending magma. Earth and Planetary Science Letters 39, 435-443.
+
+   * * Kantha, L.H., 1977. Note on the role of internal waves in thermocline
+     erosion. In Modelling and Prediction of the Upper Layers of the Ocean,
+     edited by E.B. Kraus, Pergamon Press, 173-177.
+
+   * * Kantha, L.H., O.M. Phillips and R.S. Azad, 1977. On turbulent
+     entrainment at a stable density interface. J. Fluid Mech. 79, 753-768.
+
+   * * Kantha, L.H., W.S. Lewellen and F.H. Durgin, 1972. Response of a
+     trailing vortex to axial injection into the core. AIAA J. of Aircraft,
+     9, 254-256.
+
+----------------------------------------------------------------------------
+
+/[Image] Return home!

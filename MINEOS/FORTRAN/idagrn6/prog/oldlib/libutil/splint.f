@@ -1,0 +1,16 @@
+      SUBROUTINE SPLINT(X,F,I1,I2,A)
+C  A IS THE INTEGRAL OF F(X)DX FROM X(I1) TO X(I2) COMPUTED
+C  BY INTEGRATINT THE CUBIC SPLINE DIRECTLY
+      DIMENSION F(*),X(*),H(1001),Q(3,1001),WORK(3,1001)
+      I2M1=I2-1
+      DO 1 I=1,I2M1
+    1 H(I)=X(I+1)-X(I)
+      T=1./3.
+      CALL RSPLN(I1,I2,X,F,Q,WORK)
+      A=0.
+      DO 2 I=I1,I2M1
+      B=H(I)
+      A=A+B*(F(I)+B*(.5*Q(1,I)+B*(T*Q(2,I)+B*.25*Q(3,I))))
+    2 CONTINUE
+      RETURN
+      END

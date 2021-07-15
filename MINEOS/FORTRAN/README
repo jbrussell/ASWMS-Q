@@ -1,0 +1,35 @@
+# README for compiling MINEOS and idagrn6 FORTRAN codes
+# 
+After installing gfortran (which also requires XCode):
+
+----- STEP 1 -----
+Open makeall.sh and edit the 3 variables at the top of the script
+1) COMPILER - specifies the compiler. I have only tested gfortran
+2) LIBPATH - path to the gfortran library. It should work if you point to
+			the ./libgfortran directory
+3) BINPATH - path to the output binaries.
+
+----- STEP 2 -----
+To compile everything, open the terminal and type: 
+sudo ./makeall.sh
+
+If everything works, there should be 20 files in the bin directory:
+
+draw_frechet_gv      frechet_cvG          idagrn6_sac_excite
+draw_frechet_gv_perc frechet_cv_ms        mineos_nohang
+eig_recover          frechet_cv_perc      mineos_qcorrectphv
+eigenST_asc          frechet_gv           mineos_strip
+frechet              frechet_psi          mineos_table
+frechet_ACFLN_love   idagrn6_mask         plot_wk
+frechet_cv           idagrn6_sac
+
+
+----- STEP 3 ----- *
+The bin folder containing the fortran executables must be added to your 
+path. To do this, open ~/.profile and enter the following:
+
+export PATH="path/to/bin:$PATH"
+
+*(This should be done automatically in the MATLAB script now, but I would 
+still recommend this step anyway)
+

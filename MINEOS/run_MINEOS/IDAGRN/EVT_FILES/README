@@ -1,0 +1,29 @@
+# Format for event input to idagrn6:
+----------------------------------------
+EVENT_NUMBER
+LAT LON DEPTH_KM
+MULTIPLICATION_FACTOR
+m_rr
+m_tt
+m_pp
+m_rt
+m_rp
+m_tp
+
+--------------- EXAMPLE -----------------
+201404131236
+-11.450 161.970 37.50
+0.1
+16.80000
+-17.80000
+1.00000
+-1.35000
+2.77000
+3.39000
+
+--------------- NOTES -----------------
+Input m_ii components in units of (dyne-cm) / 1E+20 / MULTIPLICATION_FACTOR
+
+In idagrn6, each moment tensor component is pre-multiplied by MULTIPLICATION_FACTOR
+
+i.e. for MULTIPLICATION_FACTOR = 0.1, input m_xx in units of (dyne-cm) / 1E+19
