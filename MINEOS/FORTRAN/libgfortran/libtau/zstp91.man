@@ -1,0 +1,71 @@
+.TH ZSTP91
+.SH NAME:
+zstp91 \- graphical interface to travel time tables using tau-splines
+.SH SYNOPSIS
+.B zstp91 < zst.cmd
+.SH DESCRIPTION
+zstp91 is a simple user interface to access the travel times for
+a wide variety of seismic phases and display them in a selected 
+time and distance window.
+.br
+User control is provided over the selection of phases.
+.SS Running zstp91
+zstp91 is run from a command file specifying the parameters for the 
+phase control as well as the features of the distance-time window 
+and frame.  The run sequence is
+.br 
+  zstp91 < zst.cmd
+.br
+where zst.cmd is a command file.
+For example to produce plots for all available phases over the
+span from 0 to 180 degrees for travel times up to 30 minutes, and a 
+source depth of 200km.
+.nf
+.ta 2.0
+     iasp91                 Model file
+	200.	           <tt> depth
+     1.  180.              <tt> delta min,max 
+        2                  <tt> pen colour
+     0.                    <tt> reduction slowness
+     FR                    Frame: FR-full frame, NL-no labels
+     5.0                   <fr> x-orig
+     2.0                   <fr> y-orig
+     3                     <fr> font choice
+         0.00   180.00     <fr> Dmin, Dmax
+        15.00              <fr> length of D-axis
+         0.00    40.00     <fr> Trmin,Trmax
+        25.00              <fr> length of T-axis
+        20.00   10.000     <fr> Large Tic spacing D,T
+         5.00    1.000     <fr> Small Tic spacing D,T
+         0       0         <fr> # of dec. in label D,T
+        0.4300   0.47500   <fr> character size text,title
+     Delta  deg                                          X-txt
+     Time  min                                           Y-txt
+     iasp91   200 km source                              Title
+.fi
+.SS Phase specification in zstp91:
+Groups of seismic phases can be selected via the keywords
+used for ttimes91
+The available keywords are:
+.nf
+P      gives P-up, P, Pdiff, PKP and PKiKP
+P+     gives P-up, P, Pdiff, PKP, PKiKP, PcP, pP, pPdiff, pPKP, 
+             pPKiKP, sP, sPdiff, sPKP, sPKiKP 
+S      gives S-up, S, Sdiff, SKS
+S+     gives S-up, S, Sdiff, SKS, sS, SSdiff, sSKS,
+             pS, pSdiff, pSKS
+basic  gives P+, S+ and ScP, SKP, PKKP, SKKP, PP and PKPPKP
+all    gives all available phases
+.fi   
+.SH SEE ALSO
+gtt91
+.SH AUTHORS
+B.L.N. Kennett,
+Research School of Earth Sciences, Australian National University            
+Canberra, Australia 
+.br
+using the travel time routines developed by:
+.br
+R. Buland,
+National Earthquake Information Centre, U.S. Geological Survey
+Golden, Colorado

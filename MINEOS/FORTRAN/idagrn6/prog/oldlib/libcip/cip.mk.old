@@ -1,0 +1,12 @@
+FFLAGS= $(MYFFLAGS)
+LIBNAM= $(MYLIB)/libcip.a
+.f.a:
+	$(FC) $(FFLAGS) -c  $<
+	$(AR) $@ $*.o
+	rm -f $*.o
+#
+#  List all the target objects
+#
+$(LIBNAM): \
+	$(LIBNAM)(ciplib.o)
+		$(RANLIB) $(LIBNAM)

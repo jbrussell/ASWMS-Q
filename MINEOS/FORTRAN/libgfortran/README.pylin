@@ -1,0 +1,11 @@
+this is the gfortran version of library. 
+I copied the lib directory from Jame Gaherty in Earthscope.
+and compiled each .a from each lib*** using gfortran
+
+this is good for compiling plot_wk but not for idagrn
+(JBR - actually seems to also work for idagrn)
+
+2014/03/05 pylin.patty
+
+
+

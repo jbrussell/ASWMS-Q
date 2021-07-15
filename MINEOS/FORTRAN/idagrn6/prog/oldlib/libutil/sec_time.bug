@@ -1,0 +1,31 @@
+      subroutine sec_time(iyr,idoy,ihr,imin,sec,ibyr,tsec)
+c
+c     subroutine to convert time to sec relative to a base year
+c
+      integer*4 iyr, idoy, ihr, imin, ibyr
+      real*4 sec, tsec
+c
+      include 'numerical.h'
+c
+c     first account for day, hour, minutes, and seconds
+c
+      tsec = float(idoy)*spday + float(ihr)*sphr
+     .   + float(imin)*spmin
+     .   + sec
+c
+c     now calculate the year offset
+c
+      icount = 0
+      do ii = 1, iyr-ibyr
+        ierr = lpyr(ibyr + ii - 1)
+        if (ierr .eq. 1) then
+          iday = 365
+        else
+          iday = 366
+        end if
+        icount = icount + iday
+      end do
+      tsec = tsec + icount*spday
+c
+      return
+      end

@@ -1,0 +1,126 @@
+.TH GTT91
+.SH NAME
+gtt91 \- construction of computer accessible travel time tables
+.SH SYNOPSIS
+.B gtt91
+.SH DESCRIPTION 
+.B gtt91
+comprises a sequence of routines to set up a representation of
+the travel travel time tables for a given velocity model in terms of
+the tau-spline procedure of Buland & Chapman (1983), together with
+routines for user access (interactive and graphical).
+.SS Construction of tau-spline tables:
+.br
+The two basic stages are:
+.br
+.I remodl 
+\- construction of partial tau integrals for different 
+segments of a velocity model of the Earth.
+This requires discretisation of the velocity model at
+depths corresponding to the slowness employed in the
+representation of the tables.  It is at this point in the 
+process that the velocity model has to be specified and
+linked in with the rest of the routines - subsequently all 
+necessary information on the model is carried in the 
+direct access table files.  The procedure remodl
+generates two table files:
+.br
+.I     remodl.hed, remodl.tbl
+.br
+which are used as the input to the second stage (setbrn)
+.LP
+.I setbrn 
+\- construction of the tau-spline coefficients for different
+travel time branches corresponding to distinct seismic 
+phases. The tau-splines are generated for each of the 
+depths at which the model was sampled.  In addition 
+auxiliary tables are set up to allow interpolation to 
+arbitrary depth.  The procedure setbrn generates two
+direct access table files identified by the name of the
+velocity model 
+.br
+e.g.
+.I    iasp91.hed, iasp91.tbl
+.br
+These tables are used in the routine 
+.I ttimes91 
+which returns
+travel times for seismic phases at specified distance 
+and in other display and location procedures
+.LP
+A Makefile template is provided to allow the construction of the
+tau-spline tables for different velocity models.  The specification
+of the velocity model used for iasp91 is in terms of polynomials
+(up to cubic) in normalised radius for different portions of the
+velocity model.
+The main body of routines used by the gtt91 system are stored in the 
+.br
+.I $GTT91/libtau.f  
+.br
+and two include files 
+.br
+.I $GTT91/limits.inc and $GTT91/ttlim.inc
+.br
+are needed.
+.SS Access to travel time tables:
+.br
+The simplest mode of access to the travel time tables is interactive 
+use of the 
+.I ttimes91 
+command which allows user specification of 
+phases and returns the travel times for all specified phases at
+a particular epicentral distance, for a given source depth.
+.LP
+The travel time information can also be accessed in graphical form
+(Postscript output suitable for Laserwriter II) using the 
+zstp command which allows windowing in range and time.  
+A X-window version (zstx) is under development.
+.LP 
+The interface to the tau-spline tables is readily adapted
+to other computational procedures: 
+Printed travel time tables can be generated in a two stage process:
+.br
+i) Set up a summary file of travel timesfor many different source 
+depths and distances using the routine
+.br
+.I  ttable
+.br
+which allows interactive specification of source depths
+and distances, and includes all available phases.
+.br
+ii) Run the table sort routine
+.br
+.I  wtac
+.br
+which allows the interrogation of the summary file produced by 
+.I ttable.  
+.br
+.I wtac
+prompts for a phase code and the number of characters to match and 
+also the range of  epicentral distances required.  Output of travel time 
+tables is to a specified file in 
+.I tbl 
+format.  This 
+.I tbl 
+file can then be
+printed using 
+.I ptroff 
+facilities.
+.LP
+Other facilities (including information on take-off angles
+for source mechanism studies) are under development.        
+.SH ENVIRONMENT
+.IP GTT91
+Home directory for sources of gtt91 routines 
+access required for constructing modified
+travel time tables
+.SH SEE ALSO
+ttimes91, shake91, zstp91, zstx91, syax91
+.SH AUTHORS
+R. Buland,
+National Earthquake Information Centre, U.S. Geological Survey
+Golden, Colorado
+.br
+B.L.N. Kennett,
+Research School of Earth Sciences, Australian National University
+Canberra, Australia 

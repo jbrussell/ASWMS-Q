@@ -1,0 +1,44 @@
+MYOBJ = /Users/naccardo/Unix/seismic/MODES/obj
+FBIN = /Users/naccardo/Unix/seismic/MODES/bin
+
+FFLAGS=-ffixed-line-length-none
+FFLAGS2=-march=x86_64
+
+.f.o: 
+	$(FC) $(FFLAGS) $(FFLAGS2) -c $*.f
+
+#----------------------------------
+
+frechet: $(FBIN)/frechet
+
+$(FBIN)/frechet: $(MYOBJ)/frechet.o
+	$(FC) $(FFLAGS) $(FFLAGS2) -o $(FBIN)/frechet \
+	$(MYOBJ)/frechet.o 
+
+$(MYOBJ)/frechet.o: frechet.f
+	$(FC) $(FFLAGS) -c -o $(MYOBJ)/frechet.o frechet.f
+
+#----------------------------------
+
+frechet_gv: $(FBIN)/frechet_gv
+
+$(FBIN)/frechet_gv: $(MYOBJ)/frechet_gv.o
+	$(FC) $(FFLAGS) $(FFLAGS2) -o $(FBIN)/frechet_gv \
+	$(MYOBJ)/frechet_gv.o 
+
+$(MYOBJ)/frechet_gv.o: frechet_gv.f
+	$(FC) $(FFLAGS) -c -o $(MYOBJ)/frechet_gv.o frechet_gv.f
+
+#------------------------------------------------------
+
+draw_frechet_gv: $(FBIN)/draw_frechet_gv
+
+$(FBIN)/draw_frechet_gv: $(MYOBJ)/draw_frechet_gv.o
+	$(FC) $(FFLAGS) $(FFLAGS2) -o $(FBIN)/draw_frechet_gv \
+	$(MYOBJ)/draw_frechet_gv.o 
+
+$(MYOBJ)/draw_frechet_gv.o: draw_frechet_gv.f
+	$(FC) $(FFLAGS) -c -o $(MYOBJ)/draw_frechet_gv.o draw_frechet_gv.f
+
+
+#----------------------------------

@@ -1,0 +1,14 @@
+# COMPILING idagrn6 FORTRAN CODES
+# Josh Russell - 6/19/17
+
+#_name_of_makefile - name_of_executable
+
+------------------------------------------------------------
+./prog (2 makefiles)
+1_idagrn6_sac.mk        - idagrn6_sac (outputs synthetics only)
+2_idagrn6_sac_excite.mk - idagrn6_sac_excite (outputs synthetics and excitation terms)
+
+------------------------------------------------------------
+./prog_mask (1 makefile)
+1_idagrn6_mask.mk       - idagrn6_mask (outputs synthetics for individual mode branches)
+

@@ -1,0 +1,58 @@
+.TH TTIMES91
+.SH NAME:
+ttimes91 \- travel time table access using tau-splines
+.SH SYNOPSIS
+.B ttimes91
+.SH DESCRIPTION
+ttimes91 is a simple user interface to access the travel times for
+a wide variety of seismic phases at a given distance for specified
+source depth, with user control over the selection of phases.
+.LP
+ttimes91 is set up to automatically access the tau-spline tables for 
+the 1991 IASPEI Seismological Tables based on the velocity model 
+iasp91 (direct access files - iasp91.hed, iasp91.tbl).
+Other sets of tables can be accessed by invoking ttimes91 
+with an argument e.g.
+.br
+ttimes91  iasp89
+.br
+for tables (iasp89.hed, iasp89.tbl).
+.SS Phase specification
+The phase specification scheme is briefly described when ttimes91
+is run. Initially the specification procedure is set up in
+query mode and responses need to be made at the star prompt (*),
+a null response terminates the specification.  
+The selection of phases can be done either by giving a sequence
+of generic phase names or by specifying keywords. 
+The available keywords are:
+.nf
+P      gives P-up, P, Pdiff, PKP and PKiKP
+P+     gives P-up, P, Pdiff, PKP, PKiKP, PcP, pP, pPdiff, pPKP, 
+             pPKiKP, sP, sPdiff, sPKP, sPKiKP 
+S      gives S-up, S, Sdiff, SKS
+S+     gives S-up, S, Sdiff, SKS, sS, SSdiff, sSKS,
+             pS, pSdiff, pSKS
+basic  gives P+, S+ and ScP, SKP, PKKP, SKKP, PP and PKPPKP
+all    gives all available phases
+.fi
+.SS Depth specification
+Once the choice of phase branches has been made the depth needs
+to be specified and the specified tau-splines appropriate for 
+that depth are then formed.
+.SS Distance specification
+The user is prompted for epicentral distance (delta) and the
+travel time, slowness, curvature and depth derivative are displayed
+for each phase.
+.LP 
+A new depth can be chosen by setting the distance negative, and
+the procedure terminated but setting the depth negative as well.
+.SH SEE ALSO
+gtt91
+.SH AUTHORS
+R. Buland,
+National Earthquake Information Centre, U.S. Geological Survey
+Golden, Colorado
+.br
+B.L.N. Kennett,
+Research School of Earth Sciences, Australian National University            
+Canberra, Australia 

@@ -1,0 +1,11 @@
+OBJTAU = libtau.o libsun.o
+FFLAGS = -O3
+ARFLAGS= rcv
+
+libtau.a:	${OBJTAU}
+		ar ${ARFLAGS} $(MYLIB)/libtau.a ${OBJTAU}
+		ranlib $(MYLIB)/libtau.a
+setbrn:		setbrn.o
+		f77 $(FFLAGS) $(MYLIB)/libtau.a setbrn.o -o $(MYBIN)/setbrn
+ttimes:		ttimes.o
+		f77 $(FFLAGS) $(MYLIB)/libtau.a ttimes.o -o $(MYBIN)/ttimes
