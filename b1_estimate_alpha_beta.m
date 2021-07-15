@@ -32,10 +32,8 @@ phase_v_path = [workingdir,'eikonal/'];
 helmholtz_path = [workingdir,'helmholtz/'];
 helmholtz_stack_file = [workingdir,'helmholtz_stack_',parameters.component];
 traveltime_path = [workingdir,'traveltime/'];
+attenuation_path = workingdir;
 
-if ~exist(traveltime_path,'dir')
-	mkdir(traveltime_path);
-end
 
 % load stacked phase velocity map
 load(helmholtz_stack_file);
@@ -65,7 +63,7 @@ end
 
 clear attenuation
 for ip = 1:length(avgphv)
-    clear amp_term azi
+    clear amp_term azi amp_decay_map tp_focus_map tp_grad_map amp_grad_map ampgrad_dot_tpgrad amp_grad_norm_map evids
     evcnt = 0;
     for ie = 1:length(eventfiles)
     %for ie = 59
@@ -187,15 +185,23 @@ for ip = 1:length(avgphv)
             tp_focus = gridfit_jg(xi(:),yi(:),tp_focus(:),xnode,ynode,...
                                 'smooth',floor(smD./deg2km(gridsize)),'regularizer','laplacian','solver','normal')';
         end
-        Inan = isnan(phv);
+        Inan = isnan(phv) | isnan(tp_grad);
         amp_decay(Inan) = nan;
         tp_focus(Inan) = nan;
         
         % Corrected amplitude decay
         corr_amp_decay = amp_decay + tp_focus;
+		amp_decay_map(:,:,evcnt) = amp_decay;
+        tp_focus_map(:,:,evcnt) = tp_focus;
         
         amp_term(:,:,evcnt) = (phv/2) .* corr_amp_decay;        
         azi(:,:,evcnt) = azi_prop;
+		
+		tp_grad_map(:,:,evcnt) = tp_grad;
+        amp_grad_map(:,:,evcnt) = amp_grad;
+        amp_grad_norm_map(:,:,evcnt) = amp_grad ./ amp;
+        ampgrad_dot_tpgrad(:,:,evcnt) = amp_gradlat.*tp_gradlat + amp_gradlon.*tp_gradlon;
+        evids{evcnt} = eventid;
     end
 
 %     % Select central grid points
@@ -228,6 +234,15 @@ for ip = 1:length(avgphv)
     end
     
     %% Do curve fitting (eq 9 in Bao et al. 2016)
+	attenuation(ip).evids = evids;
+    attenuation(ip).amp_term = amp_term;
+    attenuation(ip).azi = azi;
+    attenuation(ip).amp_decay_map = amp_decay_map;
+    attenuation(ip).tp_focus_map = tp_focus_map;
+    attenuation(ip).tp_grad_map = tp_grad_map;
+    attenuation(ip).amp_grad_map = amp_grad_map;
+    attenuation(ip).amp_grad_norm_map = amp_grad_norm_map;
+    attenuation(ip).ampgrad_dot_tpgrad = ampgrad_dot_tpgrad;
     
     % Unbinned 1-D sinusoidal fit
     [para, alpha, dlnbeta_dx, dlnbeta_dy]=fit_alpha_beta(azi(:),amp_term(:));
@@ -359,9 +374,129 @@ for ip = 1:length(attenuation)
     colormap(flip(seiscmap))
 end
 
+%% Plot amplitude decay and focusing terms
+figure(44); clf;
+set(gcf,'Position',[616    71   850   947]);
+for ip = 1:length(attenuation)
+    subplot(M,N,ip)
+    amp_decay_map_evs = squeeze(nanmean(nanmean(attenuation(ip).amp_decay_map,1),2));
+    tp_focus_map_evs = squeeze(nanmean(nanmean(attenuation(ip).tp_focus_map,1),2));
+    azi_evs = squeeze(nanmean(nanmean(attenuation(ip).azi,1),2));
+    plot(attenuation(ip).azi(:),attenuation(ip).amp_decay_map(:),'.b'); hold on;
+    plot(attenuation(ip).azi(:),attenuation(ip).tp_focus_map(:),'.r');
+%     plot(azi_evs,amp_decay_map_evs,'.b'); hold on;
+%     plot(azi_evs,tp_focus_map_evs,'.r');
+    title([num2str(attenuation(ip).period),' s'])
+    xlabel('azimuth');
+    ylabel('amplitude term');
+    if ip == 1
+        lg = legend({'Amp decay','Focusing'});
+        lg.Position(2) = lg.Position(2)+0.07;
+    end
+    ylim([-2e-4 2e-4]);
+end
+
+figure(45); clf;
+set(gcf,'Position',[616    71   850   947]);
+for ip = 1:length(attenuation)
+    subplot(M,N,ip)
+    plot(attenuation(ip).tp_focus_map(:),attenuation(ip).amp_decay_map(:),'.b'); hold on;
+%     plot(squeeze(azi(9,9,:)),squeeze(amp_term(9,9,:)),'or'); hold on;
+%     plot(azi(Ibad),amp_term(Ibad),'o');
+%     plot(azi_bin(:),amp_bin(:),'og');
+    title([num2str(attenuation(ip).period),' s'])
+    ylabel('Amplitude Decay');
+    xlabel('Focusing');
+end
+
+%% Plot terms
+figure(46); clf;
+set(gcf,'Position',[616    71   850   947]);
+sgtitle('1 / \nabla\tau','fontweight','bold','fontsize',18);
+for ip = 1:length(attenuation)
+    
+    [~,idx] = min(abs(disp.T-periods(ip)));
+    phv_tru = disp.phv(idx);
+    
+    subplot(M,N,ip)
+    r = 0.02;
+    tp_grad_map_evs = squeeze(nanmean(nanmean(attenuation(ip).tp_grad_map,1),2));
+    azi_evs = squeeze(nanmean(nanmean(attenuation(ip).azi,1),2));
+    phvavg = 1./nanmean(attenuation(ip).tp_grad_map(:));
+    plot(attenuation(ip).azi(:),1./attenuation(ip).tp_grad_map(:),'.b'); hold on;
+    plot(azi_evs,1./tp_grad_map_evs,'.r'); hold on;
+    plot([0 360],[phvavg phvavg],'--g','linewidth',2);
+%     plot(azi_evs,tp_grad_map_evs,'.r');
+    plot([0 360],[phv_tru phv_tru],'-g','linewidth',2);
+    title([num2str(attenuation(ip).period),' s'])
+    xlabel('azimuth');
+    ylabel('phase velocity');
+    if ip == 1
+        lg = legend({'\nabla \tau^{-1}'});
+        lg.Position(2) = lg.Position(2)+0.07;
+    end
+    ylim([1-r 1+r]*phvavg);
+end
+
+figure(47); clf;
+set(gcf,'Position',[616    71   850   947]);
+sgtitle('\nabla A','fontweight','bold','fontsize',18);
+for ip = 1:length(attenuation)
+    subplot(M,N,ip)
+    amp_grad_map_evs = squeeze(nanmean(nanmean(attenuation(ip).amp_grad_map,1),2));
+    azi_evs = squeeze(nanmean(nanmean(attenuation(ip).azi,1),2));
+    plot(attenuation(ip).azi(:),(attenuation(ip).amp_grad_map(:)),'.b'); hold on;
+    plot(azi_evs,(amp_grad_map_evs),'.r'); hold on;
+    title([num2str(attenuation(ip).period),' s'])
+    xlabel('azimuth');
+    ylabel('amplitude term');
+    if ip == 1
+        lg = legend({'\nabla A'});
+        lg.Position(2) = lg.Position(2)+0.07;
+    end
+%     ylim([-2e-4 2e-4]);
+end
+
+figure(48); clf;
+set(gcf,'Position',[616    71   850   947]);
+sgtitle('\nabla A / A','fontweight','bold','fontsize',18);
+for ip = 1:length(attenuation)
+    subplot(M,N,ip)
+    amp_grad_norm_map_evs = squeeze(nanmean(nanmean(attenuation(ip).amp_grad_norm_map,1),2));
+    azi_evs = squeeze(nanmean(nanmean(attenuation(ip).azi,1),2));
+    plot(attenuation(ip).azi(:),(attenuation(ip).amp_grad_norm_map(:)),'.b'); hold on;
+    plot(azi_evs,amp_grad_norm_map_evs,'.r'); hold on;
+    title([num2str(attenuation(ip).period),' s'])
+    xlabel('azimuth');
+    ylabel('amplitude term');
+    if ip == 1
+        lg = legend({'\nabla A / A'});
+        lg.Position(2) = lg.Position(2)+0.07;
+    end
+%     ylim([-2e-4 2e-4]);
+end
+
+figure(49); clf;
+set(gcf,'Position',[616    71   850   947]);
+sgtitle('\nabla A \cdot \nabla \tau','fontweight','bold','fontsize',18);
+for ip = 1:length(attenuation)
+    subplot(M,N,ip)
+    ampgrad_dot_tpgrad = squeeze(nanmean(nanmean(attenuation(ip).ampgrad_dot_tpgrad,1),2));
+    azi_evs = squeeze(nanmean(nanmean(attenuation(ip).azi,1),2));
+    plot(attenuation(ip).azi(:),(attenuation(ip).ampgrad_dot_tpgrad(:)),'.b'); hold on;
+    plot(azi_evs,ampgrad_dot_tpgrad,'.r'); hold on;
+    title([num2str(attenuation(ip).period),' s'])
+    xlabel('azimuth');
+    ylabel('amplitude term');
+    if ip == 1
+        lg = legend({'\nabla A \cdot \nabla \tau'});
+        lg.Position(2) = lg.Position(2)+0.07;
+    end
+%     ylim([-2e-4 2e-4]);
+end
 
 %% Save
-matfilename = fullfile(workingdir,['attenuation_',parameters.component,'.mat']);
+matfilename = fullfile(attenuation_path,['attenuation_',parameters.component,'.mat']);
 if is_save_mat
     save(matfilename,'attenuation');
     fprintf('\n');
