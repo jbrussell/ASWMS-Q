@@ -12,7 +12,7 @@ Mrplist = event.moment.m_rp;
 Mtplist = event.moment.m_tp;
 
 % Loop over stations
-for ista = 1:length(length(event.stadata))
+for ista = 1:length(event.stadata)
     [~, Azimuthlist] = distance(event.evla,event.evlo,...
                                 event.stadata(ista).stla,event.stadata(ista).stlo...
                                 ,referenceEllipsoid('GRS80'));
