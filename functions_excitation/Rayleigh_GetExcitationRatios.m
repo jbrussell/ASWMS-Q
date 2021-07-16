@@ -1,20 +1,20 @@
 
-function [event] = Rayleigh_GetExcitationRatios(event,Periodlist,CARD,Path2Phv,Path2Eig,MaxN,MinorOrMajor)
+function [eventcs] = Rayleigh_GetExcitationRatios(eventcs,Periodlist,CARD,Path2Phv,Path2Eig,MaxN,MinorOrMajor)
 %% Loops to Calculate Excitation ratios
 %% for a specific period, and for a set of events
 
-Depthlist = event.evdp;
-Mrrlist = event.moment.m_rr;
-Mttlist = event.moment.m_tt;
-Mpplist = event.moment.m_pp;
-Mrtlist = event.moment.m_rt;
-Mrplist = event.moment.m_rp;
-Mtplist = event.moment.m_tp;
+Depthlist = eventcs.evdp;
+Mrrlist = eventcs.moment.m_rr;
+Mttlist = eventcs.moment.m_tt;
+Mpplist = eventcs.moment.m_pp;
+Mrtlist = eventcs.moment.m_rt;
+Mrplist = eventcs.moment.m_rp;
+Mtplist = eventcs.moment.m_tp;
 
 % Loop over stations
-for ista = 1:length(event.stadata)
-    [~, Azimuthlist] = distance(event.evla,event.evlo,...
-                                event.stadata(ista).stla,event.stadata(ista).stlo...
+for ista = 1:length(eventcs.autocor)
+    [~, Azimuthlist] = distance(eventcs.evla,eventcs.evlo,...
+                                eventcs.stlas(ista),eventcs.stlos(ista)...
                                 ,referenceEllipsoid('GRS80'));
     
     % Loop over overtones
@@ -88,7 +88,7 @@ for ista = 1:length(event.stadata)
 
     end
     % Save excitation structure
-    event.stadata(ista).excitation = PeriodStruc;
+    eventcs.source(ista).excitation = PeriodStruc;
 
     periodcounter=0;
     
@@ -103,7 +103,7 @@ for ista = 1:length(event.stadata)
             end
         end
 
-        event.stadata(ista).excitation(periodcounter).ratio_Amp1_0 = ExcitationRatio_Mat;
+        eventcs.source(ista).excitation(periodcounter).ratio_Amp1_0 = ExcitationRatio_Mat;
     end
 end
 

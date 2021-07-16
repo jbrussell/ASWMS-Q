@@ -44,12 +44,12 @@ xnode = [lalim(1),mean(lalim),lalim(2)];
 ynode = [lolim(1),mean(lolim),lolim(2)];
 [xi yi] = meshgrid(xnode,ynode);
 
-matfiles = dir([eventmatpath,'/*_',parameters.component,'.mat']);
+matfiles = dir([csmatpath,'/*_',parameters.component,'.mat']);
 for ie = 1:length(matfiles)
 	% read in the events information
-	temp = load([eventmatpath,matfiles(ie).name]);
-	event = temp.event;
-    evid = event.id;
+	temp = load([csmatpath,matfiles(ie).name]);
+	eventcs = temp.eventcs;
+    evid = eventcs.id;
 	disp(evid)
     
     % Load moment tensor values from CMT idagrn file
@@ -69,18 +69,18 @@ for ie = 1:length(matfiles)
     m_tp = sscanf(fgetl(fid),'%f');    
     fclose(fid);
     
-    event.moment.m_rr = m_rr;
-    event.moment.m_tt = m_tt;
-    event.moment.m_pp = m_pp;
-    event.moment.m_rt = m_rt;
-    event.moment.m_rp = m_rp;
-    event.moment.m_tp = m_tp;
-    event.moment.mult_fac = mult_fac;
+    eventcs.moment.m_rr = m_rr;
+    eventcs.moment.m_tt = m_tt;
+    eventcs.moment.m_pp = m_pp;
+    eventcs.moment.m_rt = m_rt;
+    eventcs.moment.m_rp = m_rp;
+    eventcs.moment.m_tp = m_tp;
+    eventcs.moment.mult_fac = mult_fac;
     
     % Calculate excitation ratios and attach to event structure
-    [event] = Rayleigh_GetExcitationRatios(event,periods,CARD,path2phv,path2eig,MaxN,MinorOrMajor);
+    [eventcs] = Rayleigh_GetExcitationRatios(eventcs,periods,CARD,path2phv,path2eig,MaxN,MinorOrMajor);
     
-    save([eventmatpath,matfiles(ie).name],'event');
+    save([csmatpath,matfiles(ie).name],'eventcs');
     
 end % end of event loop
 
