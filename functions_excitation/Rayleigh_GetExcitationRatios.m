@@ -58,9 +58,6 @@ for ista = 1:length(event.stadata)
             % Loop over events
             for evnum = 1:1:length(Depthlist)
 
-                disp(['Percent Complete for n = ' num2str(currN) ' : ' num2str(100*evnum/length(Depthlist)) '%'])
-
-
                  [ B_SourceAmp,B_SourcePhase,B_Complex_Rad_Pattern,B_Term1,...
                 B_Term2,B_Term3 ] = ...
                 GetRayleighSourceAmpandPhase([0:0.5:360],1000*Depthlist(evnum),period,...
