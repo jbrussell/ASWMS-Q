@@ -3,7 +3,8 @@
 clear;
 
 setup_parameters;
-phase_v_path = './helmholtz/'
+workingdir = parameters.workingdir;
+phase_v_path = [workingdir,'/helmholtz/'];
 comp = parameters.component;
 periods = parameters.periods;
 

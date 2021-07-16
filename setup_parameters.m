@@ -3,7 +3,8 @@
 % prepend functions directory to MATLAB path
 fullMAINpath = mfilename('fullpath');
 functionspath = [fullMAINpath(1:regexp(fullMAINpath,mfilename)-1),'functions'];
-addpath(functionspath);
+plottingpath = [fullMAINpath(1:regexp(fullMAINpath,mfilename)-1),'plotting_scripts'];
+addpath(functionspath); addpath(plottingpath);
 
 parameters.workingdir = './ORCA_M5.5_detrend_Zcorr_100km_snr3_600km/';
 % parameters.workingdir = './ORCA_M5.5_detrend_Zcorr_100km_snr3/';

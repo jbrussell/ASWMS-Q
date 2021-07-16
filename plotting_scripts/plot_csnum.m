@@ -2,12 +2,13 @@ clear;
 
 setup_parameters;
 comp = parameters.component;
-files = dir(['./eikonal/*',comp,'.mat']);
+workingdir = parameters.workingdir;
+files = dir([workingdir,'/eikonal/*',comp,'.mat']);
 
 
 for ie = 1:length(files)
 	disp(files(ie).name)
-	filename = ['./eikonal/',files(ie).name];
+	filename = [workingdir,'/eikonal/',files(ie).name];
 	load(filename);
 	good_bad_ratio(:,ie) = [eventphv.goodnum] ./ [eventphv.badnum];
 end

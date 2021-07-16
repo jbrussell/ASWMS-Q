@@ -4,10 +4,12 @@ setup_parameters;
 
 periods = parameters.periods;
 
-badstnms = textread('badsta.lst','%s');
+% badstnms = textread('badsta.lst','%s');
+badstnms = [];
 
-eventcs_path = './CSmeasure/';
-csmatfiles = dir(['./CSmeasure/*cs.mat']);
+workingdir = parameters.workingdir;
+eventcs_path = [workingdir,'CSmeasure/'];
+csmatfiles = dir([eventcs_path,'/*cs.mat']);
 
 land_land_num = 0;
 land_obs_num = 0;
