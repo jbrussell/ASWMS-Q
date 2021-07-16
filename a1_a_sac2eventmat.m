@@ -1,6 +1,9 @@
-% This script is used to convert event based sac files into event mat which is the input for the following 
-% scripts
+% This script is used to convert event based sac files into event mat which is 
+% the input for the following scripts. It is recommended that you use the
+% following package for the data download step:
+% https://github.com/jbrussell/fetch_EVENTS
 %
+% github.com/jbrussell
 %
 clear;
 

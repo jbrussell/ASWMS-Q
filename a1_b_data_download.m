@@ -1,3 +1,16 @@
+% !!! IMPORTANT NOTE 07/16/2021 !!!
+% Use this script with caution. We have implemented several additional
+% quality control steps which require information about the moment tensor. It
+% is recommended that you use this new python package to do the data download 
+% and preprocessing, which saves moment tensor information from the GCMT: 
+% https://github.com/jbrussell/fetch_EVENTS
+%
+% Most of the scripts should run with this old data download step, but
+% your mileage may vary.
+%
+% jbrussell
+%
+
 clear;
 
 javaaddpath('IRIS-WS-2.0.15.jar');
