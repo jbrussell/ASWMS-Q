@@ -1,4 +1,4 @@
-MYBIN = /Users/russell/Lamont/PROJ_LoveOvertones/FORTRAN/bin
+MYBIN = /Users/russell/Lamont/GITHUB/ASWMS-ani/MINEOS/FORTRAN/bin
 FC = gfortran
 FFLAGS= $(MYFFLAGS)
 # FFLAGS = -g -C

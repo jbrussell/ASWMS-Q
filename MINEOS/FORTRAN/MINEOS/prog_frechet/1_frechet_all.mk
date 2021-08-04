@@ -1,4 +1,4 @@
-FBIN = /Users/russell/Lamont/PROJ_LoveOvertones/FORTRAN/bin
+FBIN = /Users/russell/Lamont/GITHUB/ASWMS-ani/MINEOS/FORTRAN/bin
 FC = gfortran
 FFLAGS=-ffixed-line-length-none 
 #-L/usr/local/include 

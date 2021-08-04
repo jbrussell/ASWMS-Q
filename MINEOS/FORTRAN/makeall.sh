@@ -9,8 +9,8 @@
 #
 
 COMPILER="gfortran"
-LIBPATH="/Users/russell/Lamont/PROJ_LoveOvertones/FORTRAN/libgfortran"
-BINPATH="/Users/russell/Lamont/PROJ_LoveOvertones/FORTRAN/bin"
+LIBPATH="$PWD/libgfortran"
+BINPATH="$PWD/bin"
 
 echo "Compiler: $COMPILER"
 
