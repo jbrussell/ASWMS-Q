@@ -32,6 +32,7 @@ eventmatpath = [workingdir,'eventmat/'];
 csmatpath = [workingdir,'CSmeasure/'];
 eikonalpath = [workingdir,'eikonal/'];
 periods = parameters.periods;
+comp = parameters.component;
 
 % Setup Error Codes for Bad data
 setup_ErrorCode
@@ -44,7 +45,7 @@ xnode = [lalim(1),mean(lalim),lalim(2)];
 ynode = [lolim(1),mean(lolim),lolim(2)];
 [xi yi] = meshgrid(xnode,ynode);
 
-matfiles = dir([csmatpath,'/*_',parameters.component,'.mat']);
+matfiles = dir([csmatpath,'/*_',comp,'.mat']);
 for ie = 1:length(matfiles)
 	% read in the events information
 	temp = load([csmatpath,matfiles(ie).name]);
@@ -78,7 +79,7 @@ for ie = 1:length(matfiles)
     eventcs.moment.mult_fac = mult_fac;
     
     % Calculate excitation ratios and attach to event structure
-    [eventcs] = Rayleigh_GetExcitationRatios(eventcs,periods,CARD,path2phv,path2eig,MaxN,MinorOrMajor);
+	[eventcs] = GetExcitationRatios(eventcs,periods,CARD,path2phv,path2eig,MaxN,MinorOrMajor,comp);
     
     save([csmatpath,matfiles(ie).name],'eventcs');
     
