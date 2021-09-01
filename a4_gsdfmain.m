@@ -17,11 +17,14 @@
 clear;
 %plot native
 
-isdebug = 1;
+isdebug = 0;
+isfigure = 1;
 is_overwrite = 1;
 
 % Setup parameters
 setup_parameters
+parameters.isfigure = isfigure;
+parameters.isdebug = isdebug;
 
 workingdir = parameters.workingdir;
 % eventmatpath = './eventmat/';

@@ -2,8 +2,8 @@ function CS = CS_measure(event,sta1,sta2,parameters)
 % Main function to perform GSDF measurement
 %
 	setup_ErrorCode;
-	isdebug = 0;
-    isfigure = 1;
+	isdebug = parameters.isdebug;
+    isfigure = parameters.isfigure;
 
 	refv = parameters.refv;
 	refphv = parameters.refphv;
