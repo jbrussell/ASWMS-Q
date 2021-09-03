@@ -6,7 +6,7 @@
 % JBR 07/18
 clear; close all;
 
-COMP = 'R'; %'Z' 'R' 'T' % Component
+COMP = 'T'; %'Z' 'R' 'T' % Component
 
 parameter_FRECHET;
 TYPE = param.TYPE;
@@ -32,9 +32,9 @@ setenv('GFORTRAN_STDIN_UNIT', '5')
 setenv('GFORTRAN_STDOUT_UNIT', '6') 
 setenv('GFORTRAN_STDERR_UNIT', '0')
 
-SAC_OUT = [SYNTH_OUT,'full'];
-if ~exist(SAC_OUT)
-    mkdir(SAC_OUT);
+EXCITE_OUT = [SYNTH_OUT,'excitation'];
+if ~exist(EXCITE_OUT)
+    mkdir(EXCITE_OUT);
 end
 
 %% Run plot_wk
@@ -51,15 +51,15 @@ end
 setpath_idagrn;
 write_idagrn(TYPE,CARDID,EVTPATH,STAPATH,LENGTH_HR,DT,COMP)
 
-fprintf('------- Calculating Full synthetics %s0-%d: %s-------\n',TYPE,N_modes-1,COMP)
+fprintf('------- Calculating Excitation %s0-%d: %s-------\n',TYPE,N_modes-1,COMP)
 system(['cat run_idagrn.',lower(TYPE),' > idagrn.in']);
-com = ['cat idagrn.in | idagrn6_sac > idagrn.LOG'];
+com = ['cat idagrn.in | idagrn6_excite > idagrn.LOG'];
 [status,log] = system(com);
 if status ~= 0     
-    error( 'something is wrong at idagrn6_sac')
+    error( 'something is wrong at idagrn6_excite')
 end
 
-system(sprintf('mv *.%s.sac %s',COMP,SAC_OUT));
+system(sprintf('mv *.excite.asc %s',EXCITE_OUT));
 
 %% Change the environment variables back to the way they were
 setenv('GFORTRAN_STDIN_UNIT', '-1') 

@@ -45,7 +45,8 @@ elseif bw == 0
     clr = jet(N_modes);
 end
 % clr = [0 0 1; 0 0.7 0];
-clr = [0 0 0; 1 0 0];
+% clr = [0 0 0; 1 0 0];
+clr = lines(N_modes);
 dat = {};
 for i = 1:N_modes
 %     com = ['awk ''{ if ($1 ==',num2str(i-1),' && $10 != "") print $0}'' ',QIN];

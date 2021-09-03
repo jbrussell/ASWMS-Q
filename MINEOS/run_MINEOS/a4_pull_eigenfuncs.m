@@ -27,14 +27,15 @@
 
 clear; close all;
 
-mbranch = 1; % mode number
-overwrite = 1; % overwrite existing eigenfunction *.mat file?
+mbranch = 0; % mode number
+overwrite = 0; % overwrite existing eigenfunction *.mat file?
 
 
 parameter_FRECHET;
 periods = param.periods;
 TYPE = param.TYPE;
 CARDID = param.CARDID;
+EIGPATH = param.eigpath;
 if ( TYPE == 'T') 
     TYPEID = param.TTYPEID;
 elseif ( TYPE == 'S') 
@@ -138,9 +139,6 @@ set(gca,'fontsize',16,'linewidth',2);
 % get(h,'interpreter');
 % set(h,'interpreter','none');
 
-CARDID = param.CARDID;
-TYPEID = param.TTYPEID;
-EIGPATH = param.eigpath;
 %print('-painters','-dpdf','-r400',[EIGPATH,CARDID,'.',TYPEID,'.',num2str(j),'mod.',num2str(N_modes),'_fix.pdf']);
 save2pdf([EIGPATH,CARDID,'.',TYPEID,'.',num2str(mbranch),'mod.',num2str(N_modes),'_fix.pdf'],fig1,1000);
 

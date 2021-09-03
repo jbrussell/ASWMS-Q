@@ -108,6 +108,12 @@ sed -e "s/FCxreplace/${COMPILER}/ ; s+BINxreplace+${BINPATH}+ ; s+LIBxreplace+${
 (cd ${MAKEPATH} && make -f ${MAKEFILE}.mk)
 rm -r ${MAKEPATH}/*.o
 
+MAKEFILE="3_idagrn6_excite"
+sed -e "s/FCxreplace/${COMPILER}/ ; s+BINxreplace+${BINPATH}+ ; s+LIBxreplace+${LIBPATH}+" ${MAKEPATH}${MAKEFILE}.mkin > ${MAKEPATH}${MAKEFILE}.mk
+(cd ${MAKEPATH} && make clean -f ${MAKEFILE}.mk)
+(cd ${MAKEPATH} && make -f ${MAKEFILE}.mk)
+rm -r ${MAKEPATH}/*.o
+
 ###### mask ########################
 echo "idagrn6_mask"
 MAKEPATH="./idagrn6/prog_mask/"

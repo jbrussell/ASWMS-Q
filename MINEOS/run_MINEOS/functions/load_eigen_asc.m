@@ -261,6 +261,7 @@ elseif ( TYPE == 'T')
         eig(iper).T = eigen_ind(:,10);
         eig(iper).per = 2*pi./eig(iper).w;
         eig(iper).per_want = periods(iper);
+
     end
 end
 
