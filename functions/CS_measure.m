@@ -4,6 +4,7 @@ function CS = CS_measure(event,sta1,sta2,parameters)
 	setup_ErrorCode;
 	isdebug = parameters.isdebug;
     isfigure = parameters.isfigure;
+	is_winx2 = parameters.is_winx2;
 
 	refv = parameters.refv;
 	refphv = parameters.refphv;
@@ -87,6 +88,13 @@ function CS = CS_measure(event,sta1,sta2,parameters)
 	winbgt = dist2/v1+t1;
 	winendt = dist2/v2+t2;
 	win_data2 = flat_hanning_win(taxis2,data2,winbgt,winendt,wintaperlength);
+	
+	if is_winx2
+		% window data1
+		winbgt = dist1/v1+t1;
+		winendt = dist1/v2+t2;
+		data1 = flat_hanning_win(taxis1,data1,winbgt,winendt,wintaperlength);
+	end
 
 	% apply cross-correlation
 	[xcor,lag] = xcorr(data1,win_data2,...

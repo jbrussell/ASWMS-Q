@@ -72,6 +72,7 @@ parameters.Nfit = 2; %4; % 2
 parameters.Ncircle = 5;
 parameters.cohere_tol = 0.65; % minimum coherenecy between two stations
 parameters.tp_tol = 10;  % seconds away from averaged phase velocity 
+parameters.is_winx2 = 1; % jbr - 0=window single seismogram (default); 1=window both seismograms (may help reduce overtone interference)
 
 %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%%
 % parameters for the tomography
