@@ -13,9 +13,10 @@ Mtplist = eventcs.moment.m_tp;
 
 % Loop over stations
 for ista = 1:length(eventcs.autocor)
-    [~, Azimuthlist] = distance(eventcs.evla,eventcs.evlo,...
+    [Distlist, Azimuthlist] = distance(eventcs.evla,eventcs.evlo,...
                                 eventcs.stlas(ista),eventcs.stlos(ista)...
                                 ,referenceEllipsoid('GRS80'));
+    Distlist_km = deg2km(Distlist);
     
     % Loop over overtones
     for currN = [0:1:MaxN]
@@ -31,10 +32,10 @@ for ista = 1:length(eventcs.autocor)
         % Loop over periods
         for period = Periodlist
 
-            Tdiff = abs(Tlist-period);
-            [mindiff,cdx]=min(Tdiff);
-            CurrC = Clist(cdx);
-            CurrC = deg2rad(km2deg(CurrC));
+            CurrC_kms = interp1(Tlist,Clist,period);
+            CurrC = deg2rad(km2deg(CurrC_kms));
+            CurrU_kms = interp1(Tlist,mode.grv,period);
+            CurrQ = interp1(Tlist,mode.q,period);
 
             periodcounter = periodcounter +1;
             % Load eigenfunction
@@ -42,7 +43,10 @@ for ista = 1:length(eventcs.autocor)
             tmpinfo=load(Eigfname);
             eig = tmpinfo.eig;
             pers_eig = [eig(:).per_want];
-            [~,Iper] = min(abs(pers_eig-period));
+            [dper,Iper] = min(abs(pers_eig-period));
+            if abs(dper) > period*0.05
+                error('eigenfunction period far away from desired value')
+            end
             W=eig(Iper).wl;
             Wderiv=eig(Iper).wp;
             r=eig(1).r;    
@@ -62,7 +66,9 @@ for ista = 1:length(eventcs.autocor)
                 r, W, Wderiv,Mrrlist(evnum),Mttlist(evnum),...
                 Mpplist(evnum),Mrtlist(evnum),Mrplist(evnum),...
                 Mtplist(evnum),CurrC,wvgrpdx );  
-
+                
+                B_SourceAmp = source_propagation_effects(B_SourceAmp,2*pi./period,Distlist_km,CurrC_kms,CurrU_kms,CurrQ);
+                
                 tmpmax = max(B_SourceAmp); maxB_SourceAmp = tmpmax(1);
                 PeriodStruc(periodcounter).period(evnum) = period;
                 PeriodStruc(periodcounter).mode(evnum,currN+1) = currN;
@@ -75,6 +81,8 @@ for ista = 1:length(eventcs.autocor)
                 r, W, Wderiv,Mrrlist(evnum),Mttlist(evnum),...
                 Mpplist(evnum),Mrtlist(evnum),Mrplist(evnum),...
                 Mtplist(evnum),CurrC,wvgrpdx );  
+                
+                B_SourceAmp = source_propagation_effects(B_SourceAmp,2*pi./period,Distlist_km,CurrC_kms,CurrU_kms,CurrQ);
 
                 PeriodStruc(periodcounter).Amp(evnum,currN+1) = B_SourceAmp;
                 PeriodStruc(periodcounter).Phase(evnum,currN+1) = B_SourcePhase;

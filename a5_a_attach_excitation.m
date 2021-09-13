@@ -70,12 +70,15 @@ for ie = 1:length(matfiles)
     m_tp = sscanf(fgetl(fid),'%f');    
     fclose(fid);
     
-    eventcs.moment.m_rr = m_rr;
-    eventcs.moment.m_tt = m_tt;
-    eventcs.moment.m_pp = m_pp;
-    eventcs.moment.m_rt = m_rt;
-    eventcs.moment.m_rp = m_rp;
-    eventcs.moment.m_tp = m_tp;
+	if eventcs.evdp ~= depth_km
+		error('Event depth does not match text file... check units')
+	end
+    eventcs.moment.m_rr = m_rr * mult_fac;
+    eventcs.moment.m_tt = m_tt * mult_fac;
+    eventcs.moment.m_pp = m_pp * mult_fac;
+    eventcs.moment.m_rt = m_rt * mult_fac;
+    eventcs.moment.m_rp = m_rp * mult_fac;
+    eventcs.moment.m_tp = m_tp * mult_fac;
     eventcs.moment.mult_fac = mult_fac;
     
     % Calculate excitation ratios and attach to event structure

@@ -34,5 +34,10 @@ Term2 = ((-1)^s).*(Wdot-W/source_rad).*(Mrt.*sind(AZI) - Mrp.*cosd(AZI));
 Complex_Rad_Pattern = omega*(Term1.*exp(1i*pi/4)+Term2.*exp(-1*1i*pi/4));
 %Complex_Rad_Pattern = omega*(Term3);
 
+% JBR scale to displacement
+idx_surf = max(find(WLIST~=0));
+W_surf = WLIST(idx_surf);
+Complex_Rad_Pattern = Complex_Rad_Pattern .* (1i*W_surf);
+
 end
 
