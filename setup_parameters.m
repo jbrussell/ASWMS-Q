@@ -6,18 +6,15 @@ functionspath = [fullMAINpath(1:regexp(fullMAINpath,mfilename)-1),'functions'];
 plottingpath = [fullMAINpath(1:regexp(fullMAINpath,mfilename)-1),'plotting_scripts'];
 addpath(functionspath); addpath(plottingpath);
 
-parameters.workingdir = './ORCA_M5.5_detrend_Zcorr_100km_snr3_600km/';
-% parameters.workingdir = './ORCA_M5.5_detrend_Zcorr_100km_snr3/';
-% parameters.workingdir = './ORCA_M5.5_Zcorr_100km_snr3/';
+parameters.workingdir = './OUT/';
 
 %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%%
 %%%% Global settings
-parameters.proj_name = 'XX';
+parameters.proj_name = 'XX'; % network code
 parameters.component = 'BHZ';   % determined by filenames
 parameters.lalim = [-9 -3] ;
 parameters.lolim = [-136 -130];
 parameters.gridsize=0.5;   % in degrees
-% parameters.periods = [20 25 32 40 50 60 80 100 120 130 150]; %[20 25 32 40 50 60 80 100];  % in seconds
 parameters.periods = round(logspace(log10(20),log10(150),15));
 
 %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%%
@@ -35,8 +32,8 @@ parameters.periods = round(logspace(log10(20),log10(150),15));
 
 %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%%
 % Parameters for own data selection criteria
-parameters.dbpath = '/Users/russell/Lamont/PROJ_YoungPacificORCA/DATA/EVENTS/IRIS_XX_5.5_detrend_18sta_Zcorr/'; %'/Users/russell/Lamont/ENAM/DATA/EVENTS/IRIS_YO_6.5/';
-parameters.eventfile = 'evlist.txt';
+parameters.dbpath = '/path/to/sac/data/directory/'; 
+parameters.eventfile = 'evlist.txt'; % name of eventlist located in dbpath
 parameters.minMw = 5.5;
 parameters.maxdepth = 50;
 parameters.snr_tol = 3;
