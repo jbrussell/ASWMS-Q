@@ -23,6 +23,7 @@ outpath = [workingdir,'eventmat/'];
 minMw = parameters.minMw;
 maxdepth = parameters.maxdepth;
 max_dist_tol = parameters.max_dist_tol;
+min_dist_tol = parameters.min_dist_tol;
 snr_tol = parameters.snr_tol;
 
 if ~exist(outpath)
@@ -101,10 +102,13 @@ for ie = 1:length(eventids)
 %		end
     end
     try 
-        if mean([event.stadata(:).dist]) > max_dist_tol
-            disp(['Max distance exceeded for ',char(eventids(ie)),', Skip!']);
-            continue;
-        end
+		if mean([event.stadata(:).dist]) > max_dist_tol
+		    disp(['Max distance exceeded for ',char(eventids(ie)),', Skip!']);
+		    continue;
+		elseif mean([event.stadata(:).dist]) < min_dist_tol
+		    disp(['Min distance exceeded for ',char(eventids(ie)),', Skip!']);
+		    continue;
+		end
     end
     if ~is_skip_mag_dep
         matfilename = [outpath,char(eventids(ie)),'_',comp,'.mat'];
