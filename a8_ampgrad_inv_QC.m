@@ -9,6 +9,18 @@
 clear
 % setup parameters
 setup_parameters
+setup_ErrorCode
+
+% JBR
+cohere_tol = parameters.cohere_tol;
+
+fiterr_tol = 1e-2; % wavelet fitting error, throw out measurements greater than this
+maxstadist = 600;
+minstadist = 200;
+cohere_tol = 0.80;
+min_stadist_wavelength = 0.33; %0.5; % minimum station separation in wavelengths
+max_stadist_wavelength = 999;
+ref_phv = [3.9936 4.0041 4.0005 3.9999 3.9929 3.9832 3.9813 3.9841 3.9874 3.9996 4.0138 4.0519 4.0930 4.1677 4.2520]; % for calculating wavelength
 
 % debug setting
 isfigure = 1;
@@ -196,6 +208,23 @@ for ie = 1:length(csmatfiles)
 		for ics = 1:length(eventcs.CS)
             Ista1 = eventcs.CS(ics).sta1;
             Ista2 = eventcs.CS(ics).sta2;
+			if eventcs.CS(ics).cohere(ip)<cohere_tol && eventcs.CS(ics).isgood(ip)>0
+                eventcs.CS(ics).isgood(ip) = ErrorCode.low_cohere;
+            end
+			if (abs(eventcs.CS(ics).ddist) < ref_phv(ip)*periods(ip)*min_stadist_wavelength || ...
+                abs(eventcs.CS(ics).ddist) > ref_phv(ip)*periods(ip)*max_stadist_wavelength) && eventcs.CS(ics).isgood(ip)>0
+				eventcs.CS(ics).isgood(ip) = ErrorCode.min_stadist_wavelength;
+            end
+            if (abs(eventcs.CS(ics).ddist) > maxstadist || ...
+                abs(eventcs.CS(ics).ddist) < minstadist) && eventcs.CS(ics).isgood(ip)>0
+                eventcs.CS(ics).isgood(ip) = -13;
+            end
+            if (eventcs.CS(ics).fiterr(ip) > fiterr_tol)
+                eventcs.CS(ics).isgood(ip) = -14;
+            end
+            if eventcs.CS(ics).cohere(ip)>=cohere_tol && eventcs.CS(ics).isgood(ip)==ErrorCode.low_cohere
+                eventcs.CS(ics).isgood(ip) = 1;
+            end
 			if eventcs.CS(ics).isgood(ip) > 0 && ~isnan(amps(Ista1)*amps(Ista2))
                 
                 dt(ics) = amps(Ista1)-amps(Ista2);
@@ -309,6 +338,9 @@ for ie = 1:length(csmatfiles)
             phaseg=(A'*A)\(A'*rhs);
         end	
 
+		% Estimate differential amplitude residuals
+        dA_res = dt - mat*phaseg;
+		
         % Calculate the kernel density
         %sumG=sum(abs(mat),1);
         ind=1:Nx*Ny;
@@ -353,6 +385,7 @@ for ie = 1:length(csmatfiles)
 		ampgrad(ip).goodnum = length(find(w>0));
 		ampgrad(ip).badnum = length(find(w==0));
 		ampgrad(ip).dt = dt;
+		ampgrad(ip).dA_res = dA_res; % data residuals
 		ampgrad(ip).dAmp = dAmp;
 		ampgrad(ip).dAmpx = dAmpx;
 		ampgrad(ip).dAmpy = dAmpy;

@@ -34,6 +34,7 @@ gridsize=parameters.gridsize;
 periods = parameters.periods;
 raydensetol=parameters.raydensetol;
 smweight_array = parameters.smweight_array;
+flweight_array = parameters.flweight_array; % JBR
 Tdumpweight0 = parameters.Tdumpweight;
 Rdumpweight0 = parameters.Rdumpweight;
 fiterrtol = parameters.fiterrtol;
@@ -79,6 +80,9 @@ tic
         F(2*n,2*ind)=Areg(n,ind);
     end
 toc
+
+% JBR - define first derivative "flatness" kernel
+F2 = flat_kernel_build(xnode, ynode, Nx*Ny);
 
 % read in bad station list, if existed
 if exist('badsta.lst')
@@ -152,19 +156,22 @@ for ie = 1:length(csmatfiles)
 	% Loop through the periods
 	for ip = 1:length(periods)
 		smweight0 = smweight_array(ip);
+		flweight0 = flweight_array(ip); % JBR
 		dt = zeros(length(eventcs.CS),1);
 		w = zeros(length(eventcs.CS),1);
+		ddist = zeros(length(eventcs.CS),1);
 		for ics = 1:length(eventcs.CS)
 			if eventcs.CS(ics).isgood(ip) > 0 
 				dt(ics) = eventcs.CS(ics).dtp(ip);
 				w(ics) = 1;
 			else
-				dt(ics) = 0;
+				dt(ics) = eventcs.CS(ics).dtp(ip);
 				w(ics) = 0;
 			end
 			if sum(ismember([eventcs.CS(ics).sta1 eventcs.CS(ics).sta2],badstaids)) > 0
 				w(ics) = 0;
 			end
+			ddist(ics,:) = eventcs.CS(ics).ddist;
 		end
 		W = sparse(length(w),length(w));
 		for id = 1:length(w)
@@ -178,6 +185,11 @@ for ie = 1:length(csmatfiles)
         NA=norm(W*mat,1);
         smweight = smweight0*NA/NR;
 
+		% JBR - Normalize flatness kernel
+        NR=norm(F2,1);
+        NA=norm(W*mat,1);
+        flweight = flweight0*NA/NR;
+		
 		% Normalize dumping matrix for ST
 		NR=norm(dumpmatT,1);
 		NA=norm(W*mat,1);
@@ -190,13 +202,13 @@ for ie = 1:length(csmatfiles)
 
 		% Set up matrix on both side
 		if isRsmooth
-            A=[W*mat;smweight*F*R;dumpweightT*dumpmatT;dumpweightR*dumpmatR];
+            A=[W*mat;smweight*F*R;flweight*F2*R;dumpweightT*dumpmatT;dumpweightR*dumpmatR];
         else
-            A=[W*mat;smweight*F;dumpweightT*dumpmatT;dumpweightR*dumpmatR];
+            A=[W*mat;smweight*F;flweight*F2;dumpweightT*dumpmatT;dumpweightR*dumpmatR];
         end
 
 		avgv = eventcs.avgphv(ip);
-        rhs=[W*dt;zeros(size(F,1),1);zeros(size(dumpmatT,1),1);dumpweightR*ones(size(dumpmatR,1),1)./avgv];
+        rhs=[W*dt;zeros(size(F,1),1);zeros(size(F2,1),1);zeros(size(dumpmatT,1),1);dumpweightR*ones(size(dumpmatR,1),1)./avgv];
         
 		% Least square inversion
         phaseg=(A'*A)\(A'*rhs);
@@ -236,6 +248,11 @@ for ie = 1:length(csmatfiles)
             NA=norm(W*mat,1);
             smweight = smweight0*NA/NR;
             
+			% JBR - Normalize flatness kernel
+            NR=norm(F2,1);
+            NA=norm(W*mat,1);
+            flweight = flweight0*NA/NR;
+			
             % rescale dumping matrix for St
             NR=norm(dumpmatT,1);
             NA=norm(W*mat,1);
@@ -246,12 +263,12 @@ for ie = 1:length(csmatfiles)
             NA=norm(W*mat,1);
             dumpweightR = Rdumpweight0*NA/NR;
             
-            if isRsmooth
-                A=[W*mat;smweight*F*R;dumpweightT*dumpmatT;dumpweightR*dumpmatR];
+			if isRsmooth
+                A=[W*mat;smweight*F*R;flweight*F2*R;dumpweightT*dumpmatT;dumpweightR*dumpmatR];
             else
-                A=[W*mat;smweight*F;dumpweightT*dumpmatT;dumpweightR*dumpmatR];
+                A=[W*mat;smweight*F;flweight*F2;dumpweightT*dumpmatT;dumpweightR*dumpmatR];
             end
-            rhs=[W*dt;zeros(size(F,1),1);zeros(size(dumpmatT,1),1);dumpweightR*ones(size(dumpmatR,1),1)./avgv];
+            rhs=[W*dt;zeros(size(F,1),1);zeros(size(F2,1),1);zeros(size(dumpmatT,1),1);dumpweightR*ones(size(dumpmatR,1),1)./avgv];
             phaseg=(A'*A)\(A'*rhs);
         end	
         
@@ -295,17 +312,20 @@ for ie = 1:length(csmatfiles)
 		end
 		GV=(GVx.^2+GVy.^2).^-.5;
 		% Get rid of uncertain area
+		% Forward calculate phase velocity
+        phv_fwd = ddist./(mat*phaseg(1:Nx*Ny*2));
 
 		% save the result in the structure
 		eventphv(ip).rays = rays;
 		eventphv(ip).w = diag(W);
-		eventphv(ip).goodnum = length(find(w>0));
-		eventphv(ip).badnum = length(find(w==0));
+		eventphv(ip).goodnum = length(find(eventphv(ip).w>0));
+		eventphv(ip).badnum = length(find(eventphv(ip).w==0));
 		eventphv(ip).dt = dt;
         eventphv(ip).dt_res = dt_res; % data residuals
 		eventphv(ip).GV = GV;
 		eventphv(ip).GVx = GVx;
 		eventphv(ip).GVy = GVy;
+		eventphv(ip).phv_fwd = phv_fwd;
 		eventphv(ip).raydense = raydense;
 		eventphv(ip).lalim = lalim;
 		eventphv(ip).lolim = lolim;

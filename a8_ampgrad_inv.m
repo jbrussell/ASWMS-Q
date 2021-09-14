@@ -35,6 +35,7 @@ gridsize=parameters.gridsize;
 periods = parameters.periods;
 raydensetol=parameters.raydensetol;
 smweight_array = parameters.smweight_array;
+flweight_array = parameters.flweight_array; % JBR
 Tdumpweight0 = parameters.Tdumpweight;
 Rdumpweight0 = parameters.Rdumpweight;
 fiterrtol = parameters.fiterrtol;
@@ -80,6 +81,9 @@ tic
         F(2*n,2*ind)=Areg(n,ind);
     end
 toc
+
+% JBR - define first derivative "flatness" kernel
+F2 = flat_kernel_build(xnode, ynode, Nx*Ny);
 
 % read in bad station list, if existed
 if exist('badsta.lst')
@@ -154,6 +158,7 @@ for ie = 1:length(csmatfiles)
 	% Loop through the periods
 	for ip = 1:length(periods)
 		smweight0 = smweight_array(ip);
+		flweight0 = flweight_array(ip); % JBR
 		dt = zeros(length(eventcs.CS),1);
         
         % Load amplitude data
@@ -216,7 +221,12 @@ for ie = 1:length(csmatfiles)
         NR=norm(F,1);
         NA=norm(W*mat,1);
         smweight = smweight0*NA/NR;
-
+		
+		% JBR - Normalize flatness kernel
+        NR=norm(F2,1);
+        NA=norm(W*mat,1);
+        flweight = flweight0*NA/NR;
+		
 		% Normalize dumping matrix for ST
 		NR=norm(dumpmatT,1);
 		NA=norm(W*mat,1);
@@ -229,13 +239,13 @@ for ie = 1:length(csmatfiles)
 
 		% Set up matrix on both side
 		if isRsmooth
-            A=[W*mat;smweight*F*R;dumpweightT*dumpmatT;dumpweightR*dumpmatR];
+            A=[W*mat;smweight*F*R;flweight*F2*R;dumpweightT*dumpmatT;dumpweightR*dumpmatR];
         else
-            A=[W*mat;smweight*F;dumpweightT*dumpmatT;dumpweightR*dumpmatR];
+            A=[W*mat;smweight*F;flweight*F2;dumpweightT*dumpmatT;dumpweightR*dumpmatR];
         end
 
 		avgv = eventcs.avgphv(ip);
-        rhs=[W*dt;zeros(size(F,1),1);zeros(size(dumpmatT,1),1);dumpweightR*ones(size(dumpmatR,1),1)./avgv];
+        rhs=[W*dt;zeros(size(F,1),1);zeros(size(F2,1),1);zeros(size(dumpmatT,1),1);dumpweightR*ones(size(dumpmatR,1),1)./avgv];
         
 		% Least square inversion
         phaseg=(A'*A)\(A'*rhs);
@@ -275,6 +285,11 @@ for ie = 1:length(csmatfiles)
             NA=norm(W*mat,1);
             smweight = smweight0*NA/NR;
             
+			% JBR - Normalize flatness kernel
+            NR=norm(F2,1);
+            NA=norm(W*mat,1);
+            flweight = flweight0*NA/NR;
+			
             % rescale dumping matrix for St
             NR=norm(dumpmatT,1);
             NA=norm(W*mat,1);
@@ -285,15 +300,18 @@ for ie = 1:length(csmatfiles)
             NA=norm(W*mat,1);
             dumpweightR = Rdumpweight0*NA/NR;
             
-            if isRsmooth
-                A=[W*mat;smweight*F*R;dumpweightT*dumpmatT;dumpweightR*dumpmatR];
+			if isRsmooth
+                A=[W*mat;smweight*F*R;flweight*F2*R;dumpweightT*dumpmatT;dumpweightR*dumpmatR];
             else
-                A=[W*mat;smweight*F;dumpweightT*dumpmatT;dumpweightR*dumpmatR];
+                A=[W*mat;smweight*F;flweight*F2;dumpweightT*dumpmatT;dumpweightR*dumpmatR];
             end
-            rhs=[W*dt;zeros(size(F,1),1);zeros(size(dumpmatT,1),1);dumpweightR*ones(size(dumpmatR,1),1)./avgv];
+            rhs=[W*dt;zeros(size(F,1),1);zeros(size(F2,1),1);zeros(size(dumpmatT,1),1);dumpweightR*ones(size(dumpmatR,1),1)./avgv];
             phaseg=(A'*A)\(A'*rhs);
         end	
 
+		% Estimate differential amplitude residuals
+        dA_res = dt - mat*phaseg;
+		
         % Calculate the kernel density
         %sumG=sum(abs(mat),1);
         ind=1:Nx*Ny;
@@ -338,6 +356,7 @@ for ie = 1:length(csmatfiles)
 		ampgrad(ip).goodnum = length(find(w>0));
 		ampgrad(ip).badnum = length(find(w==0));
 		ampgrad(ip).dt = dt;
+		ampgrad(ip).dA_res = dA_res; % data residuals
 		ampgrad(ip).dAmp = dAmp;
 		ampgrad(ip).dAmpx = dAmpx;
 		ampgrad(ip).dAmpy = dAmpy;
