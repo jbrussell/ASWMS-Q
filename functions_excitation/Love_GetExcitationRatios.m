@@ -13,10 +13,10 @@ Mtplist = eventcs.moment.m_tp;
 
 % Loop over stations
 for ista = 1:length(eventcs.autocor)
-    [Distlist, Azimuthlist] = distance(eventcs.evla,eventcs.evlo,...
+    [~, Azimuthlist] = distance(eventcs.evla,eventcs.evlo,...
                                 eventcs.stlas(ista),eventcs.stlos(ista)...
                                 ,referenceEllipsoid('GRS80'));
-    Distlist_km = deg2km(Distlist);
+    Distlist_km = vdist(eventcs.evla,eventcs.evlo,eventcs.stlas(ista),eventcs.stlos(ista))/1000;
     
     % Loop over overtones
     for currN = [0:1:MaxN]
