@@ -13,7 +13,7 @@
 function A_corr = source_propagation_effects(A,w,X,phv,grv,Q)
     
     % wavenumber
-    k = w./phv
+    k = w./phv;
     
     % Calculate attenuation factor
     fac_atten = exp(-w.*X./(2.*grv.*Q));
