@@ -415,8 +415,8 @@ set(gcf,'Position',[616    71   850   947]);
 sgtitle('1 / \nabla\tau','fontweight','bold','fontsize',18);
 for ip = 1:length(attenuation)
     
-    [~,idx] = min(abs(disp.T-periods(ip)));
-    phv_tru = disp.phv(idx);
+    [~,idx] = min(abs(mode.T-periods(ip)));
+    phv_tru = mode.phv(idx);
     
     subplot(M,N,ip)
     r = 0.02;

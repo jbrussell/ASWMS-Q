@@ -349,8 +349,8 @@ end
 
 %% Plot 1D average alpha
 
-disp = readMINEOS_qfile('./qfiles/pa5_5km.s0to66.q',0);
-alpha_MINEOS = disp.wrad ./ (2*disp.grv) ./ disp.q;
+mode = readMINEOS_qfile('./qfiles/pa5_5km.s0to66.q',0);
+alpha_MINEOS = mode.wrad ./ (2*mode.grv) ./ mode.q;
 
 figure(42); clf; set(gcf,'color','w');
 alpha_zhitu = [4.1 7.3 8.2 8.9 6.9]*1e-5;
@@ -366,7 +366,7 @@ for ip = 1:length(attenuation)
 %     alphas_2d_err(ip) = nanmean(attenuation(ip).alpha_2d_err(:));
     alphas_2d_err(ip) = nanstd(attenuation(ip).alpha_2d(:));
 end
-plot(disp.T,alpha_MINEOS,'-','color',[0.7 0.7 0.7],'linewidth',5); hold on;
+plot(mode.T,alpha_MINEOS,'-','color',[0.7 0.7 0.7],'linewidth',5); hold on;
 errorbar(periods,alphas_bin,alphas_bin_err,'-om'); hold on;
 errorbar(periods,alphas,alphas_err,'-ok');
 plot(periods,alphas_avg,'-oc');
@@ -438,8 +438,8 @@ set(gcf,'Position',[616    71   850   947]);
 sgtitle('1 / \nabla\tau','fontweight','bold','fontsize',18);
 for ip = 1:length(attenuation)
     
-    [~,idx] = min(abs(disp.T-periods(ip)));
-    phv_tru = disp.phv(idx);
+    [~,idx] = min(abs(mode.T-periods(ip)));
+    phv_tru = mode.phv(idx);
     
     subplot(M,N,ip)
     r = 0.02;
