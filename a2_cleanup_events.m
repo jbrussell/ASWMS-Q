@@ -18,6 +18,7 @@ eikonalpath = [workingdir,'eikonal/'];
 % Setup Error Codes for Bad data
 setup_ErrorCode
 
+min_sta_num = parameters.min_sta_num;
 lalim = parameters.lalim;
 lolim = parameters.lolim;
 gridsize = parameters.gridsize;
@@ -42,7 +43,7 @@ for ie = 1:length(matfiles)
 	win_end(ie) = evotimes(ie) + max(dist(:)/2);
 	if ~isfield(event,'stadata')
 		isgood(ie)=0;
-	elseif length(event.stadata)<5
+	elseif length(event.stadata)<min_sta_num
 		isgood(ie)=0;
 	end
 end % end of event loop
