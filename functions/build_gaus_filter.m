@@ -10,7 +10,11 @@ if ~exist('isfigure','var')
 end
 
 % Linear varify the width of bands
-width = maxwidth - (maxwidth-minwidth)./(max(centf)-min(centf)).*(centf-min(centf));
+if max(centf)-min(centf)==0
+	width = maxwidth
+else
+	width = maxwidth - (maxwidth-minwidth)./(max(centf)-min(centf)).*(centf-min(centf));
+end
 
 for ifreq = 1:length(centf)
 		gausf(:,ifreq)=exp(-(faxis-centf(ifreq)).^2./2./(width(ifreq)*centf(ifreq)).^2);
