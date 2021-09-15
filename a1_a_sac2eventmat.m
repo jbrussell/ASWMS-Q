@@ -69,7 +69,11 @@ for ie = 1:length(eventids)
 			event.dbpath = datapath;
 			event.id = char(eventids(ie));
 			event.otimestr = datestr(datenum(sac.NZYEAR-1,12,31,sac.NZHOUR,sac.NZMIN,sac.NZSEC)+sac.NZJDAY);
-            event.Mw = sac.MAG;
+            if isfield(sac,'MAG')
+				event.Mw = sac.MAG;
+			else
+				event.Mw = 9999;
+			end
         end
 		
 		% wbh check for timing errors
