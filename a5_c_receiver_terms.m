@@ -76,7 +76,7 @@ for ip = 1:length(periods)
         clear eventphv eventcs;
         load(fullfile(eventcs_path,eventfiles(ie).name));
         eventid = eventcs.id;
-        disp(eventid);
+        disp([num2str(periods(ip)),' : ',eventid]);
         if eventcs.Mw < min_Mw
             continue
         end
