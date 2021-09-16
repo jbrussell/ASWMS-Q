@@ -12,6 +12,7 @@ setup_ErrorCode
 
 periods = parameters.periods;
 largest_epidist_range = parameters.largest_epidist_range;
+is_removebadwindows = parameters.is_removebadwindows;
 
 if ~exist('mingroupv')
     mingroupv = parameters.min_groupv;
@@ -345,12 +346,14 @@ if 0
     end
 end
 
-bad_f_ind = find(groupv == mingroupv | groupv == maxgroupv);
-if length(bad_f_ind) > bad_f_num_tol
-    disp(['Event: ',event.id, ' SNR is too low, skip!']);
-    winpara = 0;
-    outevent = event;
-    return
+if is_removebadwindows==1
+    bad_f_ind = find(groupv == mingroupv | groupv == maxgroupv);
+    if length(bad_f_ind) > bad_f_num_tol
+        disp(['Event: ',event.id, ' SNR is too low, skip!']);
+        winpara = 0;
+        outevent = event;
+        return
+    end
 end
 
 outevent = event;
