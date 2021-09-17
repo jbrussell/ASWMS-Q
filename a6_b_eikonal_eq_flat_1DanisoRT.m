@@ -526,7 +526,7 @@ for ip = 7 % 50 s
 end
 fclose(fid);
     
- %% Fit anisotropy
+%% Fit anisotropy
 fit_azi = [];
 for ip = 1:length(periods)
     isgood = eventphv_ani(ip).isgood;
@@ -535,15 +535,25 @@ for ip = 1:length(periods)
     w = eventphv_ani(ip).w(isgood);
     w(w > (median(w)+rms(w)) ) = median(w)+rms(w);
     weight = w.*(-1/2);
-    [para fiterr]=fit_azi_anisotropy(azi,phv,weight);
-    parastd=confint(para,.95);
-    fit_azi.periods(ip)=periods(ip);
-    fit_azi.c_iso(ip)=para.a;
-    fit_azi.c_iso_95(ip)=parastd(2,1)-para.a;
-    fit_azi.A2(ip)=para.d;
-    fit_azi.A2_95(ip)=parastd(2,2)-para.d;
-    fit_azi.phi2(ip)=para.e;
-    fit_azi.phi2_95(ip)=parastd(2,3)-para.e;
+    if length(find(~isnan(phv))) > 3
+        [para fiterr]=fit_azi_anisotropy(azi,phv,weight);
+        parastd=confint(para,.95);
+        fit_azi.periods(ip)=periods(ip);
+        fit_azi.c_iso(ip)=para.a;
+        fit_azi.c_iso_95(ip)=parastd(2,1)-para.a;
+        fit_azi.A2(ip)=para.d;
+        fit_azi.A2_95(ip)=parastd(2,2)-para.d;
+        fit_azi.phi2(ip)=para.e;
+        fit_azi.phi2_95(ip)=parastd(2,3)-para.e;
+    else
+        fit_azi.periods(ip)=periods(ip);
+        fit_azi.c_iso(ip)=nan;
+        fit_azi.c_iso_95(ip)=nan;
+        fit_azi.A2(ip)=nan;
+        fit_azi.A2_95(ip)=nan;
+        fit_azi.phi2(ip)=nan;
+        fit_azi.phi2_95(ip)=nan;
+    end
 end
  
 fit_azi_bin = [];
@@ -577,15 +587,25 @@ for ip = 1:length(periods)
     
 %     [para fiterr]=fit_azi_anisotropy(fit_azi_bin.meas(ip).azi, fit_azi_bin.meas(ip).phv, fit_azi_bin.meas(ip).phv_std.^(1/2) .* sqrt(weight));
 %     [para fiterr]=fit_azi_anisotropy(fit_azi_bin.meas(ip).azi, fit_azi_bin.meas(ip).phv, sqrt(weight));
-    [para fiterr]=fit_azi_anisotropy(fit_azi_bin.meas(ip).azi, fit_azi_bin.meas(ip).phv);
-    parastd=confint(para,.95);
-    fit_azi_bin.periods(ip)=periods(ip);
-    fit_azi_bin.c_iso(ip)=para.a;
-    fit_azi_bin.c_iso_95(ip)=parastd(2,1)-para.a;
-    fit_azi_bin.A2(ip)=para.d;
-    fit_azi_bin.A2_95(ip)=parastd(2,2)-para.d;
-    fit_azi_bin.phi2(ip)=para.e;
-    fit_azi_bin.phi2_95(ip)=parastd(2,3)-para.e;
+    if length(find(~isnan(fit_azi_bin.meas(ip).phv))) > 3
+        [para fiterr]=fit_azi_anisotropy(fit_azi_bin.meas(ip).azi, fit_azi_bin.meas(ip).phv);
+        parastd=confint(para,.95);
+        fit_azi_bin.periods(ip)=periods(ip);
+        fit_azi_bin.c_iso(ip)=para.a;
+        fit_azi_bin.c_iso_95(ip)=parastd(2,1)-para.a;
+        fit_azi_bin.A2(ip)=para.d;
+        fit_azi_bin.A2_95(ip)=parastd(2,2)-para.d;
+        fit_azi_bin.phi2(ip)=para.e;
+        fit_azi_bin.phi2_95(ip)=parastd(2,3)-para.e;
+    else
+        fit_azi_bin.periods(ip)=periods(ip);
+        fit_azi_bin.c_iso(ip)=nan;
+        fit_azi_bin.c_iso_95(ip)=nan;
+        fit_azi_bin.A2(ip)=nan;
+        fit_azi_bin.A2_95(ip)=nan;
+        fit_azi_bin.phi2(ip)=nan;
+        fit_azi_bin.phi2_95(ip)=nan;
+    end
 end
 
 fit_azi_bin_res = [];
@@ -621,13 +641,21 @@ for ip = 1:length(periods)
     
 %     [para fiterr]=fit_azi_anisotropy(fit_azi_bin.meas(ip).azi, fit_azi_bin.meas(ip).phv, fit_azi_bin.meas(ip).phv_std.^(1/2) .* sqrt(weight));
 %     [para fiterr]=fit_azi_anisotropy(fit_azi_bin.meas(ip).azi, fit_azi_bin.meas(ip).phv, sqrt(weight));
-    [para fiterr]=fit_azi_anisotropy2theta_resid(fit_azi_bin_res.meas(ip).azi, fit_azi_bin_res.meas(ip).dphv);
-    parastd=confint(para,.95);
-    fit_azi_bin_res.periods(ip)=periods(ip);
-    fit_azi_bin_res.A2(ip)=para.d;
-    fit_azi_bin_res.A2_95(ip)=parastd(2,1)-para.d;
-    fit_azi_bin_res.phi2(ip)=para.e;
-    fit_azi_bin_res.phi2_95(ip)=parastd(2,2)-para.e;
+    if length(find(~isnan(fit_azi_bin_res.meas(ip).dphv))) > 3
+        [para fiterr]=fit_azi_anisotropy2theta_resid(fit_azi_bin_res.meas(ip).azi, fit_azi_bin_res.meas(ip).dphv);
+        parastd=confint(para,.95);
+        fit_azi_bin_res.periods(ip)=periods(ip);
+        fit_azi_bin_res.A2(ip)=para.d;
+        fit_azi_bin_res.A2_95(ip)=parastd(2,1)-para.d;
+        fit_azi_bin_res.phi2(ip)=para.e;
+        fit_azi_bin_res.phi2_95(ip)=parastd(2,2)-para.e;
+    else
+        fit_azi_bin_res.periods(ip)=periods(ip);
+        fit_azi_bin_res.A2(ip)=nan;
+        fit_azi_bin_res.A2_95(ip)=nan;
+        fit_azi_bin_res.phi2(ip)=nan;
+        fit_azi_bin_res.phi2_95(ip)=nan;
+    end
 end
 
 matfilename = [eikonl_ani_output_path,'/eikonal_ani1D_',comp,'.mat'];
