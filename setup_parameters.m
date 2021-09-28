@@ -42,7 +42,7 @@ parameters.snr_tol = 3;
 % parameters for the auto_win_select.m
 parameters.largest_epidist_range = 3000; % [km] maximum array size to consider
 parameters.cycle_before = 2; % number of cycles to buffer at start of window
-parameters.cycle_after = 3; % number of cycles to buffer at end of window
+parameters.cycle_after = 5; % number of cycles to buffer at end of window
 parameters.min_dist_tol = deg2km(20); % min epicentral distance
 parameters.max_dist_tol = deg2km(100); %deg2km(160); % min epicentral distance
 parameters.min_groupv = 2; % minimum group velocity as a starting guess
