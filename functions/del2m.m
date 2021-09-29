@@ -1,7 +1,7 @@
 function dA=del2m(xi,yi,A)
 
 [m,n]=size(xi);
-dA=zeros(m,n);
+dA=nan(m,n);
 
 
 for i=2:m-1

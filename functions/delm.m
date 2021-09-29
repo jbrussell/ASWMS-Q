@@ -5,8 +5,8 @@ function [dA,dAlat,dAlon]=delm(xi,yi,A)
 % dAy = gradient of A along y direction
 
 [m,n]=size(xi);
-dAlat=zeros(m,n);
-dAlon=zeros(m,n);
+dAlat=nan(m,n);
+dAlon=nan(m,n);
 
 for i=2:m-1
 	for j=2:n-1
