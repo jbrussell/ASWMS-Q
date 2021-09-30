@@ -202,7 +202,7 @@ for ie = 1:length(eventfiles)
 		amp_term=-dAmp./ampmap./(2*pi/periods(ip)).^2;
 		% smooth the correction term 
 		smD=max([300 periods(ip).*parameters.refv]);
-        if length(amps(~isnan(amps)))>min_sta_num
+        if length(amp_term(~isnan(amp_term(:))))>min_sta_num
             amp_term = gridfit_jg(mesh_xi(:),mesh_yi(:),amp_term(:),xnode,ynode,...
                                 'smooth',floor(smD./deg2km(gridsize)),'regularizer','laplacian','solver','normal');
         end
