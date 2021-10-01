@@ -66,7 +66,7 @@ end
 
 clear attenuation
 for ip = 1:length(avgphv)
-    clear amp_term azi amp_decay_map tp_focus_map tp_grad_map amp_grad_map ampgrad_dot_tpgrad amp_grad_norm_map evids dist_map
+    clear amp_term azi amp_decay_map tp_focus_map tp_grad_map amp_grad_map ampgrad_dot_tpgrad amp_grad_norm_map evids dist_map amp_map
     evcnt = 0;
     for ie = 1:length(eventfiles)
     %for ie = 59
@@ -220,6 +220,7 @@ for ip = 1:length(avgphv)
         evids{evcnt} = eventid;
         dists = km2deg(distance(eventcs.evla,eventcs.evlo,xi,yi,referenceEllipsoid('GRS80'))/1000);
         dist_map(:,:,evcnt) = dists;
+		amp_map(:,:,evcnt) = amp;
     end
 
 %     % Select central grid points
@@ -262,6 +263,7 @@ for ip = 1:length(avgphv)
     attenuation(ip).amp_grad_map = amp_grad_map;
     attenuation(ip).amp_grad_norm_map = amp_grad_norm_map;
     attenuation(ip).ampgrad_dot_tpgrad = ampgrad_dot_tpgrad;
+	atteunation(ip).amp_map = amp_map;
     
     
     % Unbinned 1-D sinusoidal fit
@@ -347,6 +349,22 @@ for ip = 1:length(avgphv)
     plot(x,pred,'-r');
     title([num2str(attenuation(ip).period),' s'])
     xlabel('azimuth');
+    ylabel('amplitude term');
+    ylim([-5e-4 2e-4]);
+end
+
+%% Plot amp term with distance
+figure(51); clf;
+set(gcf,'Position',[616    71   850   947]);
+for ip = 1:length(attenuation)
+    subplot(M,N,ip)
+    amp_term_map_evs = squeeze(nanmean(nanmean(attenuation(ip).amp_term_2d,1),2));
+    dist_evs = squeeze(nanmean(nanmean(attenuation(ip).dist_map,1),2));
+    plot(attenuation(ip).dist_map(:),attenuation(ip).amp_term_2d(:),'.b'); hold on;
+%     plot(dist_evs,amp_term_map_evs,'.r'); hold on;
+%     plot(azi_evs,tp_focus_map_evs,'.r');
+    title([num2str(attenuation(ip).period),' s'])
+    xlabel('distance (deg)');
     ylabel('amplitude term');
     ylim([-5e-4 2e-4]);
 end
