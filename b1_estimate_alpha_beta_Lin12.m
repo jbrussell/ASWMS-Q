@@ -66,7 +66,7 @@ end
 
 clear attenuation
 for ip = 1:length(avgphv)
-    clear amp_term azi amp_decay_map tp_focus_map tp_grad_map amp_grad_map ampgrad_dot_tpgrad amp_grad_norm_map evids
+    clear amp_term azi amp_decay_map tp_focus_map tp_grad_map amp_grad_map ampgrad_dot_tpgrad amp_grad_norm_map evids dist_map
     evcnt = 0;
     for ie = 1:length(eventfiles)
     %for ie = 59
@@ -187,7 +187,8 @@ for ip = 1:length(avgphv)
         
         % smooth the terms
         for ii=1
-            if isempty(find(~isnan(amp_decay))) || isempty(find(~isnan(tp_focus)))
+			if isempty(find(~isnan(amp_decay))) || isempty(find(~isnan(tp_focus))) ...
+               || length(find(~isnan(amp_decay)))<5 || length(find(~isnan(tp_focus)))<5
                 continue
             end
             smD=max([300 periods(ip).*parameters.refv]);
@@ -217,6 +218,8 @@ for ip = 1:length(avgphv)
         amp_grad_norm_map(:,:,evcnt) = amp_grad ./ amp;
         ampgrad_dot_tpgrad(:,:,evcnt) = amp_gradlat.*tp_gradlat + amp_gradlon.*tp_gradlon;
         evids{evcnt} = eventid;
+        dists = km2deg(distance(eventcs.evla,eventcs.evlo,xi,yi,referenceEllipsoid('GRS80'))/1000);
+        dist_map(:,:,evcnt) = dists;
     end
 
 %     % Select central grid points
@@ -252,6 +255,7 @@ for ip = 1:length(avgphv)
     attenuation(ip).evids = evids;
     attenuation(ip).amp_term = amp_term;
     attenuation(ip).azi = azi;
+	attenuation(ip).dist_map = dist_map;
     attenuation(ip).amp_decay_map = amp_decay_map;
     attenuation(ip).tp_focus_map = tp_focus_map;
     attenuation(ip).tp_grad_map = tp_grad_map;
@@ -430,6 +434,27 @@ for ip = 1:length(attenuation)
     title([num2str(attenuation(ip).period),' s'])
     ylabel('Amplitude Decay');
     xlabel('Focusing');
+end
+
+figure(50); clf;
+set(gcf,'Position',[616    71   850   947]);
+for ip = 1:length(attenuation)
+    subplot(M,N,ip)
+    amp_decay_map_evs = squeeze(nanmean(nanmean(attenuation(ip).amp_decay_map,1),2));
+    tp_focus_map_evs = squeeze(nanmean(nanmean(attenuation(ip).tp_focus_map,1),2));
+    dist_evs = squeeze(nanmean(nanmean(attenuation(ip).dist_map,1),2));
+    plot(attenuation(ip).dist_map(:),attenuation(ip).amp_decay_map(:),'.b'); hold on;
+    plot(attenuation(ip).dist_map(:),attenuation(ip).tp_focus_map(:),'.r');
+%     plot(azi_evs,amp_decay_map_evs,'.b'); hold on;
+%     plot(azi_evs,tp_focus_map_evs,'.r');
+    title([num2str(attenuation(ip).period),' s'])
+    xlabel('distance (deg)');
+    ylabel('amplitude term');
+    if ip == 1
+        lg = legend({'Amp decay','Focusing'});
+        lg.Position(2) = lg.Position(2)+0.07;
+    end
+    ylim([-2e-4 2e-4]);
 end
 
 %% Plot terms
