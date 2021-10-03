@@ -98,8 +98,8 @@ toc
 F2 = flat_kernel_build(xnode, ynode, Nx*Ny);
 
 % read in bad station list, if existed
-if exist('badsta.lst')
-	badstnms = textread('badsta.lst','%s');
+if exist('badampsta.lst')
+	badstnms = textread('badampsta.lst','%s');
 	disp('Found Bad stations:')
 	disp(badstnms)
 end
