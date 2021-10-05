@@ -13,7 +13,7 @@ is_save_amp_fig = 1;
 
 is_receiver_terms = parameters.is_receiver_terms; % Correct amplitudes using receiver terms calculated from a8_0_receiver_terms?
 is_eikonal_ampgrad = parameters.is_eikonal_ampgrad; % 1: use eikonal tomography values for amplitude gradient; 0: use amplitude field estimates
-
+is_eikonal_ampgrad_norm = parameters.is_eikonal_ampgrad_norm;
 
 r = 0.05;
 
@@ -25,6 +25,7 @@ eikonal_stack_file = [workingdir,'eikonal_stack_',parameters.component];
 helmholtz_path = [workingdir,'helmholtz/'];
 receiverterms_path = [workingdir];
 ampgrad_output_path = [workingdir,'ampgrad/'];
+ampgrad_norm_output_path = [workingdir,'ampgrad_norm/'];
 
 if ~exist(helmholtz_path,'dir')
 	mkdir(helmholtz_path);
@@ -86,6 +87,11 @@ for ie = 1:length(eventfiles)
     if is_eikonal_ampgrad && exist(ampgradfile,'file')
         temp = load(ampgradfile);
         ampgrad = temp.ampgrad;
+    end
+    ampgradnormfile = [ampgrad_norm_output_path,'/',eventid,'_ampgrad_norm_',parameters.component,'.mat'];
+    if is_eikonal_ampgrad_norm && exist(ampgradnormfile,'file')
+        temp = load(ampgradnormfile);
+        ampgrad_norm = temp.ampgrad_norm;
     end
 	if length(eventphv) ~= length(eventcs.avgphv)
 		disp('Inconsist of period number for CS file and eikonal file');
@@ -182,9 +188,16 @@ for ie = 1:length(eventfiles)
             dAmp = dAmp';
             amp_gradlat = amp_gradlat';
             amp_gradlon = amp_gradlon';
+            
         else
             [amp_grad,amp_gradlat,amp_gradlon]=delm(mesh_xi,mesh_yi,ampmap);
             dAmp=del2m(mesh_xi,mesh_yi,ampmap);
+        end
+        
+        if is_eikonal_ampgrad_norm
+            amp_grad_ampnorm = ampgrad_norm(ip).dAmp_A';
+            amp_gradlat_ampnorm = -ampgrad_norm(ip).dAmpx_A';
+            amp_gradlon_ampnorm = -ampgrad_norm(ip).dAmpy_A';
         end
 %         dAmp_test = del2m(mesh_xi,mesh_yi,ampmap);
 %         inan = isnan(dAmp);
@@ -259,6 +272,12 @@ for ie = 1:length(eventfiles)
         helmholtz(ip).stainfo.stlas = stlas;
         helmholtz(ip).stainfo.stlos = stlos;
 		bestalphas(ip,ie) = bestalpha;
+        
+        if is_eikonal_ampgrad_norm
+            helmholtz(ip).amp_grad_ampnorm = amp_grad_ampnorm';
+            helmholtz(ip).amp_gradlat_ampnorm = amp_gradlat_ampnorm';
+            helmholtz(ip).amp_gradlon_ampnorm = amp_gradlon_ampnorm';
+        end
 
 		% plot to check
 		if isfigure

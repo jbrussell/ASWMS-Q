@@ -115,6 +115,7 @@ parameters.is_one_phi = 0; %1;
 % parameters for amplitude/gradient field estimates and receiver terms
 parameters.is_receiver_terms = 0; % Correct amplitudes using receiver terms calculated from a8_0_receiver_terms?
 parameters.is_eikonal_ampgrad = 1; % 1: use eikonal tomography values for amplitude gradient; 0: use amplitude field estimates
+parameters.is_eikonal_ampgrad_norm = 1; % 1: use grad(A)/A values from direct inversion, forgoing the need to independently determine the amplitude field.
 parameters.is_eikonal_phasegrad = 1; % 1: use eikonal tomography values for phase gradient; 0: use travel-time field estimates
 
 %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%%
