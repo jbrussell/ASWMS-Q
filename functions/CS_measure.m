@@ -225,10 +225,21 @@ function CS = CS_measure(event,sta1,sta2,parameters)
     if isfigure
         figure(46)
         clf;
+        
+        subplot(2,1,1);
         hold on;
         plot(periods,CS.fiterr,'o')
         xlabel('periods (s)');
         ylabel('fit err');
+        
+        if sta1 ~= sta2
+            subplot(2,1,2);
+            cohere = CS.amp.^2./event.autocor(sta1).amp./event.autocor(sta2).amp;
+            hold on;
+            plot(periods,cohere,'or');
+            xlabel('periods (s)');
+            ylabel('coherence');
+        end
     end
 
 
