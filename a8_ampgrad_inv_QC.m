@@ -28,11 +28,13 @@ isdisp = 0;
 is_overwrite = 1;
 
 is_receiver_terms = parameters.is_receiver_terms; % Correct amplitudes using receiver terms calculated from a8_0_receiver_terms?
+is_offgc_smoothing = parameters.is_offgc_smoothing; % allows off-great-circle 1st derivative smoothing. Requires an initial run of a6_a0_eikonal_eq_GetPropAzi.m to get propagation azimuth
 
 workingdir = parameters.workingdir;
 receiverterms_path = [workingdir];
 % input path
 eventcs_path = [workingdir,'CSmeasure/'];
+eikonl_propazi_output_path = [workingdir,'eikonal_propazi/'];
 % output path
 ampgrad_output_path = [workingdir,'ampgrad/'];
 
@@ -132,18 +134,13 @@ for ie = 1:length(csmatfiles)
 		badstaids = [];
 	end
 
-	% Build the rotation matrix
-	razi = azimuth(xi+gridsize/2,yi+gridsize/2,evla,evlo)+180;
-	R = sparse(2*Nx*Ny,2*Nx*Ny);
-	for i=1:Nx
-		for j=1:Ny
-			n=Ny*(i-1)+j;
-			theta = razi(i,j);
-			R(2*n-1,2*n-1) = cosd(theta);
-			R(2*n-1,2*n) = sind(theta);
-			R(2*n,2*n-1) = -sind(theta);
-			R(2*n,2*n) = cosd(theta);
-		end
+	% Load previous eikonal mat to get propagation azimuth
+    if is_offgc_smoothing==1
+        eikonal_in = [eikonl_propazi_output_path,'/',eventcs.id,'_eikonal_',comp,'.mat'];
+        if ~exist(eikonal_in,'file')
+            error('No propagation azimuth found. Need to first run a6_a0_eikonal_eq_GetPropAzi.m');
+        end
+        aziprop = load(eikonal_in);
     end
 
 	% Build the ray locations
@@ -160,15 +157,38 @@ for ie = 1:length(csmatfiles)
 	tic
 		mat=kernel_build(rays,xnode,ynode);
 	toc
-
-	% build dumping matrix for ST
-	dumpmatT = R(2:2:2*Nx*Ny,:);
-	
-	% build dumping matrix for SR
-	dumpmatR = R(1:2:2*Nx*Ny-1,:);
 	
 	% Loop through the periods
 	for ip = 1:length(periods)
+		
+		% Build the rotation matrix
+        if is_offgc_smoothing==1
+            phase_lat = -aziprop.eventphv(ip).GVx; % phase slowness in x-direction
+            phase_lon = -aziprop.eventphv(ip).GVy; % phase slowness in y-direction
+            razi = 90 - atan2d(phase_lat,phase_lon);
+            azimat_ev = azimuth(xi+gridsize/2,yi+gridsize/2,evla,evlo)+180;
+            razi(isnan(razi)) = azimat_ev(isnan(razi));
+        else
+            razi = azimuth(xi+gridsize/2,yi+gridsize/2,evla,evlo)+180;
+        end
+        R = sparse(2*Nx*Ny,2*Nx*Ny);
+        for i=1:Nx
+            for j=1:Ny
+                n=Ny*(i-1)+j;
+                theta = razi(i,j);
+                R(2*n-1,2*n-1) = cosd(theta);
+                R(2*n-1,2*n) = sind(theta);
+                R(2*n,2*n-1) = -sind(theta);
+                R(2*n,2*n) = cosd(theta);
+            end
+        end
+		
+		% build dumping matrix for ST
+        dumpmatT = R(2:2:2*Nx*Ny,:);
+
+        % build dumping matrix for SR
+        dumpmatR = R(1:2:2*Nx*Ny-1,:);
+		
 		smweight0 = smweight_array(ip);
 		flweight0 = flweight_array(ip); % JBR
 		dt = zeros(length(eventcs.CS),1);

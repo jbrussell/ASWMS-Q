@@ -1,33 +1,34 @@
-% Read in the eventcs structures and apply eikonal tomography on each event.
-% Written by Ge Jin, jinwar@gmail.com
-% 2013.1.16
-%
-% jbrussell - modify original eikonal tomography which inverts dt
-% measurements for dt/dx = grad(t) to instead invert dA/A measurements for
-% (dA/dx)/A = grad(A)/A
+% This code inverts for the 2D variation of phase velocity as well as
+% propagation azimuth. This version applies only second derivative
+% smoothing and does not allow first derivative smoothing along the great
+% circle path. The goal is to solve for the propagation azimuth, which is 
+% not necessarily along the great circle. The subsequent script a6_a_eikonal_eq.m 
+% can then be run with the flag is_offgc_smoothing=1, which will smooth
+% along the propagation azimuth rather than along the great circle.
 %
 clear
-% setup parameters
-setup_parameters
 
 % debug setting
-isfigure = 1;
+isfigure = 0;
 isdisp = 0;
 is_overwrite = 1;
 
-is_receiver_terms = parameters.is_receiver_terms; % Correct amplitudes using receiver terms calculated from a8_0_receiver_terms?
-is_offgc_smoothing = parameters.is_offgc_smoothing; % allows off-great-circle 1st derivative smoothing. Requires an initial run of a6_a0_eikonal_eq_GetPropAzi.m to get propagation azimuth
+% % input path
+% eventcs_path = './CSmeasure/';
+% % output path
+% eikonl_propazi_output_path = './eikonal/';
+
+% setup parameters
+setup_parameters
 
 workingdir = parameters.workingdir;
-receiverterms_path = [workingdir];
 % input path
 eventcs_path = [workingdir,'CSmeasure/'];
-eikonl_propazi_output_path = [workingdir,'eikonal_propazi/'];
 % output path
-ampgrad_norm_output_path = [workingdir,'ampgrad_norm/'];
+eikonl_propazi_output_path = [workingdir,'eikonal_propazi/'];
 
-if ~exist(ampgrad_norm_output_path)
-	mkdir(ampgrad_norm_output_path);
+if ~exist(eikonl_propazi_output_path)
+	mkdir(eikonl_propazi_output_path);
 end
 
 comp = parameters.component;
@@ -37,7 +38,7 @@ gridsize=parameters.gridsize;
 periods = parameters.periods;
 raydensetol=parameters.raydensetol;
 smweight_array = parameters.smweight_array;
-flweight_array = parameters.flweight_array; % JBR
+flweight_array = parameters.flweight_array * 0; % JBR
 Tdumpweight0 = parameters.Tdumpweight;
 Rdumpweight0 = parameters.Rdumpweight;
 fiterrtol = parameters.fiterrtol;
@@ -88,20 +89,16 @@ toc
 F2 = flat_kernel_build(xnode, ynode, Nx*Ny);
 
 % read in bad station list, if existed
-if exist('badampsta.lst')
-	badstnms = textread('badampsta.lst','%s');
+if exist('badsta.lst')
+	badstnms = textread('badsta.lst','%s');
 	disp('Found Bad stations:')
 	disp(badstnms)
-end
-
-if is_receiver_terms==1
-    load([receiverterms_path,'receiver_terms_',parameters.component,'.mat']);
 end
 
 csmatfiles = dir([eventcs_path,'/*cs_',comp,'.mat']);
 for ie = 1:length(csmatfiles)
 %for ie = 30
-	clear ampgrad_norm 
+	clear eventphv 
 	% read in data and set up useful variables
 	temp = load([eventcs_path,csmatfiles(ie).name]);
 	eventcs =  temp.eventcs;
@@ -109,7 +106,7 @@ for ie = 1:length(csmatfiles)
 	evla = eventcs.evla;
 	evlo = eventcs.evlo;
 
-	matfilename = [ampgrad_norm_output_path,'/',eventcs.id,'_eikonal_',comp,'.mat'];
+	matfilename = [eikonl_propazi_output_path,'/',eventcs.id,'_eikonal_',comp,'.mat'];
 	if exist(matfilename,'file') && ~is_overwrite
 		disp(['Exist ',matfilename,', skip']);
 		continue;
@@ -122,14 +119,22 @@ for ie = 1:length(csmatfiles)
 		badstaids = [];
 	end
 
-	% Load previous eikonal mat to get propagation azimuth
-    if is_offgc_smoothing==1
-        eikonal_in = [eikonl_propazi_output_path,'/',eventcs.id,'_eikonal_',comp,'.mat'];
-        if ~exist(eikonal_in,'file')
-            error('No propagation azimuth found. Need to first run a6_a0_eikonal_eq_GetPropAzi.m');
-        end
-        aziprop = load(eikonal_in);
-    end
+	% Build the rotation matrix
+	razi = azimuth(xi+gridsize/2,yi+gridsize/2,evla,evlo)+180;
+	R = sparse(2*Nx*Ny,2*Nx*Ny);
+	for i=1:Nx
+		for j=1:Ny
+			n=Ny*(i-1)+j;
+			theta = razi(i,j);
+			R(2*n-1,2*n-1) = cosd(theta);
+			R(2*n-1,2*n) = sind(theta);
+			R(2*n,2*n-1) = -sind(theta);
+			R(2*n,2*n) = cosd(theta);
+		end
+	end
+
+	% Calculate the relative travel time compare to one reference station
+	travel_time = Cal_Relative_dtp(eventcs);
 
 	% Build the ray locations
 	clear rays 
@@ -145,92 +150,32 @@ for ie = 1:length(csmatfiles)
 	tic
 		mat=kernel_build(rays,xnode,ynode);
 	toc
+
+	% build dumping matrix for ST
+	dumpmatT = R(2:2:2*Nx*Ny,:);
+	
+	% build dumping matrix for SR
+	dumpmatR = R(1:2:2*Nx*Ny-1,:);
 	
 	% Loop through the periods
 	for ip = 1:length(periods)
-		
-		% Build the rotation matrix
-        if is_offgc_smoothing==1
-            phase_lat = -aziprop.eventphv(ip).GVx; % phase slowness in x-direction
-            phase_lon = -aziprop.eventphv(ip).GVy; % phase slowness in y-direction
-            razi = 90 - atan2d(phase_lat,phase_lon);
-            azimat_ev = azimuth(xi+gridsize/2,yi+gridsize/2,evla,evlo)+180;
-            razi(isnan(razi)) = azimat_ev(isnan(razi));
-        else
-            razi = azimuth(xi+gridsize/2,yi+gridsize/2,evla,evlo)+180;
-        end
-        R = sparse(2*Nx*Ny,2*Nx*Ny);
-        for i=1:Nx
-            for j=1:Ny
-                n=Ny*(i-1)+j;
-                theta = razi(i,j);
-                R(2*n-1,2*n-1) = cosd(theta);
-                R(2*n-1,2*n) = sind(theta);
-                R(2*n,2*n-1) = -sind(theta);
-                R(2*n,2*n) = cosd(theta);
-            end
-        end
-		
-		% build dumping matrix for ST
-        dumpmatT = R(2:2:2*Nx*Ny,:);
-
-        % build dumping matrix for SR
-        dumpmatR = R(1:2:2*Nx*Ny-1,:);
-		
 		smweight0 = smweight_array(ip);
 		flweight0 = flweight_array(ip); % JBR
 		dt = zeros(length(eventcs.CS),1);
-        
-        % Load amplitude data
-        amps = zeros(1,length(eventcs.stlas));
-        dist = zeros(1,length(eventcs.stlas));
-		for ista = 1:length(eventcs.autocor)
-            dist(ista) = vdist(eventcs.evla,eventcs.evlo,eventcs.stlas(ista),eventcs.stlos(ista))/1000;
-			if eventcs.autocor(ista).exitflag(ip)>0
-				amps(ista) = eventcs.autocor(ista).amp(ip);
-			else
-				amps(ista) = NaN;
-			end
-		end
-		% change from power spectrum to amplitude
-		amps = amps.^.5;
-        
-        % Correct amplitude for local receiver effects
-        if is_receiver_terms==1
-            Amp_rec = receiver(ip).Amp_rec;
-            for ista = 1:length(eventcs.stnms)
-                Istation = find(strcmp(eventcs.stnms(ista),receiver(ip).stas));
-                if isempty(Istation)
-                    disp(['No station term for ',eventcs.stnms(ista)]);
-                    continue
-                end
-                amps(ista) = amps(ista) ./ Amp_rec(Istation);
-            end
-        end
-        
-        
-        amplitudes(ip).amps = amps;
-        
-        
 		w = zeros(length(eventcs.CS),1);
+		ddist = zeros(length(eventcs.CS),1);
 		for ics = 1:length(eventcs.CS)
-            Ista1 = eventcs.CS(ics).sta1;
-            Ista2 = eventcs.CS(ics).sta2;
-			if eventcs.CS(ics).isgood(ip) > 0 && ~isnan(amps(Ista1)*amps(Ista2))
-                
-%                 dt(ics) = amps(Ista1)-amps(Ista2);
-                amp_mean = 0.5*(amps(Ista1)+amps(Ista2));
-                dt(ics) = (amps(Ista1)-amps(Ista2)) ./ amp_mean;
-                
-% 				dt(ics) = eventcs.CS(ics).dtp(ip);
+			if eventcs.CS(ics).isgood(ip) > 0 
+				dt(ics) = eventcs.CS(ics).dtp(ip);
 				w(ics) = 1;
 			else
-				dt(ics) = 0;
+				dt(ics) = eventcs.CS(ics).dtp(ip);
 				w(ics) = 0;
 			end
 			if sum(ismember([eventcs.CS(ics).sta1 eventcs.CS(ics).sta2],badstaids)) > 0
 				w(ics) = 0;
 			end
+			ddist(ics,:) = eventcs.CS(ics).ddist;
 		end
 		W = sparse(length(w),length(w));
 		for id = 1:length(w)
@@ -243,7 +188,7 @@ for ie = 1:length(csmatfiles)
         NR=norm(F,1);
         NA=norm(W*mat,1);
         smweight = smweight0*NA/NR;
-		
+
 		% JBR - Normalize flatness kernel
         NR=norm(F2,1);
         NA=norm(W*mat,1);
@@ -330,10 +275,10 @@ for ie = 1:length(csmatfiles)
             rhs=[W*dt;zeros(size(F,1),1);zeros(size(F2,1),1);zeros(size(dumpmatT,1),1);dumpweightR*ones(size(dumpmatR,1),1)./avgv];
             phaseg=(A'*A)\(A'*rhs);
         end	
+        
+        % Estimate travel-time residuals
+        dt_res = dt - mat*phaseg;
 
-		% Estimate differential amplitude residuals
-        dA_res = dt - mat*phaseg;
-		
         % Calculate the kernel density
         %sumG=sum(abs(mat),1);
         ind=1:Nx*Ny;
@@ -351,114 +296,129 @@ for ie = 1:length(csmatfiles)
         
         %        disp(' Get rid of uncertainty area');
         fullphaseg = phaseg;
-        for i=1:Nx
-            for j=1:Ny
-                n=Ny*(i-1)+j;
-                if raydense(i,j) < raydensetol %&& ~issyntest
-                    phaseg(2*n-1)=NaN;
-                    phaseg(2*n)=NaN;
-                end
-            end
-        end
+%         for i=1:Nx
+%             for j=1:Ny
+%                 n=Ny*(i-1)+j;
+%                 if raydense(i,j) < raydensetol %&& ~issyntest
+%                     phaseg(2*n-1)=NaN;
+%                     phaseg(2*n)=NaN;
+%                 end
+%             end
+%         end
 
 		% Change phaseg into phase velocity
 		for i=1:Nx
 			for j=1:Ny
 				n=Ny*(i-1)+j;
-				dAmpx(i,j)= phaseg(2*n-1);
-				dAmpy(i,j)= phaseg(2*n);
+				GVx(i,j)= phaseg(2*n-1);
+				GVy(i,j)= phaseg(2*n);
 			end
 		end
-		dAmp=(dAmpx.^2+dAmpy.^2).^.5;
+		GV=(GVx.^2+GVy.^2).^-.5;
 		% Get rid of uncertain area
+		% Forward calculate phase velocity
+        phv_fwd = ddist./(mat*phaseg(1:Nx*Ny*2));
 
 		% save the result in the structure
-		ampgrad_norm(ip).rays = rays;
-		ampgrad_norm(ip).w = diag(W);
-		ampgrad_norm(ip).goodnum = length(find(w>0));
-		ampgrad_norm(ip).badnum = length(find(w==0));
-		ampgrad_norm(ip).dt = dt;
-		ampgrad_norm(ip).dA_res = dA_res; % data residuals
-		ampgrad_norm(ip).dAmp_A = dAmp;
-		ampgrad_norm(ip).dAmpx_A = dAmpx;
-		ampgrad_norm(ip).dAmpy_A = dAmpy;
-		ampgrad_norm(ip).raydense = raydense;
-		ampgrad_norm(ip).lalim = lalim;
-		ampgrad_norm(ip).lolim = lolim;
-		ampgrad_norm(ip).gridsize = gridsize;
-		ampgrad_norm(ip).id = eventcs.id;
-		ampgrad_norm(ip).evla = eventcs.evla;
-		ampgrad_norm(ip).evlo = eventcs.evlo;
-		ampgrad_norm(ip).evdp = eventcs.evdp;
-		ampgrad_norm(ip).period = periods(ip);
-		ampgrad_norm(ip).amps = amplitudes(ip).amps;
-		ampgrad_norm(ip).stlas = eventcs.stlas;
-		ampgrad_norm(ip).stlos = eventcs.stlos;
-		ampgrad_norm(ip).stnms = eventcs.stnms;
-		ampgrad_norm(ip).isgood = ampgrad_norm(ip).w>0;
-		ampgrad_norm(ip).Mw = eventcs.Mw;
-		disp(['Period:',num2str(periods(ip)),', Goodnum:',num2str(ampgrad_norm(ip).goodnum),...
-				'Badnum:',num2str(ampgrad_norm(ip).badnum)]);
+		eventphv(ip).rays = rays;
+		eventphv(ip).w = diag(W);
+		eventphv(ip).goodnum = length(find(eventphv(ip).w>0));
+		eventphv(ip).badnum = length(find(eventphv(ip).w==0));
+		eventphv(ip).dt = dt;
+        eventphv(ip).dt_res = dt_res; % data residuals
+		eventphv(ip).GV = GV;
+		eventphv(ip).GVx = GVx;
+		eventphv(ip).GVy = GVy;
+		eventphv(ip).phv_fwd = phv_fwd;
+		eventphv(ip).raydense = raydense;
+		eventphv(ip).lalim = lalim;
+		eventphv(ip).lolim = lolim;
+		eventphv(ip).gridsize = gridsize;
+		eventphv(ip).id = eventcs.id;
+		eventphv(ip).evla = eventcs.evla;
+		eventphv(ip).evlo = eventcs.evlo;
+		eventphv(ip).evdp = eventcs.evdp;
+		eventphv(ip).period = periods(ip);
+		eventphv(ip).traveltime = travel_time(ip).tp;
+		eventphv(ip).stlas = eventcs.stlas;
+		eventphv(ip).stlos = eventcs.stlos;
+		eventphv(ip).stnms = eventcs.stnms;
+		eventphv(ip).isgood = eventphv(ip).w>0;
+		eventphv(ip).Mw = eventcs.Mw;
+		disp(['Period:',num2str(periods(ip)),', Goodnum:',num2str(eventphv(ip).goodnum),...
+				'Badnum:',num2str(eventphv(ip).badnum)]);
 	end % end of periods loop
 	if isfigure
 		N=3; M = floor(length(periods)/N) +1;
 		figure(88)
 		clf
-        sgtitle('Amplitude gradient','fontsize',18,'fontweight','bold');
-        lims = {};
+        sgtitle({'Dynamic phase velocity';eventcs.id},'fontweight','bold','fontsize',18);
 		for ip = 1:length(periods)
 			subplot(M,N,ip)
 			ax = worldmap(lalim, lolim);
 			set(ax, 'Visible', 'off')
-			h1=surfacem(xi,yi,ampgrad_norm(ip).dAmp);
+			h1=surfacem(xi,yi,eventphv(ip).GV);
 			% set(h1,'facecolor','interp');
 %			load pngcoastline
 %			geoshow([S.Lat], [S.Lon], 'Color', 'black','linewidth',2)
+            tp_gradlat = -eventphv(ip).GVx; % phase slowness in x-direction
+            tp_gradlon = -eventphv(ip).GVy; % phase slowness in y-direction
+%             azimat = 90 - atan2d(tp_gradlat,tp_gradlon);
+            quiverm(xi,yi,tp_gradlat,tp_gradlon,'-k')
+            azimat_ev = azimuth(xi+gridsize/2,yi+gridsize/2,evla,evlo)+180;
+%             azimat_ev = azimuth(evla,evlo,xi+gridsize/2,yi+gridsize/2);
+%             azimat = 90 - atan2d(eventphv(ip).GVx,eventphv(ip).GVy);
+%             [~, azimat_ev] = distance(xi,yi,evla,evlo,referenceEllipsoid('GRS80'));
+            [latout,lonout] = reckon(xi,yi,gridsize,azimat_ev);
+            quiverm(xi,yi,latout-xi,lonout-yi,'-r');
 			title(['Periods: ',num2str(periods(ip))],'fontsize',15)
-			avgv = nanmean(ampgrad_norm(ip).dAmp(:));
+			avgv = nanmean(eventphv(ip).GV(:));
 			if isnan(avgv)
 				continue;
 			end
-			r = 0.8;
+			r = 0.1;
 			caxis([avgv*(1-r) avgv*(1+r)])
-			cb = colorbar;
-            lims{ip} = cb.Limits;
+			colorbar
 			load seiscmap
 			colormap(seiscmap)
 		end
 		drawnow;
-        
-%         figure(87)
-% 		clf
-%         sgtitle('Amplitude gradient (surface calculation)','fontsize',18,'fontweight','bold');
-% 		for ip = 1:length(periods)
-%             attenuation_path = ['NoMelt_M5.5_detrend_Zcorr_100km_snr3_600km_SAVE2_nostationterms/attenuation/',eventcs.id,'_attenuation_BHZ.mat'];
-%             temp = load(attenuation_path);
-%             attenuation = temp.attenuation;
-%             amp_grad = attenuation(ip).amp_grad';
-%             inan = isnan(ampgrad_norm(ip).dAmp);
-%             amp_grad(inan) = nan;
-% 			subplot(M,N,ip)
-% 			ax = worldmap(lalim, lolim);
-% 			set(ax, 'Visible', 'off')
-% 			h1=surfacem(xi,yi,amp_grad);
-% 			% set(h1,'facecolor','interp');
-% %			load pngcoastline
-% %			geoshow([S.Lat], [S.Lon], 'Color', 'black','linewidth',2)
-% 			title(['Periods: ',num2str(periods(ip))],'fontsize',15)
-% 			if isnan(avgv)
-% 				continue;
-% 			end
-% 			colorbar
-%             if ~isempty(lims{ip})
-%                 caxis(lims{ip});
-%             end
-% 			load seiscmap
-% 			colormap(seiscmap)
-% 		end
-% 		drawnow;
 	end
-	matfilename = [ampgrad_norm_output_path,'/',eventcs.id,'_ampgrad_norm_',comp,'.mat'];
-	save(matfilename,'ampgrad_norm');
+	matfilename = [eikonl_propazi_output_path,'/',eventcs.id,'_eikonal_',comp,'.mat'];
+	save(matfilename,'eventphv');
 	disp(['Save the result to: ',matfilename])
 end % end of loop ie
+
+%% Plot residuals
+eventfiles = dir([eikonl_propazi_output_path,'/*_eikonal_',parameters.component,'.mat']);
+clear residuals
+for ie = 1:length(eventfiles)
+	temp = load(fullfile(eikonl_propazi_output_path,eventfiles(ie).name));
+    eventphv = temp.eventphv;
+    for ip = 1:length(eventphv)
+        if ie == 1
+            residuals(ip).rms_dt_res = [];
+            residuals(ip).mean_dt_res = [];
+        end
+        isgood = eventphv(ip).isgood;
+        dt_res = eventphv(ip).dt_res(isgood);
+        residuals(ip).rms_dt_res = [residuals(ip).rms_dt_res(:); rms(dt_res(:))];
+        residuals(ip).mean_dt_res = [residuals(ip).mean_dt_res(:); mean(dt_res(:))];
+    end
+end
+
+%%
+figure(87); clf; set(gcf,'color','w','position',[1035         155         560         781]);
+for ip = 1:length(periods)
+    subplot(2,1,1);
+    plot(periods(ip),residuals(ip).mean_dt_res,'o','color',[0.7 0.7 0.7]); hold on;
+    plot(periods(ip),nanmean(residuals(ip).mean_dt_res),'rs','linewidth',2,'markersize',10);
+    ylabel('mean (dt_{obs}-dt_{pre})')
+    set(gca,'linewidth',1.5,'fontsize',15);
+    subplot(2,1,2);
+    plot(periods(ip),residuals(ip).rms_dt_res,'o','color',[0.7 0.7 0.7]); hold on;
+    plot(periods(ip),nanmean(residuals(ip).rms_dt_res),'rs','linewidth',2,'markersize',10);
+    xlabel('Period (s)');
+    ylabel('RMS (dt_{obs}-dt_{pre})')
+    set(gca,'linewidth',1.5,'fontsize',15);
+end

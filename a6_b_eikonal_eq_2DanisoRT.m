@@ -16,7 +16,7 @@ setup_ErrorCode
 % JBR
 % cohere_tol = parameters.cohere_tol;
 
-is_offgc_propagation = 1; % Account for off-great-circle propagation using eikonal tomography maps using eikonal results (a6_eikonal_eq)? Otherwise will assume great-circle propagation.
+is_offgc_propagation = parameters.is_offgc_propagation; % Account for off-great-circle propagation using eikonal tomography maps using eikonal results (a6_eikonal_eq)? Otherwise will assume great-circle propagation.
 
 % Smoothing parameters
 flweight_array = 0*ones(length(parameters.periods)); %100*ones(length(parameters.periods)); %parameters.flweight_array
@@ -53,7 +53,7 @@ workingdir = parameters.workingdir;
 % input path
 eventcs_path = [workingdir,'CSmeasure/'];
 % output path
-eikonl_output_path = [workingdir,'eikonal/'];
+eikonl_propazi_output_path = [workingdir,'eikonal_propazi/'];
 eikonl_ani_output_path = [workingdir];
 
 
@@ -160,7 +160,10 @@ for ip = 1:length(periods)
 			continue;
         end
         if is_offgc_propagation==1
-            eikonal_in = [eikonl_output_path,'/',eventcs.id,'_eikonal_',comp,'.mat'];
+            eikonal_in = [eikonl_propazi_output_path,'/',eventcs.id,'_eikonal_',comp,'.mat'];
+            if ~exist(eikonal_in,'file')
+                error('No propagation azimuth found. Need to first run a6_a0_eikonal_eq_GetPropAzi.m');
+            end
             temp = load(eikonal_in);
             phase_lat = temp.eventphv(ip).GVx; % phase slowness in x-direction
             phase_lon = temp.eventphv(ip).GVy; % phase slowness in y-direction

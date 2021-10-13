@@ -78,6 +78,7 @@ parameters.is_winx2 = 1; % jbr - 0=window single seismogram (default); 1=window 
 % (eikonal_eq.m helmholtz_eq.m)
 parameters.smweight_array = 3*[0.4 0.3 0.2 0.2 0.2 0.5 0.5 0.5 1 1 1 2 3 3 3];  % 2nd derivative smoothing weight for the deltaSx and delta Sy
 parameters.flweight_array = 0*ones(size(parameters.periods)); % JBR - 1st derivative smoothing
+parameters.is_offgc_smoothing = 0; % 1st derivative smoothing along propagation direction rather than great circle. Requires an initial run of a6_a0_eikonal_eq_GetPropAzi.m to get propagation azimuth
 parameters.raydensetol=deg2km(parameters.gridsize)*2;
 parameters.Tdumpweight = 0;  % damping the ray to the great-circle path
 parameters.Rdumpweight = 0;  % damping the region to have the same phase velocity
@@ -110,6 +111,7 @@ parameters.event_bias_tol = 3; %2;
 parameters.smsize = 3; %1;  % averaging nearby grid number
 parameters.off_azi_tol = 30; % differ from great circle path in degrees
 parameters.is_one_phi = 0; %1;
+parameters.is_offgc_propagation = 1; % % Account for off-great-circle propagation using eikonal tomography maps? Otherwise will assume great-circle propagation.
 
 %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%%
 % Attenuation
