@@ -10,7 +10,7 @@ isoverwrite = 1;
 isfigure = 0;
 is_save_amp_fig = 0;
 
-is_eikonal_phasegrad = 1; % 1: use eikonal tomography values for phase gradient; 0: use travel-time field estimates
+is_eikonal_phasegrad = parameters.is_eikonal_phasegrad; % 1: use eikonal tomography values for phase gradient; 0: use travel-time field estimates
 
 r = 0.05;
 
