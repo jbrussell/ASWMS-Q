@@ -202,11 +202,11 @@ save(filename,'avgphv_aniso');
 %%
 % %%
 %plot native
-qfile = './qfiles/pa5_5km.t0to55.q';
-mode0 = readMINEOS_qfile(qfile,0);
-mode1 = readMINEOS_qfile(qfile,1);
-mode2 = readMINEOS_qfile(qfile,2);
-mode3 = readMINEOS_qfile(qfile,3);
+% qfile = './qfiles/pa5_5km.s0to66.q';
+% mode0 = readMINEOS_qfile(qfile,0);
+% mode1 = readMINEOS_qfile(qfile,1);
+% mode2 = readMINEOS_qfile(qfile,2);
+% mode3 = readMINEOS_qfile(qfile,3);
 
 figure(58);
 set(gcf,'position',[351   677   560   668]);
@@ -222,12 +222,12 @@ for ip = 1:length(periods)
 end
 %plot native
 subplot(3,1,1); hold on;
-plot(mode0.T,mode0.phv,'-','color',[0.8,0.8,0.8],'linewidth',3);
-plot(mode1.T,mode1.phv,'-','color',[0.8,0.8,0.8],'linewidth',3);
-plot(mode2.T,mode2.phv,'-','color',[0.8,0.8,0.8],'linewidth',3);
-plot(mode3.T,mode3.phv,'-','color',[0.8,0.8,0.8],'linewidth',3);
+% plot(mode0.T,mode0.phv,'-','color',[0.8,0.8,0.8],'linewidth',3);
+% plot(mode1.T,mode1.phv,'-','color',[0.8,0.8,0.8],'linewidth',3);
+% plot(mode2.T,mode2.phv,'-','color',[0.8,0.8,0.8],'linewidth',3);
+% plot(mode3.T,mode3.phv,'-','color',[0.8,0.8,0.8],'linewidth',3);
 errorbar(periods,avgv,avgv_std,'-or');
-ylim([4 6]);
+ylim([3.85 4.4]);
 xlim([20 150]);
 ylabel('c (km/s)');
 %plot native
