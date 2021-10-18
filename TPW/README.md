@@ -3,7 +3,7 @@
 
 This directory contains a set of codes for converting ASWMS measurements to the format required for the two-plane wave (TPW) inversion scheme of Forsyth & Li (2005); Yang & Forsyth (2006). The main pieces of the inversion are written in Fortran, and here we've written a more user friendly Matlab wrapper around those scripts. 
 
-There are many different version of the TPW that have been developed over the years. This version is based on srchwave589, which was later modified slightly by Zhitu Ma for the NoMelt project. The most complete (up-to-date?) list of the different versions of TPW and their differences are here [https://github.com/chukren/SurfwaveTomoPrograms/tree/master/SurfaceProgs/phaseVelInversion](https://github.com/chukren/SurfwaveTomoPrograms/tree/master/SurfaceProgs/phaseVelInversion).
+There are many different versions of the TPW that have been developed over the years. This version is based on srchwave589, which was later modified slightly by Zhitu Ma for the NoMelt project. The most complete (up-to-date?) list of the different versions of TPW and their differences are here [https://github.com/chukren/SurfwaveTomoPrograms/tree/master/SurfaceProgs/phaseVelInversion](https://github.com/chukren/SurfwaveTomoPrograms/tree/master/SurfaceProgs/phaseVelInversion).
 
 This version of TPW inverts for: 
 - 2D phase velocity
