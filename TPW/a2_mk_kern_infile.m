@@ -37,11 +37,12 @@ for ip = 1:length(periods)
     % Get zpad
     zpad=[swin(:,1)-twin(:,1)  twin(:,2)-swin(:,2)];
     
-    % setup the grid
+	% setup the grid - FFT kernel ~5x larger than array region
     spacing_km = kern_grid_km;
-%     width_km = deg2km(max([abs(diff(lalim)) abs(diff(lolim))]))+spacing_km*3; %1000;
-%     width_km = floor(width_km/spacing_km)*spacing_km;
-    width_km = 6000;
+    width_array_km = deg2km(max([abs(diff(lalim)) abs(diff(lolim))])); %1000;
+    width_array_km = floor(width_array_km/spacing_km)*spacing_km;
+    width_km = width_array_km*5; % make kernel 5x larger than array region
+%     width_km = 6000;
     x=spacing_km:spacing_km:width_km/2;
     x=[-x(end:-1:1) 0 x];
     
