@@ -42,3 +42,6 @@ parameters_tpw.dampvel = 0.25; % a priori stddev for velocity terms
 parameters_tpw.dampaniso = 0.25; % a priori stddev for aniso coefficients
 parameters_tpw.divfac = 1.0; % smaller value increases velocity smoothing coefficient
 parameters_tpw.divfac_azi = 1.0; % smaller value increases anisotropy smoothing coefficient
+
+
+system(['cp ./setup_parameters_tpw.m ',parameters_tpw.workingdir]);
