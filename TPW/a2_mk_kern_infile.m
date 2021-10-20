@@ -40,8 +40,8 @@ for ip = 1:length(periods)
 	% setup the grid - FFT kernel ~5x larger than array region
     spacing_km = kern_grid_km;
     width_array_km = deg2km(max([abs(diff(lalim)) abs(diff(lolim))])); %1000;
-    width_array_km = floor(width_array_km/spacing_km)*spacing_km;
-    width_km = width_array_km*5; % make kernel 5x larger than array region
+    width_array_km = ceil(width_array_km/spacing_km)*spacing_km;
+    width_km = width_array_km*1.25; % make kernel 5x larger than array region
 %     width_km = 6000;
     x=spacing_km:spacing_km:width_km/2;
     x=[-x(end:-1:1) 0 x];
