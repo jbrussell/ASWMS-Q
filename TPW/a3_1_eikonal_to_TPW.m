@@ -96,6 +96,7 @@ for ip = 1:length(periods)
             twpevents(goodeventnum).evlo = eventphv(ip).evlo;
             twpevents(goodeventnum).stlas = eventphv(ip).stlas(goodstaind);
             twpevents(goodeventnum).stlos = eventphv(ip).stlos(goodstaind);
+            twpevents(goodeventnum).stlos(twpevents(goodeventnum).stlos<0) = twpevents(goodeventnum).stlos(twpevents(goodeventnum).stlos<0) + 360;
             twpevents(goodeventnum).stnms = eventphv(ip).stnms(goodstaind);
             twpevents(goodeventnum).tp = eventphv(ip).traveltime(goodstaind);
             twpevents(goodeventnum).id = eventphv(ip).id;
@@ -115,11 +116,11 @@ for ip = 1:length(periods)
         stlos = twpevents(ie).stlos;
         evla = twpevents(ie).evla;
         evlo = twpevents(ie).evlo;
-        degs = distance(stlas,stlos,evla,evlo);
+        degs = km2deg(distance(stlas,stlos,evla,evlo,referenceEllipsoid('GRS80'))/1000);
         twpevents(ie).degs = degs;
         twpevents(ie).dists = deg2km(degs);
-        twpevents(ie).azi = azimuth(evla,evlo,stlas,stlos);
-        twpevents(ie).baz = azimuth(stlas,stlos,evla,evlo);
+        twpevents(ie).azi = azimuth(evla,evlo,stlas,stlos,referenceEllipsoid('GRS80'));
+        twpevents(ie).baz = azimuth(stlas,stlos,evla,evlo,referenceEllipsoid('GRS80'));
     end
 
     % output the files
@@ -144,12 +145,12 @@ for ip = 1:length(periods)
             deg = twpevents(ie).degs(ista);
             amp = twpevents(ie).amp(ista).^0.5;
             stnm = char(twpevents(ie).stnms(ista));
-            amp = amp./meanamp;
+            amp_mean = amp./meanamp;
             tp = twpevents(ie).tp(ista);
     %		ph = (maxtp-tp)./periods(ip)/2/pi;
             ph = (tp-mintp)./periods(ip);
             fprintf(afp,' %f  %f  %f  %f  %f  %f\n',dist,azi,baz,deg,stla,stlo);
-            fprintf(afp,' %f  %f\n',amp,ph);
+            fprintf(afp,' %d  %f\n',amp,ph);
         end
     end
 
