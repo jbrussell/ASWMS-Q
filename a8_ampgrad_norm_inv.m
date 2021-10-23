@@ -410,12 +410,12 @@ for ie = 1:length(csmatfiles)
 			subplot(M,N,ip)
 			ax = worldmap(lalim, lolim);
 			set(ax, 'Visible', 'off')
-			h1=surfacem(xi,yi,ampgrad_norm(ip).dAmp);
+			h1=surfacem(xi,yi,ampgrad_norm(ip).dAmp_A);
 			% set(h1,'facecolor','interp');
 %			load pngcoastline
 %			geoshow([S.Lat], [S.Lon], 'Color', 'black','linewidth',2)
 			title(['Periods: ',num2str(periods(ip))],'fontsize',15)
-			avgv = nanmean(ampgrad_norm(ip).dAmp(:));
+			avgv = nanmean(ampgrad_norm(ip).dAmp_A(:));
 			if isnan(avgv)
 				continue;
 			end
@@ -436,7 +436,7 @@ for ie = 1:length(csmatfiles)
 %             temp = load(attenuation_path);
 %             attenuation = temp.attenuation;
 %             amp_grad = attenuation(ip).amp_grad';
-%             inan = isnan(ampgrad_norm(ip).dAmp);
+%             inan = isnan(ampgrad_norm(ip).dAmp_A);
 %             amp_grad(inan) = nan;
 % 			subplot(M,N,ip)
 % 			ax = worldmap(lalim, lolim);
