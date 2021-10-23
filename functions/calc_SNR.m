@@ -6,7 +6,7 @@ refv = parameters.refv;
 data = sac.DATA1;
 dt = sac.DELTA;
 NN= length(data);
-t = sac.B + [0:sac.DELTA:NN-1];
+t = sac.B + [0:NN-1]*sac.DELTA;
 
 data = data.*tukeywin(NN,0.08);
 fN = 1/2/dt;
