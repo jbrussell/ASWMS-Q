@@ -8,6 +8,7 @@ workingdir_tpw = parameters_tpw.workingdir;
 
 phv_avg = [];
 for ip = 1:length(periods)
+    event = [];
     period = periods(ip);    
     control_file = [workingdir_tpw,'/','all.',num2str(period,'%03d')];
     phamp_file = [workingdir_tpw,'/','phampcor.',num2str(period,'%03d'),'.inp'];
