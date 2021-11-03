@@ -249,6 +249,8 @@ c  JBR - start edit
       read(*,*) outazi
       read(*,*) outstacor
       read(*,*) outalpha
+      read(*,*) refgamma
+      read(*,*) dampgamma
 c  JBR - end edit
 
 
@@ -629,10 +631,16 @@ c  initialize phase corrections for different instruments
         enddo
 	endif
 c  initialize gamma factor for attenuation
-        gamma = 0.0
+c JBR - begin edit
+        gamma = refgamma
         origmod(np) = gamma
         crrntmod(np) = origmod(np)
-        covinv(np) = 1.0/(0.0002**2)
+        covinv(np) = 1.0/(dampgamma**2)
+C        gamma = 0.0
+C        origmod(np) = gamma
+C        crrntmod(np) = origmod(np)
+C        covinv(np) = 1.0/(0.0002**2)
+c JBR - end edit
 
 c  increase the variance for edges for velocity 
 

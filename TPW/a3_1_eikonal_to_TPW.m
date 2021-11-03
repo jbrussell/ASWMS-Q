@@ -33,6 +33,8 @@ divfac = parameters_tpw.divfac;
 divfac_azi = parameters_tpw.divfac_azi;
 dampvel = parameters_tpw.dampvel;
 dampaniso = parameters_tpw.dampaniso;
+refalpha = parameters_tpw.refalpha;
+dampalpha = parameters_tpw.dampalpha;
 
 stnms_all = {};
 for ip = 1:length(periods)
@@ -176,6 +178,8 @@ for ip = 1:length(periods)
     fprintf(cfp,'%s\n',outazi); % output azimuthal anisotropy
     fprintf(cfp,'%s\n',outstacor); % output station correction terms
     fprintf(cfp,'%s\n',outalpha); % output attenuation
+    fprintf(cfp,'%f\n',refalpha); % refgamma - reference alpha
+    fprintf(cfp,'%f\n',dampalpha); % dampgamma - alpha damping
 
     fclose(cfp);
     fclose(afp);

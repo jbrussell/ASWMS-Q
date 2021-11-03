@@ -40,6 +40,8 @@ parameters_tpw.nfreq = 1; % (DO NOT CHANGE) number of frequencies to compute TPW
 parameters_tpw.iterlimit = 10; % maximum # of iterations
 parameters_tpw.dampvel = 0.25; % a priori stddev for velocity terms
 parameters_tpw.dampaniso = 0.25; % a priori stddev for aniso coefficients
+parameters_tpw.refalpha = 0; % starting value for alpha
+parameters_tpw.dampalpha = 0.0002; % a priori stddev for attenuation parameter
 parameters_tpw.divfac = 1.0; % smaller value increases velocity smoothing coefficient
 parameters_tpw.divfac_azi = 1.0; % smaller value increases anisotropy smoothing coefficient
 
