@@ -24,8 +24,8 @@ for ip = 1:length(periods)
     tpw.periods(ip) = period;
     tpw.phv_1d(ip) = nanmean(vel(ip).phv(:));
     tpw.phv_1d_std(ip) = nanmean(vel(ip).phv_std(:));
-    tpw.A2_1d(ip) = nanmean(ani(ip).A2(:));
-    tpw.A2_1d_std(ip) = nanmean(ani(ip).A2_std(:));
+    tpw.A2_1d(ip) = nanmean(ani(ip).A2_kms(:)./tpw.phv_1d(ip));
+    tpw.A2_1d_std(ip) = nanmean(ani(ip).A2_std_kms(:)./tpw.phv_1d(ip));
     tpw.phi2_1d(ip) = nanmean(ani(ip).phi2(:));
     tpw.phi2_1d_std(ip) = nanmean(ani(ip).phi2_std(:));
     tpw.alpha_1d(ip) = nanmean(atten(ip).alpha(:));
@@ -106,11 +106,12 @@ subplot(4,1,1); hold on;
 if exist(path2qfile,'file')==2
     plot(tpw.periods,phv_mineos,'-','color',[0.8 0.8 0.8],'linewidth',2);
 end
+plot(parameters.periods,parameters_tpw.refphv,'og','linewidth',2);
 errorbar(aswms.periods,aswms.phv_1d,aswms.phv_1d_std,'o-r','linewidth',2);
 errorbar(tpw.periods,tpw.phv_1d,tpw.phv_1d_std,'o-b','linewidth',2);  
 xlabel('Period (s)');
 ylabel('Phase Velocity (km/s)');
-legend('Mineos','ASWMS','TPW','location','southeast');
+legend('Mineos','Starting','ASWMS','TPW','location','southeast');
 set(gca,'linewidth',1.5,'fontsize',15,'box','on');
 
 subplot(4,1,2); hold on;

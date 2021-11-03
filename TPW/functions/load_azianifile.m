@@ -1,5 +1,6 @@
 function [mat] = load_azianifile(file,xnode,ynode)
 %Load azimuthal anisotropy file and interpolate to desired grid
+% Anisotropy amplitude output from TPW is zero-to-peak in km/s
 %
 isplot = 0;
 
@@ -7,10 +8,10 @@ isplot = 0;
 
 data = load(file);
 
-Ac = data(:,1);
-Ac_std = data(:,2);
-As = data(:,3);
-As_std = data(:,4);
+Ac = data(:,1); % km/s
+Ac_std = data(:,2); % km/s
+As = data(:,3); % km/s
+As_std = data(:,4); % km/s
 lon = data(:,5);
 lat = data(:,6);
 
@@ -36,14 +37,14 @@ phi2 = 0.5*atan2d(As_mat,Ac_mat);
 A2_std = sqrt( ((Ac_mat.*Ac_std_mat).^2 + (As_mat.*As_std_mat).^2) ./ (Ac_mat.^2 + As_mat.^2) );
 phi2_std = 0.5*sqrt( ((As_mat.*Ac_std_mat).^2 + (Ac_mat.*As_std_mat).^2) ./ (Ac_mat.^2 + As_mat.^2) );
 
-mat.A2 = A2;
-mat.A2_std = A2_std;
+mat.A2_kms = A2; % km/s
+mat.A2_std_kms = A2_std; % km/s
 mat.phi2 = phi2;
 mat.phi2_std = phi2_std;
-mat.Ac = Ac_mat;
-mat.Ac_std = Ac_std_mat;
-mat.As = As_mat;
-mat.As_std = As_std_mat;
+mat.Ac_kms = Ac_mat; % km/s
+mat.Ac_std_kms = Ac_std_mat; % km/s
+mat.As_kms = As_mat; % km/s
+mat.As_std_kms = As_std_mat; % km/s
 mat.lat = xi_want;
 mat.lon = yi_want;
 
