@@ -366,4 +366,26 @@ for ip = 1:length(periods)
 	colormap(seiscmap)
 end
 drawnow;
+
+%% 1-D Average
+figure(96)
+clf; hold on;
+GV_1d = [];
+GV_std_1d = [];
+GV_cor_1d = [];
+GV_cor_std_1d = [];
+for ip = 1:length(periods)
+    GV_1d(ip) = nanmean(avgphv(ip).GV(:));
+    GV_std_1d(ip) = nanmean(avgphv(ip).GV_std(:));
+    GV_cor_1d(ip) = nanmean(avgphv(ip).GV_cor(:));
+    GV_cor_std_1d(ip) = nanmean(avgphv(ip).GV_cor_std(:));
+end
+title('1-D Phase Velocity','fontweight','bold','fontsize',18)
+errorbar(periods,GV_1d,GV_std_1d,'o-b','linewidth',2);
+errorbar(periods-1,GV_cor_1d,GV_cor_std_1d,'o-r','linewidth',2);
+xlabel('Period (s)');
+ylabel('Phase Velocity (km/s)');
+legend('Dynamic','Structural','location','southeast');
+set(gca,'linewidth',1.5,'fontsize',15,'box','on');
+
 end
