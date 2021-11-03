@@ -8,6 +8,7 @@ lolim = parameters.lolim;
 xnode=lalim(1):gridsize:lalim(2);
 ynode=lolim(1):gridsize:lolim(2);
 
+%% Load TPW measurements
 r = 0.05;
 for ip = 1:length(periods)
     period = periods(ip);
@@ -30,6 +31,30 @@ for ip = 1:length(periods)
     tpw.alpha_1d(ip) = nanmean(atten(ip).alpha(:));
     tpw.alpha_1d_std(ip) = nanmean(atten(ip).alpha_std(:));
 
+end
+
+%% Load ASWMS measurements
+comp = parameters.component;
+workingdir = [parameters.workingdir];
+eventcs_path = [workingdir,'CSmeasure/'];
+eikonal_output_path = [workingdir,'eikonal/'];
+eikonal_aniso1D_path = workingdir;
+attenuation_path = workingdir; %[workingdir,'attenuation/'];
+temp = load([eikonal_aniso1D_path,'/eikonal_stack_aniso1D_',comp,'.mat']);
+avgphv_aniso = temp.avgphv_aniso;
+temp = load([eikonal_aniso1D_path,'/attenuation_',comp,'.mat']);
+attenuation = temp.attenuation;
+for ip = 1:length(periods)
+    period = periods(ip);
+    aswms.periods(ip) = period;
+    aswms.phv_1d(ip) = nanmean(avgphv_aniso(ip).isophv(:));
+    aswms.phv_1d_std(ip) = nanmean(avgphv_aniso(ip).isophv_std(:));
+    aswms.A2_1d(ip) = nanmean(avgphv_aniso(ip).aniso_strength(:));
+    aswms.A2_1d_std(ip) = nanmean(avgphv_aniso(ip).aniso_strength_std(:));
+    aswms.phi2_1d(ip) = nanmean(avgphv_aniso(ip).aniso_azi(:));
+    aswms.phi2_1d_std(ip) = nanmean(avgphv_aniso(ip).aniso_azi_std(:));
+    aswms.alpha_1d(ip) = attenuation(ip).alpha_1d;
+    aswms.alpha_1d_std(ip) = attenuation(ip).alpha_1d_err;
 end
 
 %% Phase velocity maps
@@ -75,37 +100,44 @@ if exist(path2qfile,'file')==2
 end
 
 figure(34); clf;
+set(gcf,'position',[616          13         560        1005]);
 
 subplot(4,1,1); hold on;
-errorbar(tpw.periods,tpw.phv_1d,tpw.phv_1d_std,'o-b','linewidth',2); 
+if exist(path2qfile,'file')==2
+    plot(tpw.periods,phv_mineos,'-','color',[0.8 0.8 0.8],'linewidth',2);
+end
+errorbar(aswms.periods,aswms.phv_1d,aswms.phv_1d_std,'o-r','linewidth',2);
+errorbar(tpw.periods,tpw.phv_1d,tpw.phv_1d_std,'o-b','linewidth',2);  
 xlabel('Period (s)');
 ylabel('Phase Velocity (km/s)');
-if exist(path2qfile,'file')==2
-    plot(tpw.periods,phv_mineos,'-r','linewidth',2);
-end
-legend('1-D avg.','True','location','southeast');
+legend('Mineos','ASWMS','TPW','location','southeast');
 set(gca,'linewidth',1.5,'fontsize',15,'box','on');
 
 subplot(4,1,2); hold on;
+plot([min(periods) max(periods)],[0 0],'-','color',[0.8 0.8 0.8],'linewidth',2);
+errorbar(aswms.periods,aswms.A2_1d*200,aswms.A2_1d_std*100,'o-r','linewidth',2);
 errorbar(tpw.periods,tpw.A2_1d*200,tpw.A2_1d_std*100,'o-b','linewidth',2);
 xlabel('Period (s)');
 ylabel('Peak-to-peak Anisotropy (%)');
-plot([min(periods) max(periods)],[0 0],'-r','linewidth',2);
-legend('1-D avg.','True','location','southeast');
+% legend('1-D avg.','True','location','southeast');
 set(gca,'linewidth',1.5,'fontsize',15,'box','on');
 
 subplot(4,1,3);  hold on;
+errorbar(aswms.periods,aswms.phi2_1d,aswms.phi2_1d_std,'o-r','linewidth',2);
 errorbar(tpw.periods,tpw.phi2_1d,tpw.phi2_1d_std,'o-b','linewidth',2);
 xlabel('Period (s)');
 ylabel('Fast Azimuth (\circ)');
 set(gca,'linewidth',1.5,'fontsize',15,'box','on');
+plot([min(periods) max(periods)],78*[1 1],'--k','linewidth',1);
+plot([min(periods) max(periods)],118*[1 1],'--k','linewidth',1);
 
 subplot(4,1,4); hold on;
+if exist(path2qfile,'file')==2
+    plot(tpw.periods,alpha_mineos,'-','color',[0.8 0.8 0.8],'linewidth',2);
+end
+errorbar(aswms.periods,aswms.alpha_1d,aswms.alpha_1d_std,'o-r','linewidth',2);
 errorbar(tpw.periods,tpw.alpha_1d,tpw.alpha_1d_std,'o-b','linewidth',2);
 xlabel('Period (s)');
 ylabel('\alpha (km^{-1})');
-if exist(path2qfile,'file')==2
-    plot(tpw.periods,alpha_mineos,'-r','linewidth',2);
-end
-legend('1-D avg.','True','location','southeast');
+% legend('1-D avg.','True','location','southeast');
 set(gca,'linewidth',1.5,'fontsize',15,'box','on');
