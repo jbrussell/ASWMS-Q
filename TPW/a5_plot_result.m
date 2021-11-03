@@ -104,7 +104,7 @@ set(gcf,'position',[616          13         560        1005]);
 
 subplot(4,1,1); hold on;
 if exist(path2qfile,'file')==2
-    plot(tpw.periods,phv_mineos,'-','color',[0.8 0.8 0.8],'linewidth',2);
+    plot(tpw.periods,phv_mineos,'-','color',[0.8 0.8 0.8],'linewidth',4);
 end
 plot(parameters.periods,parameters_tpw.refphv,'og','linewidth',2);
 errorbar(aswms.periods,aswms.phv_1d,aswms.phv_1d_std,'o-r','linewidth',2);
@@ -115,7 +115,7 @@ legend('Mineos','Starting','ASWMS','TPW','location','southeast');
 set(gca,'linewidth',1.5,'fontsize',15,'box','on');
 
 subplot(4,1,2); hold on;
-plot([min(periods) max(periods)],[0 0],'-','color',[0.8 0.8 0.8],'linewidth',2);
+plot([min(periods) max(periods)],[0 0],'-','color',[0.8 0.8 0.8],'linewidth',4);
 errorbar(aswms.periods,aswms.A2_1d*200,aswms.A2_1d_std*100,'o-r','linewidth',2);
 errorbar(tpw.periods,tpw.A2_1d*200,tpw.A2_1d_std*100,'o-b','linewidth',2);
 xlabel('Period (s)');
@@ -134,7 +134,7 @@ set(gca,'linewidth',1.5,'fontsize',15,'box','on');
 
 subplot(4,1,4); hold on;
 if exist(path2qfile,'file')==2
-    plot(tpw.periods,alpha_mineos,'-','color',[0.8 0.8 0.8],'linewidth',2);
+    plot(tpw.periods,alpha_mineos,'-','color',[0.8 0.8 0.8],'linewidth',4);
 end
 errorbar(aswms.periods,aswms.alpha_1d,aswms.alpha_1d_std,'o-r','linewidth',2);
 errorbar(tpw.periods,tpw.alpha_1d,tpw.alpha_1d_std,'o-b','linewidth',2);
