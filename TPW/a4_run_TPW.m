@@ -19,6 +19,9 @@ for ip = 1:length(periods)
     infile = ['all.',num2str(period,'%03d')];
 %     [stat, log] = system([path2bin,'/srchwave589.JdF.nophase2.iarea < ',infile,' > tpw.log']);
     [stat, ~] = system([path2bin,'/srchwave589.JdF.nophase2.iarea < ',infile]);
+    if stat ~= 0     
+        error( 'something is wrong at srchwave589')
+    end
 end
 cd(currentdir)
 

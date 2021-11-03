@@ -93,6 +93,9 @@ for ip = 1:length(periods)
 
     % Run poutgrd
     [stat, log] = system([path2bin,'/poutgrd < ',infile_poutgrd]);
+    if stat ~= 0     
+        error( 'something is wrong at poutgrd')
+    end
 end
 
 %%
