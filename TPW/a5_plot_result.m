@@ -129,8 +129,8 @@ errorbar(tpw.periods,tpw.phi2_1d,tpw.phi2_1d_std,'o-b','linewidth',2);
 xlabel('Period (s)');
 ylabel('Fast Azimuth (\circ)');
 set(gca,'linewidth',1.5,'fontsize',15,'box','on');
-plot([min(periods) max(periods)],78*[1 1],'--k','linewidth',1);
-plot([min(periods) max(periods)],118*[1 1],'--k','linewidth',1);
+% plot([min(periods) max(periods)],78*[1 1],'--k','linewidth',1);
+% plot([min(periods) max(periods)],118*[1 1],'--k','linewidth',1);
 
 subplot(4,1,4); hold on;
 if exist(path2qfile,'file')==2
