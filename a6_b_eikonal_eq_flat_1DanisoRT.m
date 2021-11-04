@@ -509,7 +509,7 @@ for ip = 1:length(periods)
 %% Make event list
 fid = fopen([workingdir,'azi_evlist.txt'],'w');
 
-for ip = 7 % 50 s
+for ip = 3 % 50 s
     isgood = eventphv_ani(ip).isgood;
     evids_all = eventphv_ani(ip).id(isgood);
     [evids,I] = unique(evids_all);
@@ -814,7 +814,10 @@ disp(['Save the result to: ',matfilename])
         subplot(M,N,ip); hold on;
 %         plot(azi,dv,'.'); hold on;
 %         plot(eventphv_ani(ip).azi(~isgood),dv2_not,'.','color',[0.8 0.8 0.8]);
-        plot(azi,dv2,'.','color',[0.8 0.8 0.8]); hold on;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% %     WARNING! THIS PLOTS ALL DATA AT ONCE AND MAY REQUIRE A LOT OF MEMORY!
+%         plot(azi,dv2,'.','color',[0.8 0.8 0.8]); hold on;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         errorbar(azi_bin,dv_bin,dv_std_bin,'ok');
         errorbar(azi_bin_res,dv_bin_res,dv_std_bin_res,'om');
 %         plot(azi,dv3,'.r');
@@ -826,27 +829,30 @@ disp(['Save the result to: ',matfilename])
         ylim([-5 5]);
         xlim([0 360]);
     end
-    
-    figure(91); clf;
-    for ip = 1:length(periods)
-        isgood = eventphv_ani(ip).isgood;
-	    dt = eventphv_ani(ip).dt(isgood);
-        azi = eventphv_ani(ip).azi(isgood);
-%         azi(azi<0) = azi(azi<0)+360;
-        phv = eventphv_ani(ip).ddist(isgood)./dt;
-        avgv = eventphv_ani(ip).GV_av;
-        phv_iso = eventphv_ani(ip).phv_iso(isgood);
-        dv = (phv-avgv)./avgv*100;
-        dv2 = (phv-phv_iso)./phv_iso*100;
-        
-        A2 = eventphv_ani(ip).A2;
-        phi2 = eventphv_ani(ip).phi2;
-        subplot(M,N,ip);
-        plot(azi,dv-A2*cosd(2*(azi-phi2))*100,'.'); hold on;
-        plot(azi,dv2-A2*cosd(2*(azi-phi2))*100,'.g'); hold on;
-%         ylim([-10 10]);
-    end
-    
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% %  WARNING! THIS PLOTS ALL DATA AT ONCE AND MAY REQUIRE A LOT OF MEMORY!
+%     figure(91); clf;
+%     for ip = 1:length(periods)
+%         isgood = eventphv_ani(ip).isgood;
+% 	    dt = eventphv_ani(ip).dt(isgood);
+%         azi = eventphv_ani(ip).azi(isgood);
+% %         azi(azi<0) = azi(azi<0)+360;
+%         phv = eventphv_ani(ip).ddist(isgood)./dt;
+%         avgv = eventphv_ani(ip).GV_av;
+%         phv_iso = eventphv_ani(ip).phv_iso(isgood);
+%         dv = (phv-avgv)./avgv*100;
+%         dv2 = (phv-phv_iso)./phv_iso*100;
+%         
+%         A2 = eventphv_ani(ip).A2;
+%         phi2 = eventphv_ani(ip).phi2;
+%         subplot(M,N,ip);
+%         plot(azi,dv-A2*cosd(2*(azi-phi2))*100,'.'); hold on;
+%         plot(azi,dv2-A2*cosd(2*(azi-phi2))*100,'.g'); hold on;
+% %         ylim([-10 10]);
+%     end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
     %% Plot residuals
     clear residuals
     for ip = 1:length(eventphv_ani)
@@ -858,20 +864,23 @@ disp(['Save the result to: ',matfilename])
     end
 
     %%
-    figure(87); clf; set(gcf,'color','w','position',[1035         155         560         781]);
-    for ip = 1:length(periods)
-        subplot(2,1,1);
-        plot(periods(ip),residuals(ip).mean_dt_res,'o','color',[0.7 0.7 0.7]); hold on;
-        plot(periods(ip),nanmean(residuals(ip).mean_dt_res),'rs','linewidth',2,'markersize',10);
-        ylabel('mean (dt_{obs}-dt_{pre})')
-        set(gca,'linewidth',1.5,'fontsize',15);
-        subplot(2,1,2);
-        plot(periods(ip),residuals(ip).rms_dt_res,'o','color',[0.7 0.7 0.7]); hold on;
-        plot(periods(ip),nanmean(residuals(ip).rms_dt_res),'rs','linewidth',2,'markersize',10);
-        xlabel('Period (s)');
-        ylabel('RMS (dt_{obs}-dt_{pre})')
-        set(gca,'linewidth',1.5,'fontsize',15);
-    end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% %  WARNING! THIS PLOTS ALL DATA AT ONCE AND MAY REQUIRE A LOT OF MEMORY!
+%     figure(87); clf; set(gcf,'color','w','position',[1035         155         560         781]);
+%     for ip = 1:length(periods)
+%         subplot(2,1,1);
+%         plot(periods(ip),residuals(ip).mean_dt_res,'o','color',[0.7 0.7 0.7]); hold on;
+%         plot(periods(ip),nanmean(residuals(ip).mean_dt_res),'rs','linewidth',2,'markersize',10);
+%         ylabel('mean (dt_{obs}-dt_{pre})')
+%         set(gca,'linewidth',1.5,'fontsize',15);
+%         subplot(2,1,2);
+%         plot(periods(ip),residuals(ip).rms_dt_res,'o','color',[0.7 0.7 0.7]); hold on;
+%         plot(periods(ip),nanmean(residuals(ip).rms_dt_res),'rs','linewidth',2,'markersize',10);
+%         xlabel('Period (s)');
+%         ylabel('RMS (dt_{obs}-dt_{pre})')
+%         set(gca,'linewidth',1.5,'fontsize',15);
+%     end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     figure(86); clf;
     for ip = 1:length(periods)
