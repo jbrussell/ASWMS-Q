@@ -23,6 +23,7 @@ min_Ngrcells = parameters.min_Ngrcells; % minimum numbe of grid cells required i
 azi_bin_deg = parameters.azi_bin_deg; % [deg] size of azimuthal bins
 min_nbin = parameters.min_nbin; % minimum number of measurements in order to include bin
 N_min_evts = parameters.N_min_evts; % minimum number of events contributing to grid cell required in order to be considered
+smsize_alpha = parameters.smsize_alpha; % number of nearby gridcells to gather data from
 
 is_eikonal_ampgrad_norm = parameters.is_eikonal_ampgrad_norm;
 
@@ -50,6 +51,7 @@ gridsize = parameters.gridsize;
 xnode = lalim(1):gridsize:lalim(2);
 ynode = lolim(1):gridsize:lolim(2);
 [xi yi] = ndgrid(xnode,ynode);
+Nx=length(xnode); Ny=length(ynode);
 alpha_range = parameters.alpha_range;
 alpha_search_grid = parameters.alpha_search_grid;
 periods = parameters.periods;
@@ -344,8 +346,19 @@ for ip = 1:length(avgphv)
     % Unbinned 2-D sinusoidal fit
     for ix = 1:length(xnode)
         for iy = 1:length(ynode)
-            amps = squeeze(amp_term(ix,iy,:));
-            azis = squeeze(azi(ix,iy,:));
+            lowx=max(1,ix-smsize_alpha);
+            upx=min(Nx,ix+smsize_alpha);
+            lowy=max(1,iy-smsize_alpha);
+            upy=min(Ny,iy+smsize_alpha);
+            amps=[]; azis=[];
+            for ii=lowx:upx
+                for jj=lowy:upy
+                    amps = [amps; squeeze(amp_term(ii,jj,:))];
+                    azis = [azis; squeeze(azi(ii,jj,:))];
+                end
+            end
+%             amps = squeeze(amp_term(ix,iy,:));
+%             azis = squeeze(azi(ix,iy,:));
             if length(find(~isnan(amps)))>N_min_evts
                 [para, alpha, beta_tau, azi_maxamp]=fit_alpha_beta_Lin12(azis,amps);
                 parastd=confint(para,.95);
