@@ -11,7 +11,7 @@ isfigure = 1;
 % Parameters
 workingdir_tpw = parameters_tpw.workingdir;
 width = parameters_tpw.width;
-offset = parameters_tpw.offset;
+tprfrac = parameters_tpw.tprfrac;
 kern_grid_km = parameters_tpw.kern_grid_km;
 periods = parameters.periods;
 refvs = parameters_tpw.refphv; %[3.53 3.61 3.7 3.76 3.82 3.85];
@@ -24,10 +24,13 @@ for ip = 1:length(periods)
 	range = [1/period 1/period];
 
 	% First, get some frequency bands:
+	offset = 0.1; % not actually used
 	band=filter_bank(range,'variable',width,offset);
 
 	% Third, use the beat length as a window width:
-	L_beat=1./(band(:,3)-band(:,2));
+	% L_beat=1./(band(:,3)-band(:,2));
+	% Use twice the width to get broader main lobe that looks more similar to Don's
+	L_beat = 1./(band(:,1)*width*2);
 
 	% Fourth, modify that window width by an empirically derived
 	% power law to get a more typical window width:
@@ -51,7 +54,7 @@ for ip = 1:length(periods)
     
     % Get frequency-amplitude values for a windowed Rayleigh wave:
 %     [f,a]=getmainlobe(f0,fs,swin,tprfrac,zpad)
-    [f,a]=getmainlobe(band(:,1),1,swin,0.2,zpad,logical(isfigure));
+    [f,a]=getmainlobe(band(:,1),1,swin,tprfrac,zpad,logical(isfigure));
     % Example for 100 s wave
 %     [f,a]=getmainlobe(1/100,1,[1000 2000],200/1000,[1000 1000]);
     Nf = length(f);

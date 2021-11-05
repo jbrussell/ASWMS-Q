@@ -31,8 +31,8 @@ parameters_tpw.gridsize_interp = 0.25; % [deg] node spacing for interpolated out
 % Parameters for building kernel input file: a2_mk_kern
 parameters_tpw.kern_grid_km = 20; % kernel grid spacing in km
 % parameters_tpw.smlength = 40; % currently unused as kernels are now calculated within the main TPW fortran routine
-parameters_tpw.width = 0.10;
-parameters_tpw.offset = 0.1;
+parameters_tpw.width = parameters.min_width; %0.10; % filter width percent of center frequency
+parameters_tpw.tprfrac = 0.5; %0.2; % cosine taper halfwidth as a fraction of the boxcar window size
 
 % Parameters for conversion from ASWMS to TPW: a3_eikonal_to_TPW
 parameters_tpw.min_sta_num = parameters.min_sta_num; % minimum number of station to consider event
