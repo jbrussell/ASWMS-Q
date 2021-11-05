@@ -87,7 +87,7 @@ for ip = 1:length(periods)
         error (['    Cannot open file: ', infile_poutgrd]);
     end
     fprintf(fid,'%.2f %.2f %.2f %.2f %.2f %.2f\n',beglat,endlat,dlat,beglon,endlon,dlon);
-    fprintf(fid,'%.2f\n',refvs(ip));
+    fprintf(fid,'%.3f\n',refvs(ip));
     fprintf(fid,'%s',fname);
     fclose(fid);
 
