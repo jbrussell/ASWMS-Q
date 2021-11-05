@@ -30,7 +30,7 @@ for ip = 1:length(periods)
 	% Third, use the beat length as a window width:
 	% L_beat=1./(band(:,3)-band(:,2));
 	% Use twice the width to get broader main lobe that looks more similar to Don's
-	L_beat = 1./(band(:,1)*width*2);
+	L_beat = 1./(band(:,1)*width*3);
 
 	% Fourth, modify that window width by an empirically derived
 	% power law to get a more typical window width:
