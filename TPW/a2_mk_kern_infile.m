@@ -2,8 +2,11 @@
 % sensitivity kernels for Yang and Forsyth codes.
 % NJA, Summer 2013
 clear all
+close all
 
 setup_parameters_tpw;
+
+isfigure = 1;
 
 % Parameters
 workingdir_tpw = parameters_tpw.workingdir;
@@ -48,7 +51,7 @@ for ip = 1:length(periods)
     
     % Get frequency-amplitude values for a windowed Rayleigh wave:
 %     [f,a]=getmainlobe(f0,fs,swin,tprfrac,zpad)
-    [f,a]=getmainlobe(band(:,1),1,swin,0.2,zpad);
+    [f,a]=getmainlobe(band(:,1),1,swin,0.2,zpad,logical(isfigure));
     % Example for 100 s wave
 %     [f,a]=getmainlobe(1/100,1,[1000 2000],200/1000,[1000 1000]);
     Nf = length(f);
@@ -67,5 +70,14 @@ for ip = 1:length(periods)
         fprintf(fid,'%d %f\n',f(ii),a(ii));
     end
     fclose(fid);
+    
+    if isfigure
+        figure(26); hold on;
+        plot(1./f,a);
+%         plot(1./f,a/sum(a));
+        xlabel('Period (s)');
+        ylabel('Spectral Amplitude');
+        
+    end
     
  end
