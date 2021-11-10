@@ -23,13 +23,38 @@ end
 %% Plot
 
 figure(35); clf;
+set(gcf,'color','w','position',[159           1        1197        1002]);
 for ip = 1:length(periods)
-    subplot(4,4,ip);
+    subplot(4,3,ip);
 %     sgtitle('Phase');
     hold on
     plot(tpw(ip).rmsamp,tpw(ip).startamp2./tpw(ip).startamp1,'.');
+    % scatter(tpw(ip).rmsamp,tpw(ip).startamp2./tpw(ip).startamp1,50,tpw(ip).amp1_0,'filled');
+    % colorbar;
+    % caxis([0 0.3]);
+    % colormap(jet);
     xlabel('RMS amp');
     ylabel('A_2 / A_1');
 %     plot(abs(tpw(ip).wvaz2),tpw(ip).startamp2./tpw(ip).startamp1,'.');
 %     plot(tpw(ip).startamp1,tpw(ip).startamp2,'.')
+    title([num2str(periods(ip)), 's']);
+    set(gca,'fontsize',15,'linewidth',1.5,'box','on');
+end
+
+figure(36); clf;
+set(gcf,'color','w','position',[159           1        1197        1002]);
+for ip = 1:length(periods)
+    subplot(4,3,ip);
+%     sgtitle('Phase');
+    hold on
+    dwvaz12 = angdiff(tpw(ip).wvaz1*pi/180,tpw(ip).wvaz2*pi/180)*180/pi;
+    plot(abs(dwvaz12),tpw(ip).startamp2./tpw(ip).startamp1,'.');
+    % scatter(abs(dwvaz12),tpw(ip).startamp2./tpw(ip).startamp1,50,tpw(ip).amp1_0,'filled');
+    % colorbar;
+    % caxis([0 0.3]);
+    % colormap(jet);
+    xlabel('|\phi_1 - \phi_2|');
+    ylabel('A_2 / A_1');
+    title([num2str(periods(ip)), 's']);
+    set(gca,'fontsize',15,'linewidth',1.5,'box','on');
 end
