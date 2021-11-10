@@ -30,9 +30,10 @@ for ip = 1:length(periods)
     hold on
     plot(tpw(ip).rmsamp,tpw(ip).startamp2./tpw(ip).startamp1,'.');
     % scatter(tpw(ip).rmsamp,tpw(ip).startamp2./tpw(ip).startamp1,50,tpw(ip).amp1_0,'filled');
-    % colorbar;
+    % cb = colorbar;
     % caxis([0 0.3]);
     % colormap(jet);
+    % ylabel(cb,'Excitation A_1 / A_0');
     xlabel('RMS amp');
     ylabel('A_2 / A_1');
 %     plot(abs(tpw(ip).wvaz2),tpw(ip).startamp2./tpw(ip).startamp1,'.');
@@ -50,9 +51,10 @@ for ip = 1:length(periods)
     dwvaz12 = angdiff(tpw(ip).wvaz1*pi/180,tpw(ip).wvaz2*pi/180)*180/pi;
     plot(abs(dwvaz12),tpw(ip).startamp2./tpw(ip).startamp1,'.');
     % scatter(abs(dwvaz12),tpw(ip).startamp2./tpw(ip).startamp1,50,tpw(ip).amp1_0,'filled');
-    % colorbar;
+    % cb = colorbar;
     % caxis([0 0.3]);
     % colormap(jet);
+    % ylabel(cb,'Excitation A_1 / A_0');
     xlabel('|\phi_1 - \phi_2|');
     ylabel('A_2 / A_1');
     title([num2str(periods(ip)), 's']);
