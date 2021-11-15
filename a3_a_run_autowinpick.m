@@ -57,7 +57,7 @@ for ie = 1:length(matfiles)
 	tic
 		[winpara event] = auto_win_select(event);
 	toc
-	if isfigure
+	if isfigure && length(find([event.stadata.isgood]>0))>1
 		plot_win_select(event,periods,winpara);
 	end
 	if length(winpara) ~= 4
