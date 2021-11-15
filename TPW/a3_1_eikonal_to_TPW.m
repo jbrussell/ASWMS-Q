@@ -71,6 +71,7 @@ for ip = 1:length(periods)
     % gather necessary information from GSDF output
     eikonal_matfiles = dir([eikonal_output_path,'/*eikonal_',comp,'.mat']);
     goodeventnum = 0;
+    twpevents = [];
     for ie=1:length(eikonal_matfiles)
         temp = load([eikonal_output_path,eikonal_matfiles(ie).name]);
         eventphv = temp.eventphv;
