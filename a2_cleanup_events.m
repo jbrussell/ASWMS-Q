@@ -85,3 +85,24 @@ Ngood = length(char(evids(isgood == 1)));
 Nevs = length(char(evids));
 disp([num2str(Ngood),'/',num2str(Nevs),' events kept']);
 
+%% Plot map
+
+figure(3); clf;
+landareas = shaperead('landareas.shp','UseGeoCoords',true);
+ax = axesm('eqdazim', 'Frame', 'on', 'Grid', 'off');
+box off;
+ax.XAxis.Visible = 'off';
+ax.YAxis.Visible = 'off';
+% setm(ax,'Origin',[mean(lalim),mean(lolim)])
+setm(ax,'Origin',[mean(lalim),mean(lolim)],'FLatLimit',[-125 125]+mean(lalim),'FLonLimit',[],'MapLonLimit',[-125 125]+mean(lolim))
+geoshow(ax, landareas,'FaceColor',[0.8 0.8 0.8],'EdgeColor','none'); hold on;
+plotm(evlas(logical(isgood)),evlos(logical(isgood)),'o','color',[0.4 0 0],'MarkerFaceColor',[0.85 0 0],'MarkerSize',10,'linewidth',1);
+isbad = ~logical(isgood);
+if ~isempty(evlas(isbad))
+    plotm(evlas(isbad),evlos(isbad),'o','color',[0.4 0 0],'MarkerSize',10,'linewidth',1);
+end
+plotm(mean(lalim),mean(lolim),'p','color',[0 0.2 0.4],'MarkerFaceColor',[0 0.5 1],'MarkerSize',24,'linewidth',1);
+for ii = [30 60 90 120]
+    [latc,longc] = scircle1(mean(lalim),mean(lolim),ii);
+    plotm(latc,longc,'-k','linewidth',2)
+end
