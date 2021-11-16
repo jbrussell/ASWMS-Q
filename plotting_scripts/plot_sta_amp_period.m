@@ -24,21 +24,35 @@ for ie = 1:length(CSfiles)
 % 	load(fullfile('CSmeasure',CSfiles(ie).name));
     load(fullfile(workingdir,'CSmeasure',CSfiles(ie).name));
 	disp(CSfiles(ie).name)
+    icount = 0;
 	for ista = 1:length(eventcs.stnms)
-		amps(ista,:) = sqrt(eventcs.autocor(ista).amp);
+        if isempty(find(eventcs.autocor(ista).exitflag>0))
+            continue
+        end
+        icount = icount+1;
+		amps(icount,:) = sqrt(eventcs.autocor(ista).amp);
 	end
 	meanamp = mean(amps,1);
-
+    
+    icount = 0;
 	for ista = 1:length(eventcs.stnms)
+        if isempty(find(eventcs.autocor(ista).exitflag>0))
+            continue
+        end
+        icount = icount+1;
 		if ismember(eventcs.stnms(ista),stnms)
 			staid = find(ismember(stnms,eventcs.stnms(ista)));
-			stainfo(staid).norm_amp(end+1,:) = amps(ista,:)./meanamp;
-			stainfo(staid).ori_amp(end+1,:) = amps(ista,:);
+			stainfo(staid).norm_amp(end+1,:) = amps(icount,:)./meanamp;
+			stainfo(staid).ori_amp(end+1,:) = amps(icount,:);
+            stainfo(staid).stlas = eventcs.stlas(ista);
+            stainfo(staid).stlos = eventcs.stlos(ista);
 		else
 			stnms(end+1) = eventcs.stnms(ista);
 			stainfo(end+1).stnm = eventcs.stnms(ista);
-			stainfo(end).norm_amp(1,:) = amps(ista,:)./meanamp;
-			stainfo(end).ori_amp(1,:) = amps(ista,:);
+			stainfo(end).norm_amp(1,:) = amps(icount,:)./meanamp;
+			stainfo(end).ori_amp(1,:) = amps(icount,:);
+            stainfo(end).stlas = eventcs.stlas(ista);
+            stainfo(end).stlos = eventcs.stlos(ista);
 		end
 	end
 end
@@ -47,23 +61,23 @@ save([outfile,'.mat'],'stainfo');
 
 load(outfile)
 
-badstnms = ['dummy']; %textread('badampsta.lst','%s');
-OBSstnms = textread(station_file,'%s');
+% badstnms = textread('badampsta.lst','%s');
+% OBSstnms = textread(station_file,'%s');
 
 % calculate the means
 for ista = 1:length(stainfo)
 	stainfo(ista).meanamp = mean(stainfo(ista).norm_amp,1);
 	stainfo(ista).avgmean = mean(stainfo(ista).meanamp(avg_band));
-	if ismember(stainfo(ista).stnm,badstnms)
-		stainfo(ista).isgood = 0;
-	else
-		stainfo(ista).isgood = 1;
-	end
-	if ismember(stainfo(ista).stnm,OBSstnms)
-		stainfo(ista).isOBS = 1;
-	else
-		stainfo(ista).isOBS = 0;
-	end
+    if exist('badstnms','var') && ismember(stainfo(ista).stnm,badstnms)
+        stainfo(ista).isgood = 0;
+    else
+        stainfo(ista).isgood = 1;
+    end
+    if exist('OBSstnms','var') && ismember(stainfo(ista).stnm,OBSstnms)
+        stainfo(ista).isOBS = 1;
+    else
+        stainfo(ista).isOBS = 0;
+    end
 end
 
 %calculate the correction
