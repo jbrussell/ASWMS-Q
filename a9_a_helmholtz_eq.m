@@ -170,7 +170,7 @@ for ie = 1:length(eventfiles)
         stnms(badstaids) = [];
         
         if length(amps(~isnan(amps)))<min_sta_num
-            ampmap = nan(size(mesh_xi));
+            ampmap = nan(size(xi'));
         else
             [ampmap,mesh_xi,mesh_yi]=gridfit_jg(stlas,stlos,amps,xnode,ynode,...
                                 'smooth',2,'regularizer','del4','solver','normal');
