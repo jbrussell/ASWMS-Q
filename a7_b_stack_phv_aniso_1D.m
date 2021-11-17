@@ -24,6 +24,8 @@ min_goodnum = 5; % minimum number of GSDF measurements
 min_Mw = 5.0; % minimum magnitude
 % max_evdp = 20; % [km] maximum event depth
 min_nodes_resolved = 0; % minimum number of resolved nodes in final model
+min_nbin = 5; % minimum number of measurements to include bin
+azi_bin_deg = parameters.azi_bin_deg_ani;
 
 r = 0.05;
 isfigure = 1;
@@ -185,6 +187,7 @@ for ip = 1:length(periods)
             else
                 [para fiterr]=fit_azi_anisotropy(azi,phV,weight);
             end
+            
 			parastd=confint(para,.95);
             isophv(mi,mj)=para.a;
             % isophv_std(mi,mj)=parastd(2,1)-parastd(1,1);
@@ -207,6 +210,60 @@ for ip = 1:length(periods)
 				aniso_strength_std(mi,mj)=parastd(2,2)-para.d;
                 aniso_azi_std(mi,mj)=parastd(2,3)-para.e;
             end         
+            
+            if ~is_one_phi
+                % Fit binned measurements
+                azi(azi<0) = azi(azi<0)+360;
+                w = ones(size(azi));
+                [~,Isort] = sort(azi);
+                azi_srt = azi(Isort);
+                phv_srt = phV(Isort);
+                w_srt = w(Isort); %phv_std(Isort); % weight by std
+                bins = [0:azi_bin_deg:360];
+                phv_bin = 0; azi_bin = 0; phv_bin_err = 0; azi_bin_err = 0;
+                for ibin = 1:length(bins)-1
+                    I_bin = azi_srt>=bins(ibin) & azi_srt<bins(ibin+1);
+                    if sum(I_bin)<min_nbin
+                        I_bin = false(size(I_bin));
+                    end
+                    wbin = w_srt(I_bin);
+                    wbinnorm = wbin/sum(wbin);
+                    % Weighted means and standard deviations
+%                     phv_bin(ibin) = nansum(wbin .* phv_srt(I_bin)) / nansum(wbin);
+%                     phv_bin_err(ibin) = sqrt( var(phv_srt(I_bin) , wbinnorm) );
+                    phv_bin(ibin) = nanmean(phv_srt(I_bin));
+                    phv_bin_err(ibin) = nanstd(phv_srt(I_bin));
+                    azi_bin(ibin) = (bins(ibin)+bins(ibin+1))/2;
+                    weight(ibin) = sum(I_bin);
+                end
+
+            %     [para fiterr]=fit_azi_anisotropy(fit_azi_bin.meas(ip).azi, fit_azi_bin.meas(ip).phv, fit_azi_bin.meas(ip).phv_std.^(1/2) .* sqrt(weight));
+            %     [para fiterr]=fit_azi_anisotropy(fit_azi_bin.meas(ip).azi, fit_azi_bin.meas(ip).phv, sqrt(weight));
+                if length(find(~isnan(phv_bin))) > 3
+                    [para_bin fiterr]=fit_azi_anisotropy(azi_bin, phv_bin);
+                    parastd=confint(para_bin,.95);
+                    avgphv_aniso(ip).bin.phv = phv_bin;
+                    avgphv_aniso(ip).bin.phv_std = phv_bin_err;
+                    avgphv_aniso(ip).bin.azi = azi_bin;
+                    avgphv_aniso(ip).bin.periods=periods(ip);
+                    avgphv_aniso(ip).bin.c_iso=para_bin.a;
+                    avgphv_aniso(ip).bin.c_iso_95=parastd(2,1)-para_bin.a;
+                    avgphv_aniso(ip).bin.A2=para_bin.d;
+                    avgphv_aniso(ip).bin.A2_95=parastd(2,2)-para_bin.d;
+                    avgphv_aniso(ip).bin.phi2=para_bin.e;
+                    avgphv_aniso(ip).bin.phi2_95=parastd(2,3)-para_bin.e;
+                else
+                    avgphv_aniso(ip).bin.periods=periods(ip);
+                    avgphv_aniso(ip).bin.c_iso=nan;
+                    avgphv_aniso(ip).bin.c_iso_95=nan;
+                    avgphv_aniso(ip).bin.A2=nan;
+                    avgphv_aniso(ip).bin.A2_95=nan;
+                    avgphv_aniso(ip).bin.phi2=nan;
+                    avgphv_aniso(ip).bin.phi2_95=nan;
+                end
+            end
+            
+            
             if is_one_phi && isfigure
                 figure(11)
                 clf
@@ -222,10 +279,13 @@ for ip = 1:length(periods)
                 hold on
                 azi(azi<0) = azi(azi<0)+360;
                 dv = (phV-isophv(mi,mj))./isophv(mi,mj)*100;
+                dv_bin = (avgphv_aniso(ip).bin.phv -isophv(mi,mj))./isophv(mi,mj)*100;
+                dv_bin_std = (avgphv_aniso(ip).bin.phv_std)./isophv(mi,mj)*100;
 %                 plot(azi,phV,'.');
                 plot(azi,dv,'.');
                 allazi = 0:360; %-200:200;
                 plot(allazi,para.d*cosd(2*(allazi-para.e))*100,'r');
+                errorbar(avgphv_aniso(ip).bin.azi,dv_bin,dv_bin_std,'ok');
                 title([num2str(periods(ip)),' s']);
 %                 plot(allazi,para.a*(1+para.d*cosd(2*(allazi-fastdir_plot))),'--k');
                 ylim([-5 5]);
@@ -261,7 +321,7 @@ save(filename,'avgphv_aniso');
 figure(58);
 set(gcf,'position',[351   677   560   668]);
 clf
-clear avgv avgv_std aniso_str aniso_str_std aniso_azi aniso_azi_std
+clear avgv avgv_std aniso_str aniso_str_std aniso_azi aniso_azi_std aniso_azi_bin_2std aniso_azi_bin aniso_str_bin_2std aniso_str_bin avgv_bin_2std avgv_bin
 for ip = 1:length(periods)
     avgv(ip) = nanmean(avgphv_aniso(ip).isophv(:));
     avgv_std(ip) = nanmean(avgphv_aniso(ip).isophv_std(:));
@@ -269,16 +329,27 @@ for ip = 1:length(periods)
     aniso_str_std(ip) = nanmean(avgphv_aniso(ip).aniso_strength_std(:));
     aniso_azi(ip) = nanmean(avgphv_aniso(ip).aniso_azi(:));
     aniso_azi_std(ip) = nanmean(avgphv_aniso(ip).aniso_azi_std(:));
+    
+    avgv_bin(ip) = avgphv_aniso(ip).bin.c_iso;
+    avgv_bin_std(ip) = avgphv_aniso(ip).bin.c_iso_95;
+    aniso_str_bin(ip) = avgphv_aniso(ip).bin.A2;
+    aniso_str_bin_std(ip) = avgphv_aniso(ip).bin.A2_95;
+    aniso_azi_bin(ip) = avgphv_aniso(ip).bin.phi2;
+    aniso_azi_bin_std(ip) = avgphv_aniso(ip).bin.phi2_95;
 end
 %plot native
 subplot(3,1,1); hold on;
 errorbar(periods,avgv,avgv_std,'-or');
+errorbar(periods,avgv_bin,avgv_bin_std,'-ob');
 ylim([3.85 4.4]);
 xlim([20 150]);
 ylabel('c (km/s)');
 %plot native
+
 subplot(3,1,2); hold on;
 errorbar(periods,aniso_str*100*2,aniso_str_std*100,'-or');
+errorbar(periods,aniso_str_bin*100*2,aniso_str_bin_std*100,'-ob');
+
 ylim([0 5]);
 xlim([20 150]);
 ylabel('2A');
@@ -289,6 +360,9 @@ plot([periods(1),periods(end)],APM*[1 1],'--','color',[0.5 0.5 0.5],'linewidth',
 errorbar(periods,aniso_azi,aniso_azi_std,'-or');
 errorbar(periods,aniso_azi+180,aniso_azi_std,'-or');
 errorbar(periods,aniso_azi-180,aniso_azi_std,'-or');
+errorbar(periods,aniso_azi_bin,aniso_azi_bin_std,'-ob');
+errorbar(periods,aniso_azi_bin+180,aniso_azi_bin_std,'-ob');
+errorbar(periods,aniso_azi_bin-180,aniso_azi_bin_std,'-ob');
 ylim([50 140]);
 xlim([20 150]);
 ylabel('\phi');
