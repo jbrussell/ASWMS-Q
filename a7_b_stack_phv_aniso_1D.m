@@ -18,6 +18,9 @@ setup_parameters
 % phase_v_path = './eikonal/'
 workingdir = parameters.workingdir;
 phase_v_path = [workingdir,'eikonal/'];
+eikonl_propazi_output_path = [workingdir,'eikonal_propazi/'];
+
+is_offgc_propagation = parameters.is_offgc_propagation; % Account for off-great-circle propagation using eikonal tomography maps? Otherwise will assume great-circle propagation.
 
 dc_thresh = 5; % [%] remove velocity perturbations larger than this
 min_goodnum = 5; % minimum number of GSDF measurements
@@ -76,6 +79,11 @@ weights = nan(length(phvmatfiles),length(periods));
 for ie = 1:length(phvmatfiles)
 	temp = load([phase_v_path,phvmatfiles(ie).name]);
 	eventphv = temp.eventphv;
+	if is_offgc_propagation
+        eikonl_propazi_output_path = [workingdir,'eikonal_propazi/'];
+        temp = load([eikonl_propazi_output_path,'/',eventphv(1).id,'_eikonal_',comp,'.mat']);
+        eventphv_propazi = temp.eventphv;
+    end
 	disp(eventphv(1).id);
 	evla(ie) = eventphv(ip).evla;
 	evlo(ie) = eventphv(ip).evlo;
@@ -87,7 +95,11 @@ for ie = 1:length(phvmatfiles)
         end
         GV_mat(:,:,ie,ip) = eventphv(ip).GV;
         raydense_mat(:,:,ie,ip) = eventphv(ip).raydense;
-		azi = angle(eventphv(ip).GVx + eventphv(ip).GVy.*sqrt(-1));
+		if is_offgc_propagation
+            azi = angle(eventphv_propazi(ip).GVx + eventphv_propazi(ip).GVy.*sqrt(-1));
+        else
+            azi = angle(eventphv(ip).GVx + eventphv(ip).GVy.*sqrt(-1));
+        end
 		azi = rad2deg(azi);
 		azi_mat(:,:,ie,ip) = azi;
         weights(ie,ip) = eventphv(ip).goodnum.^(-1/2); % jbr;
@@ -117,6 +129,10 @@ for ip = 1:length(periods)
             n=0;
             clear phV_best azi phV dist gcazi
 			for ie = 1:eventnum
+				diff_az = angdiff(azi_mat(:,:,ie,ip)*pi/180,gcazi_mat(:,:,ie)*pi/180)*180/pi;
+                if nanmean(abs(diff_az(:))) > off_azi_tol
+                    continue
+                end
 				avgV=GV_mat(mi,mj,ie,ip);
                 % Make sure enough grid nodes are resolved
                 I_resolv = ~isnan(GV_mat(:,:,ie,ip));
