@@ -17,6 +17,7 @@ setup_ErrorCode
 cohere_tol = parameters.cohere_tol;
 
 is_offgc_propagation = parameters.is_offgc_propagation; % Account for off-great-circle propagation using eikonal tomography maps? Otherwise will assume great-circle propagation.
+off_azi_tol = parameters.off_azi_tol; % [deg] tolerance for propagation off great-circle
 
 % % Smoothing parameters
 % flweight_array = 100*ones(length(parameters.periods)); %parameters.flweight_array
@@ -179,6 +180,20 @@ for ip = 1:length(periods)
             temp = load(eikonal_in);
             phase_lat = temp.eventphv(ip).GVx; % phase slowness in x-direction
             phase_lon = temp.eventphv(ip).GVy; % phase slowness in y-direction
+                        
+            % Use event eikonal tomography results to get propagation azimuth
+            azimat = 90 - atan2d(phase_lat,phase_lon);
+            azimat(azimat<0) = azimat(azimat<0) + 360;
+            [~, azimat_ev] = distance(xi,yi,evla,evlo,referenceEllipsoid('GRS80'));
+            azimat(isnan(azimat)) = azimat_ev(isnan(azimat));
+            % Ensure that propagation azimuth is not too far from great-circle
+            diff_az = angdiff(azimat*pi/180,azimat_ev*pi/180)*180/pi;
+            if mean(abs(diff_az(:))) > off_azi_tol
+                % disp('off_azi_tol exceeded... skipping');
+                continue
+            end
+        else
+            [~, azimat] = distance(xi,yi,evla,evlo,referenceEllipsoid('GRS80'));               
         end
 
 		if exist('badstnms','var')
@@ -256,16 +271,6 @@ for ip = 1:length(periods)
             mean_stala = mean([eventcs.stlas(eventcs.CS(ics).sta1), eventcs.stlas(eventcs.CS(ics).sta2)]);
             mean_stalo = mean([eventcs.stlos(eventcs.CS(ics).sta1), eventcs.stlos(eventcs.CS(ics).sta2)]);
             
-            
-            % Use event eikonal tomography results to get propagation azimuth?
-            if is_offgc_propagation==1
-                azimat = 90 - atan2d(phase_lat,phase_lon);
-                azimat(azimat<0) = azimat(azimat<0) + 360;
-                [~, azimat_ev] = distance(xi,yi,evla,evlo,referenceEllipsoid('GRS80'));
-                azimat(isnan(azimat)) = azimat_ev(isnan(azimat));
-            else
-                [~, azimat] = distance(xi,yi,evla,evlo,referenceEllipsoid('GRS80'));               
-            end
             for i=1:Nx
                 for j=1:Ny
                     n=Ny*(i-1)+j;
