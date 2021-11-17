@@ -47,7 +47,7 @@ parameters.min_dist_tol = deg2km(20); % min epicentral distance
 parameters.max_dist_tol = deg2km(100); %deg2km(160); % min epicentral distance
 parameters.min_groupv = 2; % minimum group velocity as a starting guess
 parameters.max_groupv = 5; % maximum group velocity as a starting guess
-parameters.cent_freq = 0.025;
+parameters.cent_freq = mean(1./parameters.periods); %0.025;
 parameters.min_sta_num = 5; %10 %JBR
 parameters.is_removebadwindows = 1; % JBR - 1:remove bad windows (default), 0:keep all windows (This option may be desirable if lacking data. Will need to manually adjust windows using run_exam_winpara.m)
 
