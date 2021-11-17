@@ -152,7 +152,7 @@ csmatfiles = dir([eventcs_path,'/*cs_',comp,'.mat']);
 % Loop through the periods
 clear eventphv_ani;
 for ip = 1:length(periods)
-	clear mat_azi azi rays ddist dt w 
+	clear mat_azi azi rays ddist dt w azi_vec
     disp(periods(ip));
 	smweight0 = smweight_array(ip);
 	flweight0 = flweight_array(ip); % JBR
@@ -260,6 +260,7 @@ for ip = 1:length(periods)
             % Use event eikonal tomography results to get propagation azimuth?
             if is_offgc_propagation==1
                 azimat = 90 - atan2d(phase_lat,phase_lon);
+                azimat(azimat<0) = azimat(azimat<0) + 360;
                 [~, azimat_ev] = distance(xi,yi,evla,evlo,referenceEllipsoid('GRS80'));
                 azimat(isnan(azimat)) = azimat_ev(isnan(azimat));
             else
