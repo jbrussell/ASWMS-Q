@@ -112,7 +112,7 @@ parameters.smsize = 3; %1;  % averaging nearby grid number
 parameters.azi_bin_deg_ani= 20; % [deg] size of azimuthal bins
 parameters.off_azi_tol = 30; % differ from great circle path in degrees
 parameters.is_one_phi = 0; %1;
-parameters.is_offgc_propagation = 1; % % Account for off-great-circle propagation using eikonal tomography maps? Otherwise will assume great-circle propagation.
+parameters.is_offgc_propagation = 0; % % Account for off-great-circle propagation using eikonal tomography maps? Otherwise will assume great-circle propagation.
 
 %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%%
 % Attenuation
