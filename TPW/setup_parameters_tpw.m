@@ -35,6 +35,7 @@ parameters_tpw.width = parameters.min_width; %0.10; % filter width percent of ce
 parameters_tpw.tprfrac = 0.5; %0.2; % cosine taper halfwidth as a fraction of the boxcar window size
 
 % Parameters for conversion from ASWMS to TPW: a3_eikonal_to_TPW
+parameters_tpw.min_excitation_ratio = 0.6; % minimum source excitation ratio (A/A_max) to consider. This avoids nodes in radiation pattern
 parameters_tpw.min_sta_num = parameters.min_sta_num; % minimum number of station to consider event
 parameters_tpw.nfreq = 1; % (DO NOT CHANGE) number of frequencies to compute TPW at a time
 parameters_tpw.iterlimit = 10; % maximum # of iterations
