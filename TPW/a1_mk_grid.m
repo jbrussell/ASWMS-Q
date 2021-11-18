@@ -66,10 +66,10 @@ fclose(fid);
 %% Generate output node locations and starting model
 % This is an interpolated version of the inversion grid. This can be finer
 % scale than the inversion grid. Must extend slightly beyond the inversion grid.
-dlat = gridsize_interp;
+dlat = gridsize*1.5;
 beglat = min(lalim)-dlat;
 endlat = max(lalim)+dlat;
-dlon = gridsize_interp;
+dlon = gridsize*1.5;
 beglon = min(lolim)-dlon;
 endlon = max(lolim)+dlon;
 
