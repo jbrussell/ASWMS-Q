@@ -153,8 +153,8 @@ for ip = 1:length(periods)
         mintp = min([twpevents(ie).tp]);
         meanamp = mean([twpevents(ie).amp].^0.5);
         for ista=1:length(twpevents(ie).stlas)
-            fprintf(cfp,'%s\n',char(twpevents(ie).stnms(ista)));
-            fprintf(afp,' 0.0\n');
+            fprintf(cfp,'%s %s\n',char(twpevents(ie).stnms(ista)),twpevents(ie).id);
+            fprintf(afp,' 0.0 %s\n',twpevents(ie).evid);
             dist = twpevents(ie).dists(ista);
             azi = twpevents(ie).azi(ista);
             baz = twpevents(ie).baz(ista);
@@ -167,7 +167,7 @@ for ip = 1:length(periods)
             tp = twpevents(ie).tp(ista);
     %		ph = (maxtp-tp)./periods(ip)/2/pi;
             ph = (tp-mintp)./periods(ip);
-            fprintf(afp,' %f  %f  %f  %f  %f  %f\n',dist,azi,baz,deg,stla,stlo);
+            fprintf(afp,' %f  %f  %f  %f  %f  %f  %s\n',dist,azi,baz,deg,stla,stlo,stnm);
             fprintf(afp,' %d  %f\n',amp,ph);
         end
     end
