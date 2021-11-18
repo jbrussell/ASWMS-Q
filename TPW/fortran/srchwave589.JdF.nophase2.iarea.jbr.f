@@ -309,6 +309,7 @@ c  ******** modify here depending on how you assign your station ID  ***********
 	  rewind (13)
 C    JBR - begin edit
        statemp = fn(iev,ista)
+C       write(*,*) statemp
 C    JBR - end edit
 	  istanum(iev,ista) = 0
 	  do ista2 = 1, mxnsta
@@ -972,8 +973,8 @@ c  dxkern << smoothing length
      1    .or. iyindex .lt.1 .or. iyindex .gt. nykern) then 
 
 
-	    write(*,*) 'ixindex,iyindex,iev,ista,ideg', 
-     1            ixindex,iyindex,iev,ista,ideg
+C	    write(*,*) 'ixindex,iyindex,iev,ista,ideg', 
+C     1            ixindex,iyindex,iev,ista,ideg
 	     wgtnode1(ista,ii,ideg)    = 0.
 	     ampwgtnode1(ista,ii,ideg) = 0.  
 
@@ -2593,8 +2594,8 @@ c  dxkern << smoothing length
      1    .or. iyindex .lt.1 .or. iyindex .gt. nxkern) then 
 
 
-	    write(*,*) 'ixindex,iyindex,iev,ista,ideg', 
-     1            ixindex,iyindex,iev,ista,ideg
+C	    write(*,*) 'ixindex,iyindex,iev,ista,ideg', 
+C     1            ixindex,iyindex,iev,ista,ideg
 	     wgtnode1(ista,ii,ideg)    = 0.
 	     ampwgtnode1(ista,ii,ideg) = 0.  
 
