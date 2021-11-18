@@ -57,7 +57,14 @@ for ip = 1:length(periods)
     [f,a]=getmainlobe(band(:,1),1,swin,tprfrac,zpad,logical(isfigure));
     % Example for 100 s wave
 %     [f,a]=getmainlobe(1/100,1,[1000 2000],200/1000,[1000 1000]);
-    Nf = length(f);
+
+	% Downsample frequency curve to look like Don's
+	df = 4.8830e-04;
+	f_int = f(1):df:f(end);
+	a_int = interp1(f,a,f_int);
+	f = f_int;
+	a = a_int;
+	Nf = length(f);
 
     % Write out kernel file
     nxkern = length(x);
