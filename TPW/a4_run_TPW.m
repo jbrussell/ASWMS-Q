@@ -2,6 +2,8 @@
 
 clear;
 
+is_overwrite = 0; % overwrite previous results?
+
 setup_parameters_tpw;
 path2bin = parameters_tpw.path2bin;
 workingdir_tpw = parameters_tpw.workingdir;
@@ -12,6 +14,13 @@ currentdir = pwd;
 cd(workingdir_tpw)
 for ip = 1:length(periods)
     period = periods(ip);
+    
+    phvfile = [workingdir_tpw,'/','outvel.',num2str(period,'%03d'),'.txt'];
+    if exist(phvfile) && ~is_overwrite
+        disp(['Already processed ',num2str(period),'s... skipping']);
+        continue
+    end
+    
     % Remove previous files in working directory
     delete([workingdir_tpw,'/*',num2str(period,'%03d'),'.inp.sa360kern']);
     
