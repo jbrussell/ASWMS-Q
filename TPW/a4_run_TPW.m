@@ -20,7 +20,7 @@ for ip = 1:length(periods)
 %     [stat, log] = system([path2bin,'/srchwave589.JdF.nophase2.iarea < ',infile,' > tpw.log']);
     [stat, ~] = system([path2bin,'/srchwave589.JdF.nophase2.iarea < ',infile]);
     if stat ~= 0     
-        error( 'something is wrong at srchwave589')
+        error( 'something is wrong at srchwave589... try running a00_make_fortran_executable.m')
     end
 end
 cd(currentdir)
