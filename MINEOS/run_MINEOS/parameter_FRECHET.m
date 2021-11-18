@@ -11,7 +11,7 @@ minF = 0;
 maxF = 66.67; % max frequency in mHz; %10.1; %250.05; %333.4; %500.05; %200.05; %%150.05; %50.05;
 minL = 0;
 maxL = 50000;
-N_modes = 10; % <0 uses all mode branches, 1=fundamental only -------- JOSH 8/22/15
+N_modes = 2; % <0 uses all mode branches, 1=fundamental only -------- JOSH 8/22/15
 param.CARDID = 'pa5_5km'; %'prem_35'; %'fail_H01221_90L'; %'prem_35'; %'Nomelt_taper_aniso_constxicrman_etaPREM_constxilays'; %'pa5_5km';
 % param.CARDID = 'prem_35';
 
@@ -20,7 +20,8 @@ SONLY = 1; %Spheroidal modes? (RAYLEIGH)
 TONLY = 0; %Toroidal modes? (LOVE)
 
 % for plotting kernels
-param.periods = [20, 23, 27, 31, 36, 41, 47, 55, 63, 73, 84];
+param.periods = round(logspace(log10(20),log10(150),15));
+% param.periods = [20, 23, 27, 31, 36, 41, 47, 55, 63, 73, 84];
 
 ch_mode = 0; % (DO NOT CHANGE) mode branch to check for missed eigenfrequencies 0 => T0 ------- JOSH 10/7/15
 
