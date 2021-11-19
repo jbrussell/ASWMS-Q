@@ -148,7 +148,7 @@ for ip = 1:length(periods)
     fprintf(cfp,'%d\n',length(twpevents));
     for ie=1:length(twpevents)
         fprintf(cfp,'%d   %d\n',length(twpevents(ie).stlas),ie);
-        fprintf(afp,' %d\n',ie);
+        fprintf(afp,' %d   %d\n',ie,ie);
         maxtp = max([twpevents(ie).tp]);
         mintp = min([twpevents(ie).tp]);
         meanamp = mean([twpevents(ie).amp].^0.5);
