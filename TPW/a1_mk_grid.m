@@ -58,20 +58,22 @@ fprintf(fid,'%d %.2f %.2f\n',nxpt,delx,begx);
 fprintf(fid,'%d %.2f %.2f\n',nypt,dely,begy);
 fprintf(fid,'%.2f %.2f\n',toplecrn); % top left corner
 fprintf(fid,'%.2f %.2f\n',topricrn); % top right corner
-fprintf(fid,'%.2f %.2f\n',botlecrn); % bottom left corner
+% fprintf(fid,'%.2f %.2f\n',botlecrn); % bottom left corner
+% fprintf(fid,'%.2f %.2f\n',botricrn); % bottom right corner
 fprintf(fid,'%.2f %.2f\n',botricrn); % bottom right corner
+fprintf(fid,'%.2f %.2f\n',botlecrn); % bottom left corner
 
 fclose(fid);
 
 %% Generate output node locations and starting model
 % This is an interpolated version of the inversion grid. This can be finer
 % scale than the inversion grid. Must extend slightly beyond the inversion grid.
-dlat = gridsize*1.5;
-beglat = min(lalim)-dlat;
-endlat = max(lalim)+dlat;
-dlon = gridsize*1.5;
-beglon = min(lolim)-dlon;
-endlon = max(lolim)+dlon;
+dlat = gridsize_interp;
+beglat = min(lalim)-dlat*4;
+endlat = max(lalim)+dlat*4;
+dlon = gridsize_interp;
+beglon = min(lolim)-dlon*4;
+endlon = max(lolim)+dlon*4;
 
 for ip = 1:length(periods)
     period = periods(ip);
