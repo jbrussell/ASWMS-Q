@@ -15,6 +15,7 @@ for ip = 1:length(periods)
     cfp = fopen(control_file,'r');
     stemp = fgetl(cfp);
     eventnum = sscanf(stemp,'%d');
+    stanum=[];
     for ie = 1:eventnum
         stemp = fgetl(cfp);
         dtemp = sscanf(stemp,'%d %d');
