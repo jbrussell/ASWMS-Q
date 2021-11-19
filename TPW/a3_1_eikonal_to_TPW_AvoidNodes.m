@@ -154,7 +154,7 @@ for ip = 1:length(periods)
         meanamp = mean([twpevents(ie).amp].^0.5);
         for ista=1:length(twpevents(ie).stlas)
             fprintf(cfp,'%s %s\n',char(twpevents(ie).stnms(ista)),twpevents(ie).id);
-            fprintf(afp,' 0.0 %s\n',twpevents(ie).evid);
+            fprintf(afp,' 0.0 %s\n',twpevents(ie).id);
             dist = twpevents(ie).dists(ista);
             azi = twpevents(ie).azi(ista);
             baz = twpevents(ie).baz(ista);
