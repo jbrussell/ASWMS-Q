@@ -71,7 +71,7 @@ for ip = 1:length(periods)
     nxkern = length(x);
     xbegkern = x(1);
     dxkern = spacing_km;
-    kernelname = [workingdir_tpw,'/sensspec',num2str(period,'%03d'),'s_',num2str(max(x)),'km.dat'];
+    kernelname = [workingdir_tpw,'/sensspec',num2str(round(period),'%03d'),'s_',num2str(max(x)),'km.dat'];
     
     fid = fopen(kernelname,'w');
     fprintf(fid,'%d %.2f %.2f\n',nxkern,xbegkern,dxkern);

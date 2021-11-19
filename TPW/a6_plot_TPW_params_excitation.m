@@ -23,8 +23,8 @@ r = 0.05;
 clear tpw
 for ip = 1:length(periods)
     period = periods(ip);
-    summfile = [workingdir_tpw,'/','summar.',num2str(period,'%03d'),'.inp'];
-    allfile = [workingdir_tpw,'/','all.',num2str(period,'%03d')];
+    summfile = [workingdir_tpw,'/','summar.',num2str(round(period),'%03d'),'.inp'];
+    allfile = [workingdir_tpw,'/','all.',num2str(round(period),'%03d')];
     tpw(ip) = load_tpw_params(summfile,allfile);
 %     tpw(ip).period = period;
 end

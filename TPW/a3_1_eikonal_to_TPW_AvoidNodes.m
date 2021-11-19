@@ -46,26 +46,26 @@ stnms_all = {};
 for ip = 1:length(periods)
     % output files
     period = periods(ip);
-    control_file = [workingdir_tpw,'/','all.',num2str(period,'%03d')];
-    ampph_file = ['phampcor.',num2str(period,'%03d'),'.inp'];
+    control_file = [workingdir_tpw,'/','all.',num2str(round(period),'%03d')];
+    ampph_file = ['phampcor.',num2str(round(period),'%03d'),'.inp'];
 
     % input parameters
     freq = 1/periods(ip);
-    detailoutput = ['detail.',num2str(period,'%03d'),'.inp'];
-    summaroutput = ['summar.',num2str(period,'%03d'),'.inp'];
+    detailoutput = ['detail.',num2str(round(period),'%03d'),'.inp'];
+    summaroutput = ['summar.',num2str(round(period),'%03d'),'.inp'];
     gridnodes = ['gridinp.dat'];
-    varfile = ['covar.',num2str(period,'%03d'),'.inp'];
-    mavamp = ['mavamp.',num2str(period,'%03d'),'.inp'];
-    fvelarea0 = ['temp.',num2str(period,'%03d'),'.inp'];
-    velarea = ['velarea.',num2str(period,'%03d'),'.inp'];
+    varfile = ['covar.',num2str(round(period),'%03d'),'.inp'];
+    mavamp = ['mavamp.',num2str(round(period),'%03d'),'.inp'];
+    fvelarea0 = ['temp.',num2str(round(period),'%03d'),'.inp'];
+    velarea = ['velarea.',num2str(round(period),'%03d'),'.inp'];
     unifvel = refvs(ip);
-    kernelfiledir = dir([workingdir_tpw,'/','sensspec',num2str(period,'%03d'),'s*']);
+    kernelfiledir = dir([workingdir_tpw,'/','sensspec',num2str(round(period),'%03d'),'s*']);
     kernelfile = [kernelfiledir(1).name];
-    outgrd = ['outgrd.',num2str(period,'%03d'),'.inp'];
-    outvel = ['outvel.',num2str(period,'%03d'),'.txt'];
-    outazi = ['outazi.',num2str(period,'%03d'),'.txt'];
-    outstacor = ['outstacor.',num2str(period,'%03d'),'.txt'];
-    outalpha = ['outalpha.',num2str(period,'%03d'),'.txt'];
+    outgrd = ['outgrd.',num2str(round(period),'%03d'),'.inp'];
+    outvel = ['outvel.',num2str(round(period),'%03d'),'.txt'];
+    outazi = ['outazi.',num2str(round(period),'%03d'),'.txt'];
+    outstacor = ['outstacor.',num2str(round(period),'%03d'),'.txt'];
+    outalpha = ['outalpha.',num2str(round(period),'%03d'),'.txt'];
 
     % read in bad station list, if existed
     if exist('badsta.lst')

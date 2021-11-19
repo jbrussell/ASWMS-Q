@@ -12,10 +12,10 @@ ynode=lolim(1):gridsize:lolim(2);
 r = 0.05;
 for ip = 1:length(periods)
     period = periods(ip);
-    phvfile = [workingdir_tpw,'/','outvel.',num2str(period,'%03d'),'.txt'];
-    azifile = [workingdir_tpw,'/','outazi.',num2str(period,'%03d'),'.txt'];
-    stacorfile = [workingdir_tpw,'/','outstacor.',num2str(period,'%03d'),'.txt'];
-    alphafile = [workingdir_tpw,'/','outalpha.',num2str(period,'%03d'),'.txt'];
+    phvfile = [workingdir_tpw,'/','outvel.',num2str(round(period),'%03d'),'.txt'];
+    azifile = [workingdir_tpw,'/','outazi.',num2str(round(period),'%03d'),'.txt'];
+    stacorfile = [workingdir_tpw,'/','outstacor.',num2str(round(period),'%03d'),'.txt'];
+    alphafile = [workingdir_tpw,'/','outalpha.',num2str(round(period),'%03d'),'.txt'];
     
     vel(ip) = load_phvfile(phvfile,xnode,ynode);
     ani(ip) = load_azianifile(azifile,xnode,ynode);

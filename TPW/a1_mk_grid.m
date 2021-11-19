@@ -77,7 +77,7 @@ endlon = max(lolim)+dlon*4;
 
 for ip = 1:length(periods)
     period = periods(ip);
-    fname = ['outgrd.',num2str(period,'%03d'),'.inp'];
+    fname = ['outgrd.',num2str(round(period),'%03d'),'.inp'];
     
     % Generate input file for poutgrd
     infile_poutgrd = [workingdir_tpw,'/poutgrd.in'];

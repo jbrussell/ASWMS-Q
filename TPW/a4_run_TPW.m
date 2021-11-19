@@ -15,17 +15,17 @@ cd(workingdir_tpw)
 for ip = 1:length(periods)
     period = periods(ip);
     
-    phvfile = [workingdir_tpw,'/','outvel.',num2str(period,'%03d'),'.txt'];
+    phvfile = [workingdir_tpw,'/','outvel.',num2str(round(period),'%03d'),'.txt'];
     if exist(phvfile) && ~is_overwrite
         disp(['Already processed ',num2str(period),'s... skipping']);
         continue
     end
     
     % Remove previous files in working directory
-    delete([workingdir_tpw,'/*',num2str(period,'%03d'),'.inp.sa360kern']);
+    delete([workingdir_tpw,'/*',num2str(round(period),'%03d'),'.inp.sa360kern']);
     
     % Run TPW fortran binary. May need to add permissions via 'chmod ++x simannerr360.gsdf'
-    infile = ['all.',num2str(period,'%03d')];
+    infile = ['all.',num2str(round(period),'%03d')];
 %     [stat, log] = system([path2bin,'/srchwave589.JdF.nophase2.iarea < ',infile,' > tpw.log']);
     [stat, ~] = system([path2bin,'/srchwave589.JdF.nophase2.iarea < ',infile]);
     if stat ~= 0     
