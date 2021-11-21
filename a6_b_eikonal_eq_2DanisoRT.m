@@ -610,14 +610,14 @@ for ip = 1:length(periods)
 % 	h1=surfacem(xi,yi,avgphv_aniso(ip).isophv);
 % 	h1=surfacem(xi,yi,avgphv_aniso(ip).aniso_strength);
     % Plot zero-to-peak anisotropy strength
-    h1=pcolorm(xi-gridsize_azi/2,yi-gridsize_azi/2,eventphv_ani(ip).A2*100,'Linestyle','none');
+    h1=pcolorm(xi_azi-gridsize_azi/2,yi_azi-gridsize_azi/2,eventphv_ani(ip).A2*100,'Linestyle','none');
 	colorbar
 	colormap(parula)
 	drawnow
 %     caxis([0 0.05]);
 	u=eventphv_ani(ip).A2.*cosd(eventphv_ani(ip).phi2)*50;
 	v=eventphv_ani(ip).A2.*sind(eventphv_ani(ip).phi2)*50;%./cosd(mean(lalim));
-	[m n]=size(xi);
+	[m n]=size(xi_azi);
 	for ix=1:m
 		for iy=1:n
 % 			if avgphv_aniso(ip).aniso_azi_std(ix,iy) < 40 && avgphv_aniso(ip).aniso_strength(ix,iy)>0.02
