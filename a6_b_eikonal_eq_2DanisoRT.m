@@ -477,9 +477,16 @@ for ip = 1:length(periods)
     GV_azi = rad2deg(GV_azi);
     GV_av = 1./nanmean(1./GV(:));
     slow_av = 1./GV_av;
+    if sum(size(GV)==size(Ac)) == 2
+        GV_aznode = GV;
+    else
+        [ymesh,xmesh] = meshgrid(ynode,xnode);
+        [ymesh_azi,xmesh_azi] = meshgrid(ynode_azi,xnode_azi);
+        GV_aznode = interp2(ymesh,xmesh,GV,ymesh_azi,xmesh_azi);
+    end
     % get azimuthal anisotropy
-    Ac2 = Ac.*GV; % s/km -> %
-    As2 = As.*GV; % s/km -> %
+    Ac2 = Ac.*GV_aznode; % s/km -> %
+    As2 = As.*GV_aznode; % s/km -> %
     A2 = sqrt(Ac2.^2+As2.^2);
     phi2 = 1/2*atan2d(As2,Ac2);
     phi2(phi2<0) = phi2(phi2<0)+180;
