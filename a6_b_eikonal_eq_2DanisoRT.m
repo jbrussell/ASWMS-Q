@@ -501,6 +501,7 @@ for ip = 1:length(periods)
     eventphv_ani(ip).lalim = lalim;
     eventphv_ani(ip).lolim = lolim;
     eventphv_ani(ip).gridsize = gridsize;
+    eventphv_ani(ip).gridsize_azi = gridsize_azi;
     eventphv_ani(ip).azi = azi;
     eventphv_ani(ip).rays = rays; 
     eventphv_ani(ip).ddist = ddist;
@@ -673,20 +674,23 @@ for ip = 1:length(eventphv_ani)
 end
 
 %%
-figure(87); clf; set(gcf,'color','w','position',[1035         155         560         781]);
-for ip = 1:length(periods)
-    subplot(2,1,1);
-    plot(periods(ip),residuals(ip).mean_dt_res,'o','color',[0.7 0.7 0.7]); hold on;
-    plot(periods(ip),nanmean(residuals(ip).mean_dt_res),'rs','linewidth',2,'markersize',10);
-    ylabel('mean (dt_{obs}-dt_{pre})')
-    set(gca,'linewidth',1.5,'fontsize',15);
-    subplot(2,1,2);
-    plot(periods(ip),residuals(ip).rms_dt_res,'o','color',[0.7 0.7 0.7]); hold on;
-    plot(periods(ip),nanmean(residuals(ip).rms_dt_res),'rs','linewidth',2,'markersize',10);
-    xlabel('Period (s)');
-    ylabel('RMS (dt_{obs}-dt_{pre})')
-    set(gca,'linewidth',1.5,'fontsize',15);
-end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% %  WARNING! THIS PLOTS ALL DATA AT ONCE AND MAY REQUIRE A LOT OF MEMORY!
+%     figure(87); clf; set(gcf,'color','w','position',[1035         155         560         781]);
+%     for ip = 1:length(periods)
+%         subplot(2,1,1);
+%         plot(periods(ip),residuals(ip).mean_dt_res,'o','color',[0.7 0.7 0.7]); hold on;
+%         plot(periods(ip),nanmean(residuals(ip).mean_dt_res),'rs','linewidth',2,'markersize',10);
+%         ylabel('mean (dt_{obs}-dt_{pre})')
+%         set(gca,'linewidth',1.5,'fontsize',15);
+%         subplot(2,1,2);
+%         plot(periods(ip),residuals(ip).rms_dt_res,'o','color',[0.7 0.7 0.7]); hold on;
+%         plot(periods(ip),nanmean(residuals(ip).rms_dt_res),'rs','linewidth',2,'markersize',10);
+%         xlabel('Period (s)');
+%         ylabel('RMS (dt_{obs}-dt_{pre})')
+%         set(gca,'linewidth',1.5,'fontsize',15);
+%     end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 figure(86); clf;
 for ip = 1:length(periods)
