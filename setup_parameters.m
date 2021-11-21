@@ -108,6 +108,7 @@ parameters.event_bias_tol = 3; %2;
 %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%%
 % parameters for azimuthal anisotropy inversion
 % beta version
+parameters.gridsize_azi = parameters.gridsize; % grid size for azimuthal anisotropy in a6_b_eikonal_2DanisoRT.m
 parameters.smsize = 3; %1;  % averaging nearby grid number
 parameters.azi_bin_deg_ani= 20; % [deg] size of azimuthal bins
 parameters.off_azi_tol = 30; % differ from great circle path in degrees

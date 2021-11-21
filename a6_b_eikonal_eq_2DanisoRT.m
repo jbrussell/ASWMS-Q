@@ -62,6 +62,7 @@ comp = parameters.component;
 lalim=parameters.lalim;
 lolim=parameters.lolim;
 gridsize=parameters.gridsize;
+gridsize_azi = parameters.gridsize_azi;
 periods = parameters.periods;
 raydensetol=parameters.raydensetol;
 smweight_array = parameters.smweight_array;
@@ -81,7 +82,6 @@ Nx=length(xnode);
 Ny=length(ynode);
 [xi, yi]=ndgrid(xnode,ynode);
 
-gridsize_azi = gridsize;
 xnode_azi=lalim(1):gridsize_azi:lalim(2);
 ynode_azi=lolim(1):gridsize_azi:lolim(2);
 Nx_azi=length(xnode_azi);
