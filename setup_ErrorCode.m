@@ -11,3 +11,6 @@ ErrorCode.xcor_outofwin   = -8;
 ErrorCode.init_CS_struct   = -10;
 ErrorCode.min_stadist_wavelength = -11; % JBR
 ErrorCode.max_stadist_wavelength = -12; % JBR
+ErrorCode.near_node = -13; % JBR excitation A/A_max less than threshold, meaning event is near a node in the radiation pattern
+% ErrorCode.A1_A0_max = -13; % JBR exceed max overtone interference allowed
+% ErrorCode.corrfactor_thresh = -14; % JBR
