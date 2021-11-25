@@ -103,6 +103,10 @@ for i = 1:nray
     % the counting is a bit weird, but it seems to work
     count=hist(qv,bins); 
     icount = find( count~=0 );
+    if length(drq) ~= length(icount)
+        % Something is wrong...
+        continue
+    end
     % Gc(i,icount) = Gc(i,icount) + count(icount)*dr*cosd(2*azi);
     % Gs(i,icount) = Gs(i,icount) + count(icount)*dr*sind(2*azi);
     % G_hits(i, icount) = G_hits(i,icount) + count(icount)*dr;

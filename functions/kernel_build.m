@@ -86,6 +86,10 @@ else % faster way, or so we hope
     % the counting is a bit weird, but it seems to work
     count=hist(qv,bins); 
     icount = find( count~=0 );
+    if length(drq) ~= length(icount)
+        % Something is wrong...
+        continue
+    end
     % G(i,2*icount-1) = G(i,2*icount-1) + count(icount)*dr*cosd(azi);
     % G(i,2*icount) = G(i,2*icount) + count(icount)*dr*sind(azi);
     G(i,2*icount-1) = G(i,2*icount-1) + drq.*cosd(azi);
