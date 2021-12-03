@@ -339,6 +339,7 @@ for ip = 1:length(avgphv)
     attenuation(ip).para_1d_bin = para;
 	attenuation(ip).amp_bin = amp_bin;
 	attenuation(ip).amp_bin_std = amp_bin_std;
+	attenuation(ip).azi_bin = azi_bin;
     
     % Unbinned 1-D azimuthal average
     alpha_1d_avg = nanmean(-amp_term(:));
