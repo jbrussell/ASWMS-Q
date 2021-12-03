@@ -17,6 +17,8 @@ min_nbin = 10; % minimum number of measurements in order to include bin
 % setup parameters
 setup_parameters
 
+is_eikonal_ampgrad_norm = parameters.is_eikonal_ampgrad_norm;
+
 r = 0.05;
 
 workingdir = parameters.workingdir;
@@ -131,6 +133,11 @@ for ie = 1:length(eventfiles)
             mat(evcnt).amp_grad(:,:,ip) = nan(size(traveltime(ip).GV_cor));
             mat(evcnt).amp_gradlat(:,:,ip) = nan(size(traveltime(ip).GV_cor));
             mat(evcnt).amp_gradlon(:,:,ip) = nan(size(traveltime(ip).GV_cor));
+            if is_eikonal_ampgrad_norm
+                mat(evcnt).amp_grad_ampnorm(:,:,ip) = nan(size(traveltime(ip).GV_cor));
+                mat(evcnt).amp_gradlat_ampnorm(:,:,ip) = nan(size(traveltime(ip).GV_cor));
+                mat(evcnt).amp_gradlon_ampnorm(:,:,ip) = nan(size(traveltime(ip).GV_cor));
+            end
             mat(evcnt).amp_laplat(:,:,ip) = nan(size(traveltime(ip).GV_cor));
             mat(evcnt).amp_laplon(:,:,ip) = nan(size(traveltime(ip).GV_cor));
             mat(evcnt).amp_lap(:,:,ip) = nan(size(traveltime(ip).GV_cor));
@@ -158,6 +165,9 @@ for ie = 1:length(eventfiles)
         amp_gradlon = helmholtz(ip).amp_gradlon;
         [~,amp_laplat,~]=delm(xi,yi,amp_gradlat);
         [~,~,amp_laplon]=delm(xi,yi,amp_gradlon);
+        amp_grad_ampnorm = helmholtz(ip).amp_grad_ampnorm;
+        amp_gradlat_ampnorm = helmholtz(ip).amp_gradlat_ampnorm;
+        amp_gradlon_ampnorm = helmholtz(ip).amp_gradlon_ampnorm;
         
         % Load travel-time fields
         tp_grad = traveltime(ip).tp_grad;
@@ -190,7 +200,11 @@ for ie = 1:length(eventfiles)
 
         % Calculate terms from Bao et al. (2016) equation 4
         % Amplitude decay term
-        amp_decay = 2*(amp_gradlat.*tp_gradlat + amp_gradlon.*tp_gradlon) ./ amp;
+        if is_eikonal_ampgrad_norm
+            amp_decay = 2*(amp_gradlat_ampnorm.*tp_gradlat + amp_gradlon_ampnorm.*tp_gradlon);
+        else
+            amp_decay = 2*(amp_gradlat.*tp_gradlat + amp_gradlon.*tp_gradlon) ./ amp;
+        end
         % Focusing correction term
         tp_focus = tp_lap;
         
@@ -236,6 +250,11 @@ for ie = 1:length(eventfiles)
         mat(evcnt).amp_grad(:,:,ip) = amp_grad .* nanmat;
         mat(evcnt).amp_gradlat(:,:,ip) = amp_gradlat .* nanmat;
         mat(evcnt).amp_gradlon(:,:,ip) = amp_gradlon .* nanmat;
+        if is_eikonal_ampgrad_norm
+            mat(evcnt).amp_grad_ampnorm(:,:,ip) = amp_grad_ampnorm .* nanmat;
+            mat(evcnt).amp_gradlat_ampnorm(:,:,ip) = amp_gradlat_ampnorm .* nanmat;
+            mat(evcnt).amp_gradlon_ampnorm(:,:,ip) = amp_gradlon_ampnorm .* nanmat;
+        end
         mat(evcnt).amp_laplat(:,:,ip) = amp_laplat .* nanmat;
         mat(evcnt).amp_laplon(:,:,ip) = amp_laplon .* nanmat;
         mat(evcnt).amp_lap(:,:,ip) = helmholtz(ip).amp_lap .* nanmat;
