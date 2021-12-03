@@ -274,7 +274,7 @@ for ip = 1:length(avgphv)
     azi_srt = azi(Isort);
     amp_term_srt = amp_term(Isort);
     bins = [0:azi_bin_deg:360];
-    amp_bin = 0; azi_bin = 0; amp_bin_err = 0; azi_bin_err = 0;
+    amp_bin = 0; azi_bin = 0; amp_bin_std = 0; azi_bin_err = 0;
     for ibin = 1:length(bins)-1
         I_bin = azi_srt>=bins(ibin) & azi_srt<bins(ibin+1);
         if sum(I_bin)<min_nbin
@@ -337,6 +337,8 @@ for ip = 1:length(avgphv)
     attenuation(ip).beta_tau_1d_bin_err = beta_tau_err;
     attenuation(ip).azi_maxamp_1d_bin_err = azi_maxamp_err;
     attenuation(ip).para_1d_bin = para;
+	attenuation(ip).amp_bin = amp_bin;
+	attenuation(ip).amp_bin_std = amp_bin_std;
     
     % Unbinned 1-D azimuthal average
     alpha_1d_avg = nanmean(-amp_term(:));
@@ -398,7 +400,7 @@ for ip = 1:length(avgphv)
     plot(azi(:),amp_term(:),'.b'); hold on;
     plot(squeeze(azi(9,9,:)),squeeze(amp_term(9,9,:)),'.r'); hold on;
 %     plot(azi(Ibad),amp_term(Ibad),'o');
-    plot(azi_bin(:),amp_bin(:),'og');
+    errorbar(azi_bin(:),amp_bin(:),amp_bin_std(:),'og');
     x = [0:360];
     pred = attenuation(ip).beta_tau_1d.*cosd(x-attenuation(ip).azi_maxamp_1d)-attenuation(ip).alpha_1d;
     plot(x,pred,'-r');
