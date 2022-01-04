@@ -615,18 +615,27 @@ for ip = 1:length(periods)
 	colormap(parula)
 	drawnow
 %     caxis([0 0.05]);
-	u=eventphv_ani(ip).A2.*cosd(eventphv_ani(ip).phi2)*50;
-	v=eventphv_ani(ip).A2.*sind(eventphv_ani(ip).phi2)*50;%./cosd(mean(lalim));
-	[m n]=size(xi_azi);
-	for ix=1:m
-		for iy=1:n
-% 			if avgphv_aniso(ip).aniso_azi_std(ix,iy) < 40 && avgphv_aniso(ip).aniso_strength(ix,iy)>0.02
-				h=plotm([xi_azi(ix,iy)-u(ix,iy)/2 xi_azi(ix,iy)+u(ix,iy)/2],...
-					    [yi_azi(ix,iy)-v(ix,iy)/2 yi_azi(ix,iy)+v(ix,iy)/2],'r-');
-				set(h,'linewidth',2)
-% 			end
-		end
-	end
+
+    scale = 50;
+    u=eventphv_ani(ip).A2.*cosd(eventphv_ani(ip).phi2)*scale;
+    v=eventphv_ani(ip).A2.*sind(eventphv_ani(ip).phi2)*scale;%./cosd(mean(lalim));
+    [m n]=size(xi_azi);
+    hold on;
+    xpts = [];
+    ypts = [];
+    for ix=1:m
+        for iy=1:n
+            xpts = [xpts, [xi_azi(ix,iy)-u(ix,iy)/2 xi_azi(ix,iy)+u(ix,iy)/2]+gridsize_azi/2, nan];
+            ypts = [ypts, [yi_azi(ix,iy)-v(ix,iy)/2 yi_azi(ix,iy)+v(ix,iy)/2]+gridsize_azi/2, nan];
+        end
+    end
+    %     plotm(xpts_bg,ypts_bg,'-','Color',[0 0 0],'linewidth',4);
+    plotm(xpts,ypts,'-','Color',[0.9 0 0],'linewidth',2);
+    hold on;
+    % Plot reference
+    %     refstick = scale*0.02;
+    %     plotm([min(lalim) min(lalim)]+abs(diff(lalim))*0.15,[max(lolim)-refstick/2 max(lolim)+refstick/2]-abs(diff(lolim))*0.15,'-','Color',[0.9 0 0],'linewidth',2);
+    %     textm(min(lalim)+abs(diff(lalim))*0.09,max(lolim)-abs(diff(lolim))*0.15,'2%','fontsize',12,'HorizontalAlignment', 'center');
 end
 
  %%

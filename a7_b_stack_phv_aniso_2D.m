@@ -209,31 +209,44 @@ for ip = 1:length(periods)
 	caxis([avgv*(1-r) avgv*(1+r)])
 end
 
+%%
+
 figure(57)
 clf
 for ip = 1:length(periods)
 	subplot(M,N,ip);
 	ax = worldmap(lalim, lolim);
 	set(ax, 'Visible', 'off')
-	h1=surfacem(xi,yi,avgphv_aniso(ip).isophv);
-% 	h1=surfacem(xi,yi,avgphv_aniso(ip).aniso_strength);
+% 	h1=surfacem(xi,yi,avgphv_aniso(ip).isophv);
+	h1=surfacem(xi,yi,avgphv_aniso(ip).aniso_strength*100);
 	colorbar
 	load seiscmap
-	colormap(seiscmap)
+	colormap(parula)
 	drawnow
  	avgv = nanmean(avgphv_aniso(ip).isophv(:));
-	caxis([avgv*(1-r) avgv*(1+r)])
-%     caxis([0 0.05]);
-	u=avgphv_aniso(ip).aniso_strength.*cosd(avgphv_aniso(ip).aniso_azi)*10;
-	v=avgphv_aniso(ip).aniso_strength.*sind(avgphv_aniso(ip).aniso_azi)*10./cosd(mean(lalim));
+% 	caxis([avgv*(1-r) avgv*(1+r)])
+    caxis([0 5]);
+    
+    scale = 50;
+%     u=eventphv_ani(ip).A2.*cosd(eventphv_ani(ip).phi2)*scale;
+% 	v=eventphv_ani(ip).A2.*sind(eventphv_ani(ip).phi2)*scale;%./cosd(mean(lalim));
+    u=avgphv_aniso(ip).aniso_strength.*cosd(avgphv_aniso(ip).aniso_azi)*scale;
+	v=avgphv_aniso(ip).aniso_strength.*sind(avgphv_aniso(ip).aniso_azi)*scale;%./cosd(mean(lalim));
 	[m n]=size(xi);
-	for ix=1:3:m
-		for iy=1:3:n
-			if avgphv_aniso(ip).aniso_azi_std(ix,iy) < 40 && avgphv_aniso(ip).aniso_strength(ix,iy)>0.02
-				h=plotm([xi(ix,iy)-u(ix,iy)/2 xi(ix,iy)+u(ix,iy)/2],...
-					[yi(ix,iy)-v(ix,iy)/2 yi(ix,iy)+v(ix,iy)/2],'k-');
-				set(h,'linewidth',2)
-			end
-		end
-	end
+    hold on;
+    xpts = [];
+    ypts = [];
+    for ix=1:m
+        for iy=1:n
+            xpts = [xpts, [xi(ix,iy)-u(ix,iy)/2 xi(ix,iy)+u(ix,iy)/2]+gridsize/2, nan];
+            ypts = [ypts, [yi(ix,iy)-v(ix,iy)/2 yi(ix,iy)+v(ix,iy)/2]+gridsize/2, nan];
+        end
+    end
+%     plotm(xpts_bg,ypts_bg,'-','Color',[0 0 0],'linewidth',4);
+    plotm(xpts,ypts,'-','Color',[0.9 0 0],'linewidth',2);
+    hold on;
+    % Plot reference
+%     refstick = scale*0.02;
+%     plotm([min(lalim) min(lalim)]+abs(diff(lalim))*0.15,[max(lolim)-refstick/2 max(lolim)+refstick/2]-abs(diff(lolim))*0.15,'-','Color',[0.9 0 0],'linewidth',2);
+%     textm(min(lalim)+abs(diff(lalim))*0.09,max(lolim)-abs(diff(lolim))*0.15,'2%','fontsize',12,'HorizontalAlignment', 'center');
 end
