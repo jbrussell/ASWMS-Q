@@ -872,7 +872,10 @@ c  iterations
 	if (icnt.gt.5) then
 	  do ii = 1, jstacnt
             ip = npnoamp+ii
-            covinv(ip) = 1.0/(0.30**2)
+c JBR - begin edit
+C            covinv(ip) = 1.0/(0.30**2)
+            covinv(ip) = 1.0/((dampstacor*3)**2)
+c JBR - end edit
           enddo	
         endif
         sumampcor = 0.0
