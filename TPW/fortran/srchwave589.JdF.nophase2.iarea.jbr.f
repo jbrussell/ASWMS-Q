@@ -15,6 +15,7 @@ c                - Separate output files for velocity model, azimuthal anisotrop
 c                  station corrections, and attenuation
 c                - Add ability to specify reference gamma and gamma damping rather
 c                  that being hard-coded in
+c                - Add ability to specify damping on station correction terms
 c  Search "JBR" to find edits
 c
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -253,6 +254,7 @@ c  JBR - start edit
       read(*,*) outalpha
       read(*,*) refgamma
       read(*,*) dampgamma
+      read(*,*) dampstacor
 c  JBR - end edit
 
 
@@ -619,8 +621,11 @@ c  deviation
           ip = npnoamp+ii
           origmod(ip) = ampmult(ii)
           crrntmod(ip) = origmod(ip)
+c JBR - begin edit
 c         covinv(ip) = 1.0/(0.30**2)
-         covinv(ip) = 1.0/(0.10**2)          
+C         covinv(ip) = 1.0/(0.10**2)
+         covinv(ip) = 1.0/(dampstacor**2)    
+c JBR - end edit      
         enddo
 
 c  initialize phase corrections for different instruments

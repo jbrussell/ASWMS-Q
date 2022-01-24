@@ -45,6 +45,7 @@ parameters_tpw.refalpha = 0; % starting value for alpha
 parameters_tpw.dampalpha = 0.0002; % a priori stddev for attenuation parameter
 parameters_tpw.divfac = 1.0; % smaller value increases velocity smoothing coefficient
 parameters_tpw.divfac_azi = 1.0; % smaller value increases anisotropy smoothing coefficient
+parameters_tpw.dampstacor = 0.10; % a priori stddev for station corrections
 
 
 system(['cp ./setup_parameters_tpw.m ',parameters_tpw.workingdir]);

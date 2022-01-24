@@ -35,6 +35,7 @@ dampvel = parameters_tpw.dampvel;
 dampaniso = parameters_tpw.dampaniso;
 refalpha = parameters_tpw.refalpha;
 dampalpha = parameters_tpw.dampalpha;
+dampstacor = parameters_tpw.dampstacor;
 
 stnms_all = {};
 for ip = 1:length(periods)
@@ -181,6 +182,7 @@ for ip = 1:length(periods)
     fprintf(cfp,'%s\n',outalpha); % output attenuation
     fprintf(cfp,'%f\n',refalpha); % refgamma - reference alpha
     fprintf(cfp,'%f\n',dampalpha); % dampgamma - alpha damping
+    fprintf(cfp,'%f\n',dampstacor); % dampstacor - station correction damping
 
     fclose(cfp);
     fclose(afp);
