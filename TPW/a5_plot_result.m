@@ -7,6 +7,7 @@ lalim = parameters.lalim;
 lolim = parameters.lolim;
 xnode=lalim(1):gridsize:lalim(2);
 ynode=lolim(1):gridsize:lolim(2);
+alpha_ref = parameters_tpw.alpha_ref;
 
 %% Load TPW measurements
 r = 0.05;
@@ -19,7 +20,7 @@ for ip = 1:length(periods)
     
     vel(ip) = load_phvfile(phvfile,xnode,ynode);
     ani(ip) = load_azianifile(azifile,xnode,ynode);
-    atten(ip) = load_alphafile(alphafile);
+    atten(ip) = load_alphafile(alphafile,alpha_ref);
     
     tpw.periods(ip) = period;
     tpw.phv_1d(ip) = nanmean(vel(ip).phv(:));

@@ -36,6 +36,8 @@ dampaniso = parameters_tpw.dampaniso;
 refalpha = parameters_tpw.refalpha;
 dampalpha = parameters_tpw.dampalpha;
 dampstacor = parameters_tpw.dampstacor;
+iscorr_geospreading = parameters_tpw.iscorr_geospreading;
+alpha_ref = parameters_tpw.alpha_ref;
 
 stnms_all = {};
 for ip = 1:length(periods)
@@ -148,6 +150,12 @@ for ip = 1:length(periods)
             stlo = twpevents(ie).stlos(ista);
             deg = twpevents(ie).degs(ista);
             amp = twpevents(ie).amp(ista).^0.5;
+            % Remove geometrical spreading and attenuation effects
+            if iscorr_geospreading
+                geomsprd = sqrt(abs(sind(km2deg(dist))));
+                attneffect = exp(alpha_ref*(dist));
+                amp = amp * geomsprd * attneffect;
+            end
             stnm = char(twpevents(ie).stnms(ista));
             amp_mean = amp./meanamp;
             tp = twpevents(ie).tp(ista);
