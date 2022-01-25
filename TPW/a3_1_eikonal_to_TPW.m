@@ -40,6 +40,8 @@ iscorr_geospreading = parameters_tpw.iscorr_geospreading;
 alpha_ref = parameters_tpw.alpha_ref;
 
 stnms_all = {};
+stlos_all = {};
+stlas_all = {};
 for ip = 1:length(periods)
     % output files
     period = periods(ip);
@@ -114,7 +116,11 @@ for ip = 1:length(periods)
     end
     
     % Save unique station names from good events
-    stnms_all{ip} = unique([twpevents.stnms]);
+    [stnms_all{ip}, I] = unique([twpevents.stnms]);
+    stlas = [twpevents.stlas];
+    stlas_all{ip} = stlas(I);
+    stlos = [twpevents.stlos];
+    stlos_all{ip} = stlos(I);
 
     % Calculate useful informations for TPW output
     for ie=1:length(twpevents)
@@ -206,3 +212,11 @@ for ista = 1:length(stnms)
 end
 fprintf(fid,'%s\n','nope'); % not sure if this is necessary, but Zhitu's version included it
 fclose(fid);
+
+% Save station structure
+[stnms, I] = unique([stnms_all{:}]);
+stlas = [stlas_all{:}];
+stlas = stlas(I);
+stlos = [stlos_all{:}];
+stlos = stlos(I);
+save('stations.mat','stnms','stlas','stlos');

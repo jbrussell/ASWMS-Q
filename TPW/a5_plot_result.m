@@ -21,6 +21,7 @@ for ip = 1:length(periods)
     vel(ip) = load_phvfile(phvfile,xnode,ynode);
     ani(ip) = load_azianifile(azifile,xnode,ynode);
     atten(ip) = load_alphafile(alphafile,alpha_ref);
+    stacor(ip) = load_stacorfile(stacorfile,'stations.mat');
     
     tpw.periods(ip) = period;
     tpw.phv_1d(ip) = nanmean(vel(ip).phv(:));
@@ -89,6 +90,25 @@ for ip = 1:length(periods)
     load seiscmap
     colormap(seiscmap);
     title([num2str(period),' s'],'fontsize',16);
+end
+
+%% Plot station terms
+figure(47); clf;
+set(gcf,'Position',[84           3         744        1022],'color','w');
+N=3; M = floor(length(periods)/N)+1;
+sgtitle('Reciver terms','fontweight','bold','fontsize',18);
+for ip = 1:length(periods)
+    stlas = stacor(ip).stlas;
+    stlos = stacor(ip).stlos;
+    Acorr = stacor(ip).stacor;
+
+    subplot(M,N,ip)
+    ax = worldmap(lalim, lolim);
+    scatterm(stlas,stlos,100,Acorr,'v','filled','markeredgecolor',[0 0 0]);
+    title([num2str(periods(ip)),' s'],'fontsize',15)
+    caxis([0.97 1.03]);
+    cb = colorbar;
+    colormap(seiscmap)
 end
 
 %% Plot 1-D Values
