@@ -136,11 +136,11 @@ for ip = 1:length(amplitudes)
     stas = fields(amplitudes(ip));
     for ista1 = 1:length(stas)
         sta1 = stas{ista1};
+		stla(ista1) = amplitudes(ip).(sta1).stla;
+        stlo(ista1) = amplitudes(ip).(sta1).stlo;
         if ismember(sta1,badstnms)
             continue
         end
-        stla(ista1) = amplitudes(ip).(sta1).stla;
-        stlo(ista1) = amplitudes(ip).(sta1).stlo;
         logamps1 = amplitudes(ip).(sta1).logamp;
         evids1 = amplitudes(ip).(sta1).evid;
         for ista2 = 1:length(stas)
@@ -327,7 +327,7 @@ if isfigure
     figure(47); clf;
     set(gcf,'Position',[84           3         744        1022],'color','w');
     N=3; M = floor(length(periods)/N)+1;
-    sgtitle('Reciver terms','fontweight','bold','fontsize',18);
+    sgtitle('Receiver terms','fontweight','bold','fontsize',18);
     for ip = 1:length(periods)
         stlas = receiver(ip).stlas;
         stlos = receiver(ip).stlos;
