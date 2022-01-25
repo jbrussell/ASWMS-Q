@@ -94,6 +94,17 @@ for ip = 1:length(periods)
     % plot(x,y,'r');
 
     % phv = abs(diff(x))/abs(diff(y)*period)
+    
+    % Binned amplitudes
+    dkm = 50;
+    bins = min(alldist):dkm:max(alldist);
+    cbins = bins(1:end-1) + dkm/2;
+    amps_bin = [];
+    for ibin = 1:length(bins)-1
+        I = alldist>=bins(ibin) & alldist<bins(ibin+1);
+        amps_bin(ibin) = nanmean(allamps(I));
+    end
+    
     figure(24)
 %     if ip == 1
 %         clf;
@@ -102,6 +113,8 @@ for ip = 1:length(periods)
     sgtitle('Amplitude');
     hold on
     plot(alldist,allamps,'x');
+    plot(cbins,amps_bin,'-or');
+    plot([min(alldist),max(alldist)],[1 1],'--k');
     title([num2str(period),' s']);
 end
 
