@@ -96,7 +96,7 @@ end
 figure(47); clf;
 set(gcf,'Position',[84           3         744        1022],'color','w');
 N=3; M = floor(length(periods)/N)+1;
-sgtitle('Reciver terms','fontweight','bold','fontsize',18);
+sgtitle('Receiver terms','fontweight','bold','fontsize',18);
 for ip = 1:length(periods)
     stlas = stacor(ip).stlas;
     stlos = stacor(ip).stlos;
