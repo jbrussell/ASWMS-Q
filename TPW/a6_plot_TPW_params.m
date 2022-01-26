@@ -60,3 +60,31 @@ for ip = 1:length(periods)
     title([num2str(periods(ip)), 's']);
     set(gca,'fontsize',15,'linewidth',1.5,'box','on');
 end
+
+%% Wave Amplitude
+figure(37); clf;
+set(gcf,'color','w','position',[159           1        1197        1002]);
+for ip = 1:length(periods)
+    subplot(4,3,ip);
+%     sgtitle('Phase');
+    hold on
+    plot(tpw(ip).startamp1,tpw(ip).startamp2,'o');
+    xlabel('A_1');
+    ylabel('A_2');
+    title([num2str(periods(ip)), 's']);
+    set(gca,'fontsize',15,'linewidth',1.5,'box','on');
+end
+
+%% Wave Angle
+figure(38); clf;
+set(gcf,'color','w','position',[159           1        1197        1002]);
+for ip = 1:length(periods)
+    subplot(4,3,ip);
+%     sgtitle('Phase');
+    hold on
+    plot(tpw(ip).wvaz1,tpw(ip).wvaz2,'o');
+    xlabel('\phi_1');
+    ylabel('\phi_2');
+    title([num2str(periods(ip)), 's']);
+    set(gca,'fontsize',15,'linewidth',1.5,'box','on');
+end
