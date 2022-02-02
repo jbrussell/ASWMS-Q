@@ -70,7 +70,7 @@ for ie = 1:length(matfiles)
     m_tp = sscanf(fgetl(fid),'%f');    
     fclose(fid);
     
-	if eventcs.evdp ~= depth_km
+	if abs(eventcs.evdp-depth_km)>1
 		error('Event depth does not match text file... check units')
 	end
     eventcs.moment.m_rr = m_rr * mult_fac;
