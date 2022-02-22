@@ -21,6 +21,7 @@ stnms = {};
 stainfo = [];
 for ie = 1:length(CSfiles)
 	clear eventcs amps
+	amps = [];
 % 	load(fullfile('CSmeasure',CSfiles(ie).name));
     load(fullfile(workingdir,'CSmeasure',CSfiles(ie).name));
 	disp(CSfiles(ie).name)
