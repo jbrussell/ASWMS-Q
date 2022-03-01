@@ -515,6 +515,13 @@ for ip = 1:length(attenuation)
         lg.Position(2) = lg.Position(2)+0.07;
     end
     ylim([-2e-4 2e-4]);
+	
+	% Analytical predictions
+    x = min(dist_evs):max(dist_evs);
+    plot(x,cosd(x)./(sind(x)*6371*nanmean(avgphv(ip).GV_cor(:))),'-m','linewidth',2);
+    plot(x,-cosd(x)./(sind(x)*6371*nanmean(avgphv(ip).GV_cor(:))),'-c','linewidth',2);
+    plot(x,-cosd(x)./(sind(x)*6371*nanmean(avgphv(ip).GV_cor(:)))-2*alphas(ip)./nanmean(avgphv(ip).GV_cor(:)),'--c','linewidth',2);
+    
 end
 
 %% Plot terms
@@ -789,6 +796,36 @@ for ip = 1:length(attenuation)
     xlabel('distance (deg)');
     ylabel('\nabla^2\tau');
     ylim([-0.5e-4 1e-4]);
+    
+	% Analytical predictions
+    x = min(dist_evs):max(dist_evs);
+    plot(x,cosd(x)./(sind(x)*6371*nanmean(avgphv(ip).GV_cor(:))),'-k','linewidth',2);
+% plot(x,-cosd(x)./(sind(x)*6371*nanmean(avgphv(ip).GV_cor(:))),'-c','linewidth',2);
+% plot(x,-cosd(x)./(sind(x)*6371*nanmean(avgphv(ip).GV_cor(:)))-2*alphas(ip)./nanmean(avgphv(ip).GV_cor(:)),'--c','linewidth',2);
+    set(gca,'fontsize',15)
+end
+
+figure(62); clf;
+set(gcf,'Position',[616    71   850   947]);
+sgtitle('$\frac{2\nabla{A}\cdot\nabla\tau}{A}$','interpreter','latex','fontsize',30);
+for ip = 1:length(attenuation)
+    subplot(M,N,ip)
+    amp_decay_map_evs = squeeze(nanmean(nanmean(attenuation(ip).amp_decay_map,1),2));
+    dist_evs = squeeze(nanmean(nanmean(attenuation(ip).dist_map,1),2));
+%     plot(attenuation(ip).dist_map(:),attenuation(ip).tp_focus_map(:),'.b'); hold on;
+    plot(dist_evs,amp_decay_map_evs,'.r'); hold on;
+%     plot(azi_evs,tp_focus_map_evs,'.r');
+    title([num2str(attenuation(ip).period),' s'])
+    xlabel('distance (deg)');
+    ylabel('$\frac{2\nabla{A}\cdot\nabla\tau}{A}$','interpreter','latex');
+    ylim([-1.2e-4 0.5e-4]);
+    
+	% Analytical predictions
+    x = min(dist_evs):max(dist_evs);
+%     plot(x,cosd(x)./(sind(x)*6371*nanmean(avgphv(ip).GV_cor(:))),'-k','linewidth',2);
+    plot(x,-cosd(x)./(sind(x)*6371*nanmean(avgphv(ip).GV_cor(:))),'-k','linewidth',2);
+    plot(x,-cosd(x)./(sind(x)*6371*nanmean(avgphv(ip).GV_cor(:)))-2*alphas(ip)./nanmean(avgphv(ip).GV_cor(:)),'--k','linewidth',2);
+    set(gca,'fontsize',15)
 end
 
 %% Save
