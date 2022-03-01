@@ -6,6 +6,9 @@
 %
 % github.com/jbrussell
 % 2021-05
+%
+% dlnbeta_dx: beta variation in longitude
+% dlnbeta_dy: beta variation in latitude
 
 function [fitstr, alpha, dlnbeta_dx, dlnbeta_dy]=fit_alpha_beta(azi,amp,varargin)
 	if ~isempty(varargin)
