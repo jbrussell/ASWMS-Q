@@ -18,7 +18,7 @@ clear;
 %plot native
 
 isdebug = 0;
-isfigure = 1;
+isfigure = 0;
 is_overwrite = 1;
 
 % Setup parameters

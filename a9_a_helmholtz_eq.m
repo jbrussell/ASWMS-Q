@@ -8,8 +8,8 @@ clear;
 setup_parameters
 
 isoverwrite = 1;
-isfigure = 1;
-is_save_amp_fig = 1;
+isfigure = 0;
+is_save_amp_fig = 0;
 
 is_receiver_terms = parameters.is_receiver_terms; % Correct amplitudes using receiver terms calculated from a8_0_receiver_terms?
 is_eikonal_ampgrad = parameters.is_eikonal_ampgrad; % 1: use eikonal tomography values for amplitude gradient; 0: use amplitude field estimates

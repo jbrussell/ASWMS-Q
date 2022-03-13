@@ -11,7 +11,7 @@ clear
 setup_parameters
 
 % debug setting
-isfigure = 1;
+isfigure = 0;
 isdisp = 0;
 is_overwrite = 1;
 
