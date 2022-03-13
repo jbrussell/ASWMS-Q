@@ -144,7 +144,7 @@ parameters.azi_bin_deg = 30; % [deg] size of azimuthal bins
 parameters.min_nbin = 10; % minimum number of measurements in order to include bin
 parameters.N_min_evts = 10; % minimum number of events contributing to grid cell required in order to be considered
 parameters.smsize_alpha = 3; % number of nearby gridcells to gather data from
-parameters.smweight_beta = 0.8; % Second derivative smoothing weight for beta map
+parameters.smweight_beta = 0.3; % Second derivative smoothing weight for beta map
 
 %%
 if length(parameters.periods)~=length(parameters.smweight_array) || length(parameters.periods)~=length(parameters.min_csgoodratio)

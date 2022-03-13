@@ -371,6 +371,27 @@ for ip = 1:length(avgphv)
                     azis = [azis; squeeze(azi(ii,jj,:))];
                 end
             end
+			isbin = 0;
+            if isbin
+				% Bin measurements by azimuth
+	            [~,Isort] = sort(azis(:));
+	            azi_srt = azis(Isort);
+	            amp_term_srt = amps(Isort);
+	            bins = [0:azi_bin_deg:360];
+	            amp_bin = 0; azi_bin = 0; amp_bin_std = 0; azi_bin_err = 0;
+	            for ibin = 1:length(bins)-1
+	                I_bin = azi_srt>=bins(ibin) & azi_srt<bins(ibin+1);
+	                if sum(I_bin)<min_nbin
+	                    I_bin = false(size(I_bin));
+	                end
+	                % Weighted means and standard deviations
+	                amp_bin(ibin) = nanmedian(amp_term_srt(I_bin));
+	                amp_bin_std(ibin) = nanstd(amp_term_srt(I_bin));
+	                azi_bin(ibin) = (bins(ibin)+bins(ibin+1))/2;
+	            end
+                amps = amp_bin;
+                azis = azi_bin;
+            end
 %             amps = squeeze(amp_term(ix,iy,:));
 %             azis = squeeze(azi(ix,iy,:));
             if length(find(~isnan(amps)))>N_min_evts
@@ -402,6 +423,8 @@ for ip = 1:length(avgphv)
             attenuation(ip).beta_tau_2d(ix,iy) = beta_tau;
             attenuation(ip).azi_maxamp_2d(ix,iy) = azi_maxamp;
             attenuation(ip).alpha_2d_err(ix,iy) = alpha_err;
+			attenuation(ip).dlnbeta_dx_2d_err(ix,iy) = dlnbeta_dx_err;
+            attenuation(ip).dlnbeta_dy_2d_err(ix,iy) = dlnbeta_dy_err;
             attenuation(ip).beta_tau_2d_err(ix,iy) = beta_tau_err;
             attenuation(ip).azi_maxamp_2d_err(ix,iy) = azi_maxamp_err;
             attenuation(ip).para_2d{ix,iy} = para;
@@ -412,10 +435,10 @@ for ip = 1:length(avgphv)
         end
     end
     % Invert for beta map
-    smweight = 0.1;
-    beta_2d = inv_beta(xi,yi,attenuation(ip).dlnbeta_dy_2d,attenuation(ip).dlnbeta_dx_2d,smweight_beta);
+	[beta_2d,chi2] = inv_beta(xi,yi,attenuation(ip).dlnbeta_dy_2d,attenuation(ip).dlnbeta_dx_2d,attenuation(ip).dlnbeta_dy_2d_err,attenuation(ip).dlnbeta_dx_2d_err,smweight_beta);
     beta_2d(isnan(attenuation(ip).dlnbeta_dy_2d)) = nan;
     attenuation(ip).beta_2d = beta_2d;
+	attenuation(ip).beta_2d_chi2 = chi2;
     
     figure(41);
     if ip==1
@@ -427,7 +450,7 @@ for ip = 1:length(avgphv)
     plot(azi(:),amp_term(:),'.b'); hold on;
     plot(squeeze(azi(9,9,:)),squeeze(amp_term(9,9,:)),'.r'); hold on;
 %     plot(azi(Ibad),amp_term(Ibad),'o');
-    errorbar(azi_bin(:),amp_bin(:),amp_bin_std(:),'og');
+	errorbar(attenuation(ip).azi_bin(:),attenuation(ip).amp_bin(:),attenuation(ip).amp_bin_std(:),'og');
     x = [0:360];
     pred = attenuation(ip).beta_tau_1d.*cosd(x-attenuation(ip).azi_maxamp_1d)-attenuation(ip).alpha_1d;
     plot(x,pred,'-r');
@@ -531,6 +554,45 @@ for ip = 1:length(attenuation)
     caxis( abs([-1 1]+(max(abs(beta_2d(:)))-1)) );
     colormap(flip(seiscmap))
 end
+
+% Re-estimate beta gradient
+figure(65); clf; set(gcf,'position',[146           1         726        1024],'color','w');
+N=3; M = floor(length(periods)/N)+1;
+for ip = 1:length(attenuation)  
+    lnbeta = log(attenuation(ip).beta_2d);
+    [aspect,slope,dlnbeta_dy_2d,dlnbeta_dx_2d] = gradientm(xi,yi,lnbeta);
+    dlnbeta_dy_2d = dlnbeta_dy_2d * 1000;
+    dlnbeta_dx_2d = dlnbeta_dx_2d * 1000;
+    beta_tau_2d = sqrt(dlnbeta_dx_2d.^2 + dlnbeta_dy_2d.^2);
+    subplot(M,N,ip)
+    ax = worldmap(lalim, lolim);
+%     surfacem(xi,yi,exp(lnbeta));
+    surfacem(xi,yi,beta_tau_2d);
+    quiverm(xi,yi,dlnbeta_dy_2d,dlnbeta_dx_2d,'-k')
+%     if ~isempty(stlas) 
+%         plotm(stlas,stlos,'v');
+%     end
+    title([num2str(periods(ip)),' s'],'fontsize',15)
+    cb = colorbar;
+    ylabel(cb,'\nabla\beta/\beta Predicted');
+%     caxis([-1e-4 4e-4]);
+    colormap(flip(seiscmap))
+end
+
+% Plot Chi2 of beta fit
+figure(66); clf; set(gcf,'color','w');
+% subplot(2,1,1);
+% for ip = 1:length(periods)
+%     plot(periods(ip),receiver(ip).std_pair,'ob','linewidth',2); hold on;
+% end
+% xlabel('Period (s)');
+% ylabel('\sigma log residuals');
+% set(gca,'linewidth',1.5,'fontsize',15);
+subplot(2,1,2);
+plot(periods,[attenuation(:).beta_2d_chi2],'-or','linewidth',2); hold on;
+xlabel('Period (s)');
+ylabel('\chi^2 misfit');
+set(gca,'linewidth',1.5,'fontsize',15);
 
 %% Plot amplitude decay and focusing terms
 figure(44); clf;

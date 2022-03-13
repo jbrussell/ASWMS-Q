@@ -17,7 +17,7 @@
 % beta = desired scalar field values
 %
 % jbrussell 3/1/2022
-function [beta_map]=inv_beta(xi,yi,dlnbetaLat_map,dlnbetaLon_map,smweight0)
+function [beta_map, chi2]=inv_beta(xi,yi,dlnbetaLat_map,dlnbetaLon_map,dlnbetaLat_err_map,dlnbetaLon_err_map,smweight0)
 
 [Nla,Nlo]=size(xi);
 lnbeta=zeros(Nla,Nlo);
@@ -25,6 +25,7 @@ N = Nla*Nlo;
 
 % Do latitudes first (x)
 dlnbetaLat = zeros(N,1);
+dlnbetaLat_err = zeros(N,1);
 Glat = zeros(N,N);
 for ila = 1:Nla
     for ilo = 1:Nlo
@@ -51,11 +52,13 @@ for ila = 1:Nla
         
         % Data vector
         dlnbetaLat(ii,1) = dlnbetaLat_map(ila,ilo);
+        dlnbetaLat_err(ii,1) = dlnbetaLat_err_map(ila,ilo);
     end
 end
 
 % Now longitudes (y)
 dlnbetaLon = zeros(N,1);
+dlnbetaLon_err = zeros(N,1);
 Glon = zeros(N,N);
 for ila = 1:Nla
     for ilo = 1:Nlo
@@ -82,6 +85,7 @@ for ila = 1:Nla
         
         % Data vector
         dlnbetaLon(ii,1) = dlnbetaLon_map(ila,ilo);
+        dlnbetaLon_err(ii,1) = dlnbetaLon_err_map(ila,ilo);
     end
 end
 
@@ -89,6 +93,7 @@ end
 % Combine lat and lon
 G = [Glat; Glon];
 dlnbeta = [dlnbetaLat; dlnbetaLon];
+dlnbeta_err = [dlnbetaLat_err; dlnbetaLon_err];
 % G = [Glat; Glon; Gconstraint];
 % dlnbeta = [dlnbetaLat; dlnbetaLon; dconstraint];
 
@@ -97,17 +102,26 @@ inan = find(isnan(dlnbeta));
 % igood = find(~isnan(dlnbeta));
 G(inan,:) = [];
 dlnbeta(inan,:) = [];
+dlnbeta_err(inan,:) = [];
 % % Remove unsampled grid points
 % inode_nodata = find(sum(G,1)==0);
 % inode_good = find(sum(G,1)~=0);
 % G(:,inode_nodata) = [];
 
+% Weighting by uncertainties
+W = diag(1./dlnbeta_err);
+
 % Add extra constraint that the mean value equals 0
+meanweight0 = 1;
 Nsolve = size(G,2);
 Gconstraint = ones(1,Nsolve) ./ Nsolve;
 dconstraint = 0;
-G = [G; Gconstraint];
-dlnbeta = [dlnbeta; dconstraint];
+J = Gconstraint;
+j = dconstraint;
+% Rescale weight
+NR=norm(J,1);
+NA=norm(W*G,1);
+meanweight = meanweight0*NA/NR;
 
 % Add smoothing kernel
 xnode = xi(:,1)';
@@ -116,12 +130,12 @@ F = smooth_kernel_build(xnode, ynode, N);
 f = zeros(size(F,1),1);
 % Rescale the smooth kernel
 NR=norm(F,1);
-NA=norm(G,1);
+NA=norm(W*G,1);
 smweight = smweight0*NA/NR;
 
-% Construct full G amtrix
-G = [G; smweight*F];
-dlnbeta = [dlnbeta; smweight*f];
+% Construct full G matrix
+H = [W*G; meanweight*J; smweight*F];
+h = [W*dlnbeta; meanweight*j; smweight*f];
 
 % Invert for receiver amplitude terms
 % std_err = std(sqrt(dlnbetaLat_map(:).^2 + dlnbetaLon_map(:).^2)/5);
@@ -130,7 +144,12 @@ dlnbeta = [dlnbeta; smweight*f];
 % f = W.^(0.5)*dlnbeta;
 % lnbeta = (F'*F)\F'*f;
 % lnbeta = (G'*G)\G'*dlnbeta;
-lnbeta = (G'*G)\G'*dlnbeta;
+lnbeta = (H'*H)\H'*h;
+
+% Estimate chi2 misfit
+dlnbeta_pre = G * lnbeta;
+e = (dlnbeta - dlnbeta_pre) ./ dlnbeta_err;
+chi2 = (e'*e)/length(dlnbeta);
 
 % Form matrix
 beta_map = nan(size(xi));
