@@ -439,6 +439,18 @@ for ip = 1:length(avgphv)
     beta_2d(isnan(attenuation(ip).dlnbeta_dy_2d)) = nan;
     attenuation(ip).beta_2d = beta_2d;
 	attenuation(ip).beta_2d_chi2 = chi2;
+	
+	% figure(1000); clf;
+    % subplot(1,2,1); hold on;
+    % ax10001 = worldmap(lalim, lolim);
+    % surfacem(xi,yi,attenuation(ip).beta_tau_2d);
+    % quiverm(xi,yi,attenuation(ip).dlnbeta_dy_2d,attenuation(ip).dlnbeta_dx_2d,'-k')
+    % colorbar;
+    % subplot(1,2,2); hold on;
+    % ax10002 = worldmap(lalim, lolim);
+    % surfacem(xi,yi,beta_2d);
+    % quiverm(xi,yi,attenuation(ip).dlnbeta_dy_2d,attenuation(ip).dlnbeta_dx_2d,'-k')
+    % colorbar;
     
     figure(41);
     if ip==1

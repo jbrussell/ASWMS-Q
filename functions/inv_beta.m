@@ -1,6 +1,6 @@
 % Invert beta gradient field to obtain the best fitting scalar beta field.
 %
-% This function solves equations 10-11 in Bao et al. (2016) GJI; doi:10.1093/gji/ggw151
+% This function solves equations 10-11 (slightly modified) in Bao et al. (2016) GJI; doi:10.1093/gji/ggw151
 % using least squares, with the additional constraint that the mean value
 % of dlnbeta across the region is zero. This results in an average beta
 % value of 1. An additional second derivative smoothing constraint is
@@ -36,23 +36,23 @@ for ila = 1:Nla
             % endpoint, left derivative
             dla=vdist(xi(ila,ilo),yi(ila,ilo),xi(ila+1,ilo),yi(ila+1,ilo))/1e3;
             Glat(ii,ii) = -1 ./ dla;
-            Glat(ii,ii+Nla) = 1 ./ dla;
+            Glat(ii,ii+Nlo) = 1 ./ dla;
         elseif ila+1 > Nla
             % endpoint, right derivative
             dla=vdist(xi(ila-1,ilo),yi(ila-1,ilo),xi(ila,ilo),yi(ila,ilo))/1e3;
-            Glat(ii,ii-Nla) = -1 ./ dla;
+            Glat(ii,ii-Nlo) = -1 ./ dla;
             Glat(ii,ii) = 1 ./ dla;
         else
-            dla1=vdist(xi(ila-1,ilo),yi(ila-1,ilo),xi(ila,ilo),yi(ila,ilo))/1e3;
-            dla2=vdist(xi(ila,ilo),yi(ila,ilo),xi(ila+1,ilo),yi(ila+1,ilo))/1e3;
-            Glat(ii,ii-Nla) = 1 ./ (dla1+dla2);
-            Glat(ii,ii+Nla) = 1 ./ (dla1+dla2);
-            Glat(ii,ii) = -2 ./ (dla1+dla2);
+            dla=vdist(xi(ila-1,ilo),yi(ila-1,ilo),xi(ila+1,ilo),yi(ila+1,ilo))/1e3;
+            Glat(ii,ii-Nlo) = -1 ./ (dla);
+            Glat(ii,ii+Nlo) = 1 ./ (dla);
         end
         
         % Data vector
         dlnbetaLat(ii,1) = dlnbetaLat_map(ila,ilo);
         dlnbetaLat_err(ii,1) = dlnbetaLat_err_map(ila,ilo);
+%         las_yi(ii,1) = yi(ila,ilo);
+%         las_xi(ii,1) = xi(ila,ilo);
     end
 end
 
@@ -76,16 +76,16 @@ for ila = 1:Nla
             Glon(ii,ii-1) = -1 ./ dlo;
             Glon(ii,ii) = 1 ./ dlo;
         else
-            dlo1=vdist(xi(ila,ilo-1),yi(ila,ilo-1),xi(ila,ilo),yi(ila,ilo))/1e3;
-            dlo2=vdist(xi(ila,ilo),yi(ila,ilo),xi(ila,ilo+1),yi(ila,ilo+1))/1e3;
-            Glon(ii,ii-1) = 1 ./ (dlo1+dlo2);
-            Glon(ii,ii+1) = 1 ./ (dlo1+dlo2);
-            Glon(ii,ii) = -2 ./ (dlo1+dlo2);
+            dlo=vdist(xi(ila,ilo-1),yi(ila,ilo-1),xi(ila,ilo+1),yi(ila,ilo+1))/1e3;
+            Glon(ii,ii-1) = -1 ./ (dlo);
+            Glon(ii,ii+1) = 1 ./ (dlo);
         end
         
         % Data vector
         dlnbetaLon(ii,1) = dlnbetaLon_map(ila,ilo);
         dlnbetaLon_err(ii,1) = dlnbetaLon_err_map(ila,ilo);
+%         los_yi(ii,1) = yi(ila,ilo);
+%         los_xi(ii,1) = xi(ila,ilo);
     end
 end
 
@@ -110,6 +110,7 @@ dlnbeta_err(inan,:) = [];
 
 % Weighting by uncertainties
 W = diag(1./dlnbeta_err);
+% W = diag(ones(length(dlnbeta_err),1));
 
 % Add extra constraint that the mean value equals 0
 meanweight0 = 1;
