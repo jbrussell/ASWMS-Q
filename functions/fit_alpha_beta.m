@@ -46,7 +46,7 @@ function [fitstr, alpha, dlnbeta_dx, dlnbeta_dy]=fit_alpha_beta(azi,amp,varargin
     s.StartPoint=para0;
     s.Lower=paraL;
     s.Upper=paraH;
-    s.Weights=1./fampstd.^2;
+    s.Weights=1./fampstd;
 %     s.Method='NonlinearLeastSquares';
     if size(fazi,1)==1
         fazi=fazi';

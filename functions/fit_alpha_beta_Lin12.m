@@ -44,7 +44,7 @@ function [fitstr, alpha, beta_tau, azi_maxamp]=fit_alpha_beta_Lin12(azi,amp,vara
     s.StartPoint=para0;
     s.Lower=paraL;
     s.Upper=paraH;
-    s.Weights=1./fampstd.^2;
+    s.Weights=1./fampstd;
 %     s.Method='NonlinearLeastSquares';
     if size(fazi,1)==1
         fazi=fazi';
