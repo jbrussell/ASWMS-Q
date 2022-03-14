@@ -116,15 +116,15 @@ for ie = 1:length(csmatfiles)
 	else
 		badstaids = [];
 	end
-	
+
 	% Load previous eikonal mat to get propagation azimuth
-    if is_offgc_smoothing==1
-        eikonal_in = [eikonl_propazi_output_path,'/',eventcs.id,'_eikonal_',comp,'.mat'];
-        if ~exist(eikonal_in,'file')
-            error('No propagation azimuth found. Need to first run a6_a0_eikonal_eq_GetPropAzi.m');
-        end
-        aziprop = load(eikonal_in);
-    end
+	if is_offgc_smoothing==1
+	    eikonal_in = [eikonl_propazi_output_path,'/',eventcs.id,'_eikonal_',comp,'.mat'];
+	    if ~exist(eikonal_in,'file')
+	        error('No propagation azimuth found. Need to first run a6_a0_eikonal_eq_GetPropAzi.m');
+	    end
+	    aziprop = load(eikonal_in);
+	end
 
 	% Calculate the relative travel time compare to one reference station
 	travel_time = Cal_Relative_dtp(eventcs);
@@ -143,37 +143,37 @@ for ie = 1:length(csmatfiles)
 	tic
 		mat=kernel_build(rays,xnode,ynode);
 	toc
-	
+
 	% Loop through the periods
 	for ip = 1:length(periods)
 		
 		% Build the rotation matrix
-        if is_offgc_smoothing==1
-            phase_lat = -aziprop.eventphv(ip).GVx; % phase slowness in x-direction
-            phase_lon = -aziprop.eventphv(ip).GVy; % phase slowness in y-direction
-            razi = 90 - atan2d(phase_lat,phase_lon);
-            azimat_ev = azimuth(xi+gridsize/2,yi+gridsize/2,evla,evlo)+180;
-            razi(isnan(razi)) = azimat_ev(isnan(razi));
-        else
-            razi = azimuth(xi+gridsize/2,yi+gridsize/2,evla,evlo)+180;
-        end
-        R = sparse(2*Nx*Ny,2*Nx*Ny);
-        for i=1:Nx
-            for j=1:Ny
-                n=Ny*(i-1)+j;
-                theta = razi(i,j);
-                R(2*n-1,2*n-1) = cosd(theta);
-                R(2*n-1,2*n) = sind(theta);
-                R(2*n,2*n-1) = -sind(theta);
-                R(2*n,2*n) = cosd(theta);
-            end
-        end
-        
-        % build dumping matrix for ST
-        dumpmatT = R(2:2:2*Nx*Ny,:);
+	    if is_offgc_smoothing==1
+	        phase_lat = -aziprop.eventphv(ip).GVx; % phase slowness in x-direction
+	        phase_lon = -aziprop.eventphv(ip).GVy; % phase slowness in y-direction
+	        razi = 90 - atan2d(phase_lat,phase_lon);
+	        azimat_ev = azimuth(xi+gridsize/2,yi+gridsize/2,evla,evlo)+180;
+	        razi(isnan(razi)) = azimat_ev(isnan(razi));
+	    else
+	        razi = azimuth(xi+gridsize/2,yi+gridsize/2,evla,evlo)+180;
+	    end
+	    R = sparse(2*Nx*Ny,2*Nx*Ny);
+	    for i=1:Nx
+	        for j=1:Ny
+	            n=Ny*(i-1)+j;
+	            theta = razi(i,j);
+	            R(2*n-1,2*n-1) = cosd(theta);
+	            R(2*n-1,2*n) = sind(theta);
+	            R(2*n,2*n-1) = -sind(theta);
+	            R(2*n,2*n) = cosd(theta);
+	        end
+	    end
+	    
+	    % build dumping matrix for ST
+	    dumpmatT = R(2:2:2*Nx*Ny,:);
 
-        % build dumping matrix for SR
-        dumpmatR = R(1:2:2*Nx*Ny-1,:);
+	    % build dumping matrix for SR
+	    dumpmatR = R(1:2:2*Nx*Ny-1,:);
 		
 		smweight0 = smweight_array(ip);
 		flweight0 = flweight_array(ip); % JBR
@@ -201,14 +201,14 @@ for ie = 1:length(csmatfiles)
 	    end
 
 		% Normalize smoothing kernel
-        NR=norm(F,1);
-        NA=norm(W*mat,1);
-        smweight = smweight0*NA/NR;
+	    NR=norm(F,1);
+	    NA=norm(W*mat,1);
+	    smweight = smweight0*NA/NR;
 
 		% JBR - Normalize flatness kernel
-        NR=norm(F2,1);
-        NA=norm(W*mat,1);
-        flweight = flweight0*NA/NR;
+	    NR=norm(F2,1);
+	    NA=norm(W*mat,1);
+	    flweight = flweight0*NA/NR;
 		
 		% Normalize dumping matrix for ST
 		NR=norm(dumpmatT,1);
@@ -222,18 +222,18 @@ for ie = 1:length(csmatfiles)
 
 		% Set up matrix on both side
 		if isRsmooth
-            A=[W*mat;smweight*F*R;flweight*F2*R;dumpweightT*dumpmatT;dumpweightR*dumpmatR];
-        else
-            A=[W*mat;smweight*F;flweight*F2;dumpweightT*dumpmatT;dumpweightR*dumpmatR];
-        end
+	        A=[W*mat;smweight*F*R;flweight*F2*R;dumpweightT*dumpmatT;dumpweightR*dumpmatR];
+	    else
+	        A=[W*mat;smweight*F;flweight*F2;dumpweightT*dumpmatT;dumpweightR*dumpmatR];
+	    end
 
 		avgv = eventcs.avgphv(ip);
-        rhs=[W*dt;zeros(size(F,1),1);zeros(size(F2,1),1);zeros(size(dumpmatT,1),1);dumpweightR*ones(size(dumpmatR,1),1)./avgv];
-        
+	    rhs=[W*dt;zeros(size(F,1),1);zeros(size(F2,1),1);zeros(size(dumpmatT,1),1);dumpweightR*ones(size(dumpmatR,1),1)./avgv];
+	    
 		% Least square inversion
-        phaseg=(A'*A)\(A'*rhs);
+	    phaseg=(A'*A)\(A'*rhs);
 	        
-        % Iteratively down weight the measurement with high error
+	    % Iteratively down weight the measurement with high error
 		niter=0;
 		ind = find(diag(W)==0);
 		if isdisp
@@ -241,115 +241,115 @@ for ie = 1:length(csmatfiles)
 			disp(['Good Measurement Number: ', num2str(length(diag(W))-length(ind))]);
 			disp(['Bad Measurement Number: ', num2str(length(ind))]);
 		end
-        niter=1;
-        while niter < 2
-            niter=niter+1;
-            err = mat*phaseg - dt;
+	    niter=1;
+	    while niter < 2
+	        niter=niter+1;
+	        err = mat*phaseg - dt;
 			err(diag(W)==0) = 0;
-            stderr=std(err(err~=0));
-            if stderr > dterrtol
-                stderr = dterrtol;
-            end
-            for i=1:length(err)
-                if abs(err(i)) > inverse_err_tol*stderr
-                    W(i,i)=0;
+	        stderr=std(err(err~=0));
+	        if stderr > dterrtol
+	            stderr = dterrtol;
+	        end
+	        for i=1:length(err)
+	            if abs(err(i)) > inverse_err_tol*stderr
+	                W(i,i)=0;
 				else
-                    W(i,i)=1./stderr;
-                end
-            end
-            ind = find(diag(W)==0);
+	                W(i,i)=1./stderr;
+	            end
+	        end
+	        ind = find(diag(W)==0);
 			if isdisp
 				disp('After:')
 				disp(['Good Measurement Number: ', num2str(length(diag(W))-length(ind))]);
 				disp(['Bad Measurement Number: ', num2str(length(ind))]);
 			end
-            
-            % Rescale the smooth kernel
-            NR=norm(F,1);
-            NA=norm(W*mat,1);
-            smweight = smweight0*NA/NR;
-            
+	        
+	        % Rescale the smooth kernel
+	        NR=norm(F,1);
+	        NA=norm(W*mat,1);
+	        smweight = smweight0*NA/NR;
+	        
 			% JBR - Normalize flatness kernel
-            NR=norm(F2,1);
-            NA=norm(W*mat,1);
-            flweight = flweight0*NA/NR;
+	        NR=norm(F2,1);
+	        NA=norm(W*mat,1);
+	        flweight = flweight0*NA/NR;
 			
-            % rescale dumping matrix for St
-            NR=norm(dumpmatT,1);
-            NA=norm(W*mat,1);
-            dumpweightT = Tdumpweight0*NA/NR;
-            
-            % rescale dumping matrix for SR
-            NR=norm(dumpmatR,1);
-            NA=norm(W*mat,1);
-            dumpweightR = Rdumpweight0*NA/NR;
-            
+	        % rescale dumping matrix for St
+	        NR=norm(dumpmatT,1);
+	        NA=norm(W*mat,1);
+	        dumpweightT = Tdumpweight0*NA/NR;
+	        
+	        % rescale dumping matrix for SR
+	        NR=norm(dumpmatR,1);
+	        NA=norm(W*mat,1);
+	        dumpweightR = Rdumpweight0*NA/NR;
+	        
 			if isRsmooth
-                A=[W*mat;smweight*F*R;flweight*F2*R;dumpweightT*dumpmatT;dumpweightR*dumpmatR];
-            else
-                A=[W*mat;smweight*F;flweight*F2;dumpweightT*dumpmatT;dumpweightR*dumpmatR];
-            end
-            rhs=[W*dt;zeros(size(F,1),1);zeros(size(F2,1),1);zeros(size(dumpmatT,1),1);dumpweightR*ones(size(dumpmatR,1),1)./avgv];
-            phaseg=(A'*A)\(A'*rhs);
-        end	
-        
-        % Estimate travel-time residuals
-        dt_res = dt - mat*phaseg;
-        
-        % Calculate model resolution and chi2
-        Ginv = (A'*A)\mat';
-        R = Ginv * mat; % model resolution
-        D = mat * Ginv; % data resolution
-        % Effective degrees of freedom
-        v = length(dt) - trace(D);
-%         v = trace(D);
-        % normalized chi2 uncertainties
-        res = (dt-mat*phaseg);
-        res(diag(W)==0) = nan;
-        rms_res = sqrt(nanmean(res.^2));
-        dt_std = rms_res;
-        chi2 = nansum(res.^2./dt_std.^2)/v;
+	            A=[W*mat;smweight*F*R;flweight*F2*R;dumpweightT*dumpmatT;dumpweightR*dumpmatR];
+	        else
+	            A=[W*mat;smweight*F;flweight*F2;dumpweightT*dumpmatT;dumpweightR*dumpmatR];
+	        end
+	        rhs=[W*dt;zeros(size(F,1),1);zeros(size(F2,1),1);zeros(size(dumpmatT,1),1);dumpweightR*ones(size(dumpmatR,1),1)./avgv];
+	        phaseg=(A'*A)\(A'*rhs);
+	    end	
+	    
+	    % Estimate travel-time residuals
+	    dt_res = dt - mat*phaseg;
+	    
+	    % Calculate model resolution and chi2
+	    Ginv = (A'*A)\mat';
+	    R = Ginv * mat; % model resolution
+	    D = mat * Ginv; % data resolution
+	    % Effective degrees of freedom
+	    v = length(dt) - trace(D);
+	%         v = trace(D);
+	    % normalized chi2 uncertainties
+	    res = (dt-mat*phaseg);
+	    res(diag(W)==0) = nan;
+	    rms_res = sqrt(nanmean(res.^2));
+	    dt_std = rms_res;
+	    chi2 = nansum(res.^2./dt_std.^2)/v;
 
-        % Calculate model uncertainties
-        slo_std = diag(inv(A'*A)).^(1/2);
-        % convert from dslow to dv
-        phv_std = phaseg.^(-2) .* slo_std; 
-        for i=1:Nx
+	    % Calculate model uncertainties
+	    slo_std = diag(inv(A'*A)).^(1/2);
+	    % convert from dslow to dv
+	    phv_std = phaseg.^(-2) .* slo_std; 
+	    for i=1:Nx
 			for j=1:Ny
 				n=Ny*(i-1)+j;
 				dtaux_err(i,j)= slo_std(2*n-1);
 				dtauy_err(i,j)= slo_std(2*n);
-                phvx_err(i,j)= phv_std(2*n-1);
+	            phvx_err(i,j)= phv_std(2*n-1);
 				phvy_err(i,j)= phv_std(2*n);
 			end
-        end
+	    end
 
-        % Calculate the kernel density
-        %sumG=sum(abs(mat),1);
-        ind=1:Nx*Ny;
-        rayW = W;
-        rayW(find(rayW>1))=1;
-        raymat = rayW*mat;
-        sumG(ind)=sum((raymat(:,2*ind).^2+raymat(:,2*ind-1).^2).^.5,1);
-        clear raydense
-        for i=1:Nx
-            for j=1:Ny
-                n=Ny*(i-1)+j;
-                raydense(i,j)=sumG(n);
-            end
-        end
-        
-        %        disp(' Get rid of uncertainty area');
-        fullphaseg = phaseg;
-        for i=1:Nx
-            for j=1:Ny
-                n=Ny*(i-1)+j;
-                if raydense(i,j) < raydensetol %&& ~issyntest
-                    phaseg(2*n-1)=NaN;
-                    phaseg(2*n)=NaN;
-                end
-            end
-        end
+	    % Calculate the kernel density
+	    %sumG=sum(abs(mat),1);
+	    ind=1:Nx*Ny;
+	    rayW = W;
+	    rayW(find(rayW>1))=1;
+	    raymat = rayW*mat;
+	    sumG(ind)=sum((raymat(:,2*ind).^2+raymat(:,2*ind-1).^2).^.5,1);
+	    clear raydense
+	    for i=1:Nx
+	        for j=1:Ny
+	            n=Ny*(i-1)+j;
+	            raydense(i,j)=sumG(n);
+	        end
+	    end
+	    
+	    %        disp(' Get rid of uncertainty area');
+	    fullphaseg = phaseg;
+	    for i=1:Nx
+	        for j=1:Ny
+	            n=Ny*(i-1)+j;
+	            if raydense(i,j) < raydensetol %&& ~issyntest
+	                phaseg(2*n-1)=NaN;
+	                phaseg(2*n)=NaN;
+	            end
+	        end
+	    end
 
 		% Change phaseg into phase velocity
 		for i=1:Nx
@@ -361,17 +361,17 @@ for ie = 1:length(csmatfiles)
 		end
 		GV=(GVx.^2+GVy.^2).^-.5;
 		% Get rid of uncertain area
-        phvx_err(isnan(GV)) = nan;
-        phvy_err(isnan(GV)) = nan;
-        dtaux_err(isnan(GV)) = nan;
-        dtaux_err(isnan(GV)) = nan;
-        
+	    phvx_err(isnan(GV)) = nan;
+	    phvy_err(isnan(GV)) = nan;
+	    dtaux_err(isnan(GV)) = nan;
+	    dtaux_err(isnan(GV)) = nan;
+	    
 		% Forward calculate phase velocity
-        phv_fwd = ddist./(mat*phaseg(1:Nx*Ny*2));
-        
-        % Propagate errors
-        dtau_err = (((GVx.*dtaux_err).^2 + (GVy.*dtauy_err).^2)).^0.5 ./ (GVx.^2+GVy.^2).^0.5;
-        phv_err = GV.^2 .* dtau_err;
+	    phv_fwd = ddist./(mat*phaseg(1:Nx*Ny*2));
+	    
+	    % Propagate errors
+	    dtau_err = (((GVx.*dtaux_err).^2 + (GVy.*dtauy_err).^2)).^0.5 ./ (GVx.^2+GVy.^2).^0.5;
+	    phv_err = GV.^2 .* dtau_err;
 
 		% save the result in the structure
 		eventphv(ip).rays = rays;
@@ -379,17 +379,17 @@ for ie = 1:length(csmatfiles)
 		eventphv(ip).goodnum = length(find(eventphv(ip).w>0));
 		eventphv(ip).badnum = length(find(eventphv(ip).w==0));
 		eventphv(ip).dt = dt;
-        eventphv(ip).dt_res = dt_res; % data residuals
-        eventphv(ip).chi2 = chi2; % chi2 misfit
+	    eventphv(ip).dt_res = dt_res; % data residuals
+	    eventphv(ip).chi2 = chi2; % chi2 misfit
 		eventphv(ip).GV = GV;
 		eventphv(ip).GVx = GVx;
 		eventphv(ip).GVy = GVy;
-        eventphv(ip).phv_err = phv_err;
-        eventphv(ip).phvx_err = phvx_err;
-        eventphv(ip).phvy_err = phvy_err;
-        eventphv(ip).dtau_err = dtau_err;
-        eventphv(ip).dtaux_err = dtaux_err;
-        eventphv(ip).dtauy_err = dtauy_err;
+	    eventphv(ip).phv_err = phv_err;
+	    eventphv(ip).phvx_err = phvx_err;
+	    eventphv(ip).phvy_err = phvy_err;
+	    eventphv(ip).dtau_err = dtau_err;
+	    eventphv(ip).dtaux_err = dtaux_err;
+	    eventphv(ip).dtauy_err = dtauy_err;
 		eventphv(ip).phv_fwd = phv_fwd;
 		eventphv(ip).raydense = raydense;
 		eventphv(ip).lalim = lalim;
@@ -413,15 +413,15 @@ for ie = 1:length(csmatfiles)
 		N=3; M = floor(length(periods)/N) +1;
 		figure(88)
 		clf
-        sgtitle('Dynamic phase velocity','fontweight','bold','fontsize',18);
+	    sgtitle('Dynamic phase velocity','fontweight','bold','fontsize',18);
 		for ip = 1:length(periods)
 			subplot(M,N,ip)
 			ax = worldmap(lalim, lolim);
 			set(ax, 'Visible', 'off')
 			h1=surfacem(xi,yi,eventphv(ip).GV);
 			% set(h1,'facecolor','interp');
-%			load pngcoastline
-%			geoshow([S.Lat], [S.Lon], 'Color', 'black','linewidth',2)
+	%			load pngcoastline
+	%			geoshow([S.Lat], [S.Lon], 'Color', 'black','linewidth',2)
 			title(['Periods: ',num2str(periods(ip))],'fontsize',15)
 			avgv = nanmean(eventphv(ip).GV(:));
 			if isnan(avgv)
