@@ -71,7 +71,11 @@ function [alpha, dlnbeta_dx, dlnbeta_dy, dbeta_beta, azi_maxamp, alpha_std, dlnb
     % Transform errors
     dbeta_beta_std = ( (dlnbeta_dx.*dlnbeta_dx_std).^2 + (dlnbeta_dy.*dlnbeta_dy_std).^2 ).^0.5 ./ (dlnbeta_dx.^2+dlnbeta_dy.^2).^0.5;
     azi_maxamp_std = 180/pi * ( (dlnbeta_dy.*dlnbeta_dx_std).^2 + (dlnbeta_dx.*dlnbeta_dy_std).^2 ).^0.5 ./ ( dlnbeta_dx.^2+dlnbeta_dy.^2 );
-    
+
+% % Compare uncertainty estimates with built in Matlab Function    
+%     [x,stdx_scaled,mse,S_scaled] = lscov(G,amp,diag(amp_err.^2));
+%     stdx = stdx_scaled * sqrt(1/mse);
+	
 %     % Estimate chi2 misfit
 %     dlnbeta_pre = G * params;
 %     e = (dlnbeta - dlnbeta_pre) ./ dlnbeta_err;
