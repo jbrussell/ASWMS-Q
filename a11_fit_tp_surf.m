@@ -158,13 +158,24 @@ for ie = 1:length(eventfiles)
             tp_ang = 90 - atan2d(tp_gradlat,tp_gradlon);
             tp_gradlat = tp_gradlat';
             tp_gradlon = tp_gradlon';
-            tp_laplat = tp_laplat';
             tp_lap = tp_lap';
             tp_ang = tp_ang';
+            
+            tp_grad_err = eventphv(ip).dtau_err';
+            tp_gradlat_err = eventphv(ip).dtaux_err';
+            tp_gradlon_err = eventphv(ip).dtauy_err';
+            tp_lap_err = ( (tp_laplat'.*tp_gradlat_err).^2 + (tp_laplon'.*tp_gradlon_err).^2 ).^0.5; % propagate errors to Laplacian
+            phv_err = eventphv(ip).phv_err';
         else
             tp_lap=del2m(mesh_xi,mesh_yi,tpmap);
             [tp_grad,tp_gradlat,tp_gradlon]=delm(mesh_xi,mesh_yi,tpmap);
-            tp_ang = 90 - atan2d(tp_gradlat,tp_gradlon);            
+            tp_ang = 90 - atan2d(tp_gradlat,tp_gradlon);     
+            
+            tp_grad_err = nan(size(tp_grad));
+            tp_gradlat_err = nan(size(tp_grad));
+            tp_gradlon_err = nan(size(tp_grad));
+            tp_lap_err = nan(size(tp_grad));
+            phv_err = nan(size(tp_grad));
         end
         
 		% prepare the avg phase velocity and event phase velocity
@@ -186,6 +197,7 @@ for ie = 1:length(eventfiles)
 		traveltime(ip).yi = yi;
 		traveltime(ip).GV_cor = helmholtz(ip).GV_cor;
 		traveltime(ip).GV = eventGV;
+        traveltime(ip).phv_err = phv_err;
 		traveltime(ip).tpmap = tpmap';
         traveltime(ip).tp_lap = tp_lap';
         traveltime(ip).tp_grad = tp_grad';
@@ -193,6 +205,10 @@ for ie = 1:length(eventfiles)
         traveltime(ip).tp_gradlon = tp_gradlon';
         traveltime(ip).tp_ang = tp_ang';
         traveltime(ip).tp = tp;
+        traveltime(ip).tp_grad_err = tp_grad_err';
+        traveltime(ip).tp_gradlat_err = tp_gradlat_err';
+        traveltime(ip).tp_gradlon_err = tp_gradlon_err';
+        traveltime(ip).tp_lap_err = tp_lap_err';
 		traveltime(ip).period = periods(ip);
 % 		bestalphas(ip,ie) = bestalpha;
 

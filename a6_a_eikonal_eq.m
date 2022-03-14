@@ -245,15 +245,16 @@ for ie = 1:length(csmatfiles)
         while niter < 2
             niter=niter+1;
             err = mat*phaseg - dt;
-			err = W*err;
-            %            err = W*err;
-            stderr=std(err);
+			err(diag(W)==0) = 0;
+            stderr=std(err(err~=0));
             if stderr > dterrtol
                 stderr = dterrtol;
             end
             for i=1:length(err)
                 if abs(err(i)) > inverse_err_tol*stderr
                     W(i,i)=0;
+				else
+                    W(i,i)=1./stderr;
                 end
             end
             ind = find(diag(W)==0);
@@ -294,6 +295,34 @@ for ie = 1:length(csmatfiles)
         
         % Estimate travel-time residuals
         dt_res = dt - mat*phaseg;
+        
+        % Calculate model resolution and chi2
+        Ginv = (A'*A)\mat';
+        R = Ginv * mat; % model resolution
+        D = mat * Ginv; % data resolution
+        % Effective degrees of freedom
+        v = length(dt) - trace(D);
+%         v = trace(D);
+        % normalized chi2 uncertainties
+        res = (dt-mat*phaseg);
+        res(diag(W)==0) = nan;
+        rms_res = sqrt(nanmean(res.^2));
+        dt_std = rms_res;
+        chi2 = nansum(res.^2./dt_std.^2)/v;
+
+        % Calculate model uncertainties
+        slo_std = diag(inv(A'*A)).^(1/2);
+        % convert from dslow to dv
+        phv_std = phaseg.^(-2) .* slo_std; 
+        for i=1:Nx
+			for j=1:Ny
+				n=Ny*(i-1)+j;
+				dtaux_err(i,j)= slo_std(2*n-1);
+				dtauy_err(i,j)= slo_std(2*n);
+                phvx_err(i,j)= phv_std(2*n-1);
+				phvy_err(i,j)= phv_std(2*n);
+			end
+        end
 
         % Calculate the kernel density
         %sumG=sum(abs(mat),1);
@@ -332,8 +361,17 @@ for ie = 1:length(csmatfiles)
 		end
 		GV=(GVx.^2+GVy.^2).^-.5;
 		% Get rid of uncertain area
+        phvx_err(isnan(GV)) = nan;
+        phvy_err(isnan(GV)) = nan;
+        dtaux_err(isnan(GV)) = nan;
+        dtaux_err(isnan(GV)) = nan;
+        
 		% Forward calculate phase velocity
         phv_fwd = ddist./(mat*phaseg(1:Nx*Ny*2));
+        
+        % Propagate errors
+        dtau_err = (((GVx.*dtaux_err).^2 + (GVy.*dtauy_err).^2)).^0.5 ./ (GVx.^2+GVy.^2).^0.5;
+        phv_err = GV.^2 .* dtau_err;
 
 		% save the result in the structure
 		eventphv(ip).rays = rays;
@@ -342,9 +380,16 @@ for ie = 1:length(csmatfiles)
 		eventphv(ip).badnum = length(find(eventphv(ip).w==0));
 		eventphv(ip).dt = dt;
         eventphv(ip).dt_res = dt_res; % data residuals
+        eventphv(ip).chi2 = chi2; % chi2 misfit
 		eventphv(ip).GV = GV;
 		eventphv(ip).GVx = GVx;
 		eventphv(ip).GVy = GVy;
+        eventphv(ip).phv_err = phv_err;
+        eventphv(ip).phvx_err = phvx_err;
+        eventphv(ip).phvy_err = phvy_err;
+        eventphv(ip).dtau_err = dtau_err;
+        eventphv(ip).dtaux_err = dtaux_err;
+        eventphv(ip).dtauy_err = dtauy_err;
 		eventphv(ip).phv_fwd = phv_fwd;
 		eventphv(ip).raydense = raydense;
 		eventphv(ip).lalim = lalim;

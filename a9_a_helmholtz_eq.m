@@ -15,6 +15,10 @@ is_receiver_terms = parameters.is_receiver_terms; % Correct amplitudes using rec
 is_eikonal_ampgrad = parameters.is_eikonal_ampgrad; % 1: use eikonal tomography values for amplitude gradient; 0: use amplitude field estimates
 is_eikonal_ampgrad_norm = parameters.is_eikonal_ampgrad_norm;
 
+% Damping and smoothing parameters for gradient map inversion (only used if is_eikonal_ampgrad = 1)
+dampweight0 = 0.1; % damping weight towards reference amplitude (as fraction of G matrix norm)
+smweight0 = 0.1; % smoothing weight (as fraction of G matrix norm)
+
 r = 0.05;
 
 % input path and files
@@ -172,8 +176,70 @@ for ie = 1:length(eventfiles)
         if length(amps(~isnan(amps)))<min_sta_num
             ampmap = nan(size(xi'));
         else
-            [ampmap,mesh_xi,mesh_yi]=gridfit_jg(stlas,stlos,amps,xnode,ynode,...
-                                'smooth',2,'regularizer','del4','solver','normal');
+            if is_eikonal_ampgrad == 1 && ~isempty(ampgrad(ip).dAmpx(~isnan(ampgrad(ip).dAmpx))) && ~isempty(ampgrad(ip).dAmpy(~isnan(ampgrad(ip).dAmpy)))
+                % Use amplitude gradient maps from inversion to solve for
+                % maps of amplitude. The inversion includes damping towards 
+                % the reference amplitude map and enforcing second derivative smoothing)
+                [ampmap_ref,mesh_xi,mesh_yi]=gridfit_jg(stlas,stlos,amps,xnode,ynode,...
+                                    'smooth',2,'regularizer','del4','solver','normal');
+                amp_gradlat = -ampgrad(ip).dAmpx;
+                amp_gradlon = -ampgrad(ip).dAmpy;
+                [ampmap] = inv_delm(xi,yi,amp_gradlat,amp_gradlon,ampmap_ref',dampweight0,smweight0);
+                ampmap(isnan(amp_gradlat)) = nan;
+                ampmap_ref(isnan(amp_gradlat')) = nan;
+                % add mean back in such that average of amplitude map equals average of station amplitudes
+%                 ampmap = ampmap + nanmean(amps);
+                ampmap = ampmap';
+                mesh_xi = xi';
+                mesh_yi = yi';
+                
+%                 figure(1000); clf
+%                 subplot(1,2,1);
+%                 worldmap([min(xi(:)) max(xi(:))], [min(yi(:)) max(yi(:))]);
+%                 surfacem(xi,yi,ampmap'); colorbar;
+%                 caxis([min(ampmap(:)) max(ampmap(:))]);
+%                 title('Inversion for A')
+%                 subplot(1,2,2);
+%                 worldmap([min(xi(:)) max(xi(:))], [min(yi(:)) max(yi(:))]);
+%                 surfacem(mesh_xi,mesh_yi,ampmap_ref); colorbar;
+%                 caxis([min(ampmap(:)) max(ampmap(:))]);
+%                 title('Surface fit for A');
+%                 pause;
+
+%                 figure(1001); clf
+%                 subplot(2,3,1);
+%                 worldmap([min(xi(:)) max(xi(:))], [min(yi(:)) max(yi(:))]);
+%                 surfacem(xi,yi,-ampgrad(ip).dAmpx); colorbar;
+%         %         caxis([min(ampmap(:)) max(ampmap(:))]);
+%                 subplot(2,3,2);
+%                 worldmap([min(xi(:)) max(xi(:))], [min(yi(:)) max(yi(:))]);
+%                 surfacem(xi,yi,-ampgrad(ip).dAmpy); colorbar;
+%         %         caxis([min(ampmap(:)) max(ampmap(:))]);
+%                 subplot(2,3,3);
+%                 worldmap([min(xi(:)) max(xi(:))], [min(yi(:)) max(yi(:))]);
+%                 surfacem(xi,yi,ampgrad(ip).dAmp); colorbar;
+%         %         caxis([min(ampmap(:)) max(ampmap(:))]);
+% 
+%                 [amp_grad_test,amp_gradlat_test,amp_gradlon_test]=delm(mesh_xi,mesh_yi,ampmap);
+% %                 amp_gradlat_test(amp_gradlat_test==0)=nan;
+% %                 amp_gradlon_test(amp_gradlon_test==0)=nan;
+%                 subplot(2,3,4);
+%                 worldmap([min(xi(:)) max(xi(:))], [min(yi(:)) max(yi(:))]);
+%                 surfacem(mesh_xi,mesh_yi,amp_gradlat_test); colorbar;
+%         %         caxis([min(ampmap(:)) max(ampmap(:))]);
+%                 subplot(2,3,5);
+%                 worldmap([min(xi(:)) max(xi(:))], [min(yi(:)) max(yi(:))]);
+%                 surfacem(mesh_xi,mesh_yi,amp_gradlon_test); colorbar;
+%         %         caxis([min(ampmap(:)) max(ampmap(:))]);
+%                 subplot(2,3,6);
+%                 worldmap([min(xi(:)) max(xi(:))], [min(yi(:)) max(yi(:))]);
+%                 surfacem(mesh_xi,mesh_yi,amp_grad_test); colorbar;
+%         %         caxis([min(ampmap(:)) max(ampmap(:))]);
+%                 pause;
+            else
+                [ampmap,mesh_xi,mesh_yi]=gridfit_jg(stlas,stlos,amps,xnode,ynode,...
+                                    'smooth',2,'regularizer','del4','solver','normal');
+            end
         end
 
 		%% Calculate the correction term
@@ -189,15 +255,32 @@ for ie = 1:length(eventfiles)
             amp_gradlat = amp_gradlat';
             amp_gradlon = amp_gradlon';
             
+            amp_grad_err = ampgrad(ip).dAmp_err';
+            amp_gradlat_err = ampgrad(ip).dAmpx_err';
+            amp_gradlon_err = ampgrad(ip).dAmpy_err';
+            amp_lap_err = ( (amp_laplat'.*amp_gradlat_err).^2 + (amp_laplon'.*amp_gradlon_err).^2 ).^0.5; % propagate errors to Laplacian
         else
             [amp_grad,amp_gradlat,amp_gradlon]=delm(mesh_xi,mesh_yi,ampmap);
             dAmp=del2m(mesh_xi,mesh_yi,ampmap);
+            
+            amp_grad_err = nan(size(amp_grad));
+            amp_gradlat_err = nan(size(amp_grad));
+            amp_gradlon_err = nan(size(amp_grad));
+            amp_lap_err = nan(size(amp_grad));
         end
         
         if is_eikonal_ampgrad_norm
             amp_grad_ampnorm = ampgrad_norm(ip).dAmp_A';
             amp_gradlat_ampnorm = -ampgrad_norm(ip).dAmpx_A';
             amp_gradlon_ampnorm = -ampgrad_norm(ip).dAmpy_A';
+            
+            amp_grad_ampnorm_err = ampgrad_norm(ip).dAmp_A_err';
+            amp_gradlat_ampnorm_err = ampgrad_norm(ip).dAmpx_A_err';
+            amp_gradlon_ampnorm_err = ampgrad_norm(ip).dAmpy_A_err';
+        else
+            amp_grad_ampnorm_err = nan(size(amp_grad_ampnorm));
+            amp_gradlat_ampnorm_err = nan(size(amp_grad_ampnorm));
+            amp_gradlon_ampnorm_err = nan(size(amp_grad_ampnorm));
         end
 %         dAmp_test = del2m(mesh_xi,mesh_yi,ampmap);
 %         inan = isnan(dAmp);
@@ -268,6 +351,10 @@ for ie = 1:length(eventfiles)
         helmholtz(ip).amp_gradlat = amp_gradlat';
         helmholtz(ip).amp_gradlon = amp_gradlon';
         helmholtz(ip).amp_lap = dAmp';
+        helmholtz(ip).amp_grad_err = amp_grad_err';
+        helmholtz(ip).amp_gradlat_err = amp_gradlat_err';
+        helmholtz(ip).amp_gradlon_err = amp_gradlon_err';
+        helmholtz(ip).amp_lap_err = amp_lap_err';
 		helmholtz(ip).period = periods(ip);
         helmholtz(ip).stainfo.stlas = stlas;
         helmholtz(ip).stainfo.stlos = stlos;
@@ -278,6 +365,9 @@ for ie = 1:length(eventfiles)
             helmholtz(ip).amp_gradlat_ampnorm = amp_gradlat_ampnorm';
             helmholtz(ip).amp_gradlon_ampnorm = amp_gradlon_ampnorm';
         end
+        helmholtz(ip).amp_grad_ampnorm_err = amp_grad_ampnorm_err';
+        helmholtz(ip).amp_gradlat_ampnorm_err = amp_gradlat_ampnorm_err';
+        helmholtz(ip).amp_gradlon_ampnorm_err = amp_gradlon_ampnorm_err';
 
 		% plot to check
 		if isfigure

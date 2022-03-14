@@ -281,18 +281,19 @@ for ie = 1:length(csmatfiles)
 			disp(['Bad Measurement Number: ', num2str(length(ind))]);
 		end
         niter=1;
-        while niter < 2
+		while niter < 2
             niter=niter+1;
             err = mat*phaseg - dt;
-			err = W*err;
-            %            err = W*err;
-            stderr=std(err);
+			err(diag(W)==0) = 0;
+            stderr=std(err(err~=0));
             if stderr > dterrtol
                 stderr = dterrtol;
             end
             for i=1:length(err)
                 if abs(err(i)) > inverse_err_tol*stderr
                     W(i,i)=0;
+				else
+					W(i,i)=1./stderr;
                 end
             end
             ind = find(diag(W)==0);
@@ -334,6 +335,30 @@ for ie = 1:length(csmatfiles)
 		% Estimate differential amplitude residuals
         dA_res = dt - mat*phaseg;
 		
+		% Calculate model resolution and chi2
+        Ginv = (A'*A)\mat';
+        R = Ginv * mat; % model resolution
+        D = mat * Ginv; % data resolution
+        % Effective degrees of freedom
+        v = length(dt) - trace(D);
+%         v = trace(D);
+        % normalized chi2 uncertainties
+        res = (dt-mat*phaseg);
+        res(diag(W)==0) = nan;
+        rms_res = sqrt(nanmean(res.^2));
+        dt_std = rms_res;
+        chi2 = nansum(res.^2./dt_std.^2)/v;
+
+        % Calculate model uncertainties
+        dAmp_std = diag(inv(A'*A)).^(1/2);
+        for i=1:Nx
+			for j=1:Ny
+				n=Ny*(i-1)+j;
+				dAmpx_err(i,j)= dAmp_std(2*n-1);
+				dAmpy_err(i,j)= dAmp_std(2*n);
+			end
+        end
+		
         % Calculate the kernel density
         %sumG=sum(abs(mat),1);
         ind=1:Nx*Ny;
@@ -371,6 +396,11 @@ for ie = 1:length(csmatfiles)
 		end
 		dAmp=(dAmpx.^2+dAmpy.^2).^.5;
 		% Get rid of uncertain area
+		dAmpx_err(isnan(dAmp)) = nan;
+        dAmpy_err(isnan(dAmp)) = nan;
+        
+        % Propagate errors
+        dAmp_err = (((dAmpx.*dAmpx_err).^2 + (dAmpy.*dAmpy_err).^2)).^0.5 ./ (dAmpx.^2+dAmpy.^2).^0.5; % propagate errors dAmp magnitude
 
 		% save the result in the structure
 		ampgrad_norm(ip).rays = rays;
@@ -379,9 +409,13 @@ for ie = 1:length(csmatfiles)
 		ampgrad_norm(ip).badnum = length(find(w==0));
 		ampgrad_norm(ip).dt = dt;
 		ampgrad_norm(ip).dA_res = dA_res; % data residuals
+		ampgrad_norm(ip).chi2 = chi2; % chi2 misfit
 		ampgrad_norm(ip).dAmp_A = dAmp;
 		ampgrad_norm(ip).dAmpx_A = dAmpx;
 		ampgrad_norm(ip).dAmpy_A = dAmpy;
+		ampgrad_norm(ip).dAmp_A_err = dAmp_err;
+		ampgrad_norm(ip).dAmpx_A_err = dAmpx_err;
+		ampgrad_norm(ip).dAmpy_A_err = dAmpy_err;
 		ampgrad_norm(ip).raydense = raydense;
 		ampgrad_norm(ip).lalim = lalim;
 		ampgrad_norm(ip).lolim = lolim;
