@@ -98,7 +98,7 @@ dlnbeta_err = [dlnbetaLat_err; dlnbetaLon_err];
 % dlnbeta = [dlnbetaLat; dlnbetaLon; dconstraint];
 
 % remove nan values;
-inan = find(isnan(dlnbeta));
+inan = find(isnan(dlnbeta) | isnan(dlnbeta_err));
 % igood = find(~isnan(dlnbeta));
 G(inan,:) = [];
 dlnbeta(inan,:) = [];
