@@ -356,15 +356,18 @@ for ip = 1:length(periods)
 % 			err = W*err;
         err = isgood_mat*err;
 %             err = W*err;
-        stderr=std(err);
+        % stderr=std(err);
+        stderr=std(err(err~=0));
         if stderr > dterrtol
             stderr = dterrtol;
         end
         for i=1:length(err)
-            if abs(err(i)) > inverse_err_tol*stderr
+            if abs(err(i)) > inverse_err_tol*stderr  || abs(err(i))==0
                 W(i,i)=0;
+            else
+                W(i,i)=1./stderr;
             end
-        end
+        end        
         ind = find(diag(W)==0);
         if isdisp
             disp('After:')
