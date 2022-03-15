@@ -216,7 +216,8 @@ for ip = 1:length(avgphv)
         % smooth the terms
         for ii=1
             if isempty(find(~isnan(amp_decay))) || isempty(find(~isnan(tp_focus))) ...
-               || length(find(~isnan(amp_decay)))<5 || length(find(~isnan(tp_focus)))<5
+               || length(find(~isnan(amp_decay)))<5 || length(find(~isnan(tp_focus)))<5...
+			   || length(find(~isnan(amp_decay_err)))<5 || length(find(~isnan(tp_focus_err)))<5
                 continue
             end
             smD=max([300 periods(ip).*parameters.refv]);
