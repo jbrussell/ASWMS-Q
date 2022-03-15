@@ -297,7 +297,14 @@ for ie = 1:length(csmatfiles)
 	    rhs=[W*dt;zeros(size(F,1),1);zeros(size(F2,1),1);zeros(size(dumpmatT,1),1);dumpweightR*ones(size(dumpmatR,1),1)./avgv];
 	    
 		% Least square inversion
-	    phaseg=(A'*A)\(A'*rhs);
+		if isempty(W(W~=0)) || ~isempty(W(isnan(W)))
+            % Skip if no good data or if W is nan
+            disp('No good data or NaNs in W matrix, skipping...');
+            phaseg = nan(size(A,2),1);
+            A = eye(size(A));
+        else
+            phaseg=(A'*A)\(A'*rhs);
+        end
 	        
 	    % Iteratively down weight the measurement with high error
 		niter=0;
@@ -356,7 +363,14 @@ for ie = 1:length(csmatfiles)
 	            A=[W*mat;smweight*F;flweight*F2;dumpweightT*dumpmatT;dumpweightR*dumpmatR];
 	        end
 	        rhs=[W*dt;zeros(size(F,1),1);zeros(size(F2,1),1);zeros(size(dumpmatT,1),1);dumpweightR*ones(size(dumpmatR,1),1)./avgv];
-	        phaseg=(A'*A)\(A'*rhs);
+			if isempty(W(W~=0)) || ~isempty(W(isnan(W)))
+	            % Skip if no good data or if W is nan
+	            disp('No good data or NaNs in W matrix, skipping...');
+	            phaseg = nan(size(A,2),1);
+	            A = eye(size(A));
+	        else
+	            phaseg=(A'*A)\(A'*rhs);
+	        end
 	    end	
 
 		% Estimate differential amplitude residuals
