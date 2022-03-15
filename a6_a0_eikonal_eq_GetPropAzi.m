@@ -243,7 +243,7 @@ for ie = 1:length(csmatfiles)
                 stderr = dterrtol;
             end
             for i=1:length(err)
-                if abs(err(i)) > inverse_err_tol*stderr
+                if abs(err(i)) > inverse_err_tol*stderr  || abs(err(i))==0
                     W(i,i)=0;
                 end
             end
