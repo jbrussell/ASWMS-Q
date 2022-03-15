@@ -257,6 +257,14 @@ for ip = 1:length(avgphv)
             ampgradR_ampnorm_dot_tpgrad(:,:,evcnt) = (amp_gradR_map(:,:,evcnt) ./ amp) .* tp_grad;
         end
     end
+	
+	% Do initial (unweighted) fitting and remove outliers
+	[~, alpha, dlnbeta_dx, dlnbeta_dy]=fit_alpha_beta(azi(:),amp_term(:));
+	pre = dlnbeta_dx*sind(azi) + dlnbeta_dy*cosd(azi) - alpha;
+	res = amp_term(:) - pre(:);
+	stdres = nanstd(res);
+	ibad = find(abs(res) > 2*stdres);
+	amp_term(ibad) = nan;
 
 %     % Select central grid points
 %     nanmat = nan(length(xnode),length(ynode),evcnt);

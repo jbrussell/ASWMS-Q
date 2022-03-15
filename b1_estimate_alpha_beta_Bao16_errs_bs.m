@@ -280,11 +280,19 @@ for ip = 1:length(avgphv)
         end
     end
     
-    % Ensure that no individual events or pixels dominate the weighting scheme
-    cutoff = prctile(amp_term_err(:),5);
-    amp_term_err_test = amp_term_err;
-    amp_term_err_test(amp_term_err_test<cutoff) = cutoff;
-    amp_term_err(isnan(amp_term_err)) = inf;
+	% Ensure that no individual events or pixels dominate the weighting scheme
+	cutoff = prctile(amp_term_err(:),5);
+	amp_term_err(amp_term_err<cutoff) = cutoff;
+	amp_term_err(isnan(amp_term_err)) = inf;
+
+	% Do initial (unweighted) fitting and remove outliers
+	[~, alpha, dlnbeta_dx, dlnbeta_dy]=fit_alpha_beta(azi(:),amp_term(:));
+	pre = dlnbeta_dx*sind(azi) + dlnbeta_dy*cosd(azi) - alpha;
+	res = amp_term(:) - pre(:);
+	stdres = nanstd(res);
+	ibad = find(abs(res) > 2*stdres);
+	amp_term_err(ibad) = inf;
+	amp_term(ibad) = nan;
 
 %     % Select central grid points
 %     nanmat = nan(length(xnode),length(ynode),evcnt);
