@@ -154,10 +154,10 @@ for ie = 1:length(csmatfiles)
 	        phase_lat = -aziprop.eventphv(ip).GVx; % phase slowness in x-direction
 	        phase_lon = -aziprop.eventphv(ip).GVy; % phase slowness in y-direction
 	        razi = 90 - atan2d(phase_lat,phase_lon);
-	        azimat_ev = azimuth(xi+gridsize/2,yi+gridsize/2,evla,evlo)+180;
+	        azimat_ev = azimuth(xi+gridsize/2,yi+gridsize/2,evla,evlo,referenceEllipsoid('GRS80'))+180;
 	        razi(isnan(razi)) = azimat_ev(isnan(razi));
 	    else
-	        razi = azimuth(xi+gridsize/2,yi+gridsize/2,evla,evlo)+180;
+	        razi = azimuth(xi+gridsize/2,yi+gridsize/2,evla,evlo,referenceEllipsoid('GRS80'))+180;
 	    end
 	    R = sparse(2*Nx*Ny,2*Nx*Ny);
 	    for i=1:Nx

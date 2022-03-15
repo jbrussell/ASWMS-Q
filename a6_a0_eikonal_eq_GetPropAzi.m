@@ -120,7 +120,7 @@ for ie = 1:length(csmatfiles)
 	end
 
 	% Build the rotation matrix
-	razi = azimuth(xi+gridsize/2,yi+gridsize/2,evla,evlo)+180;
+	razi = azimuth(xi+gridsize/2,yi+gridsize/2,evla,evlo,referenceEllipsoid('GRS80'))+180;
 	R = sparse(2*Nx*Ny,2*Nx*Ny);
 	for i=1:Nx
 		for j=1:Ny
