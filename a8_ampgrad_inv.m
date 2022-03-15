@@ -268,7 +268,7 @@ for ie = 1:length(csmatfiles)
 	    rhs=[W*dt;zeros(size(F,1),1);zeros(size(F2,1),1);zeros(size(dumpmatT,1),1);dumpweightR*ones(size(dumpmatR,1),1)./avgv];
 	    
 		% Least square inversion
-		if isempty(W(W~=0)) || ~isempty(W(isnan(W)))
+		if isempty(W(W~=0)) || ~isempty(W(isnan(W))) || ~isempty(W(isinf(W)))
             % Skip if no good data or if W is nan
             disp('No good data or NaNs in W matrix, skipping...');
             phaseg = nan(size(A,2),1);
@@ -334,7 +334,7 @@ for ie = 1:length(csmatfiles)
 	            A=[W*mat;smweight*F;flweight*F2;dumpweightT*dumpmatT;dumpweightR*dumpmatR];
 	        end
 	        rhs=[W*dt;zeros(size(F,1),1);zeros(size(F2,1),1);zeros(size(dumpmatT,1),1);dumpweightR*ones(size(dumpmatR,1),1)./avgv];
-				if isempty(W(W~=0)) || ~isempty(W(isnan(W)))
+				if isempty(W(W~=0)) || ~isempty(W(isnan(W))) || ~isempty(W(isinf(W)))
 	            % Skip if no good data or if W is nan
 	            disp('No good data or NaNs in W matrix, skipping...');
 	            phaseg = nan(size(A,2),1);
