@@ -145,6 +145,7 @@ parameters.min_nbin = 10; % minimum number of measurements in order to include b
 parameters.N_min_evts = 10; % minimum number of events contributing to grid cell required in order to be considered
 parameters.smsize_alpha = 3; % number of nearby gridcells to gather data from
 parameters.smweight_beta = 0.3; % Second derivative smoothing weight for beta map
+parameters.smooth_rad_deg = 3; % [deg] smoothing radius of 2d alpha map
 
 %%
 if length(parameters.periods)~=length(parameters.smweight_array) || length(parameters.periods)~=length(parameters.min_csgoodratio)
