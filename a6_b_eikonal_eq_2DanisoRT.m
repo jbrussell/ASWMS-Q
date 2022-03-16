@@ -193,16 +193,16 @@ for ip = 1:length(periods)
 		% Build the rotation matrix
 		razi = azimuth(xi+gridsize/2,yi+gridsize/2,evla,evlo,referenceEllipsoid('GRS80'))+180;
 		R = sparse(Nxy+Nxyazi,Nxy+Nxyazi);
-		for i=1:Nx
-			for j=1:Ny
-				n=Ny*(i-1)+j;
-				theta = razi(i,j);
-				R(2*n-1,2*n-1) = cosd(theta);
-				R(2*n-1,2*n) = sind(theta);
-				R(2*n,2*n-1) = -sind(theta);
-				R(2*n,2*n) = cosd(theta);
-			end
-		end
+		% for i=1:Nx
+		% 	for j=1:Ny
+		% 		n=Ny*(i-1)+j;
+		% 		theta = razi(i,j);
+		% 		R(2*n-1,2*n-1) = cosd(theta);
+		% 		R(2*n-1,2*n) = sind(theta);
+		% 		R(2*n,2*n-1) = -sind(theta);
+		% 		R(2*n,2*n) = cosd(theta);
+		% 	end
+		% end
 
 		% Calculate the relative travel time compare to one reference station
 % 		travel_time = Cal_Relative_dtp(eventcs);
