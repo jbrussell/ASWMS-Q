@@ -534,6 +534,55 @@ for ie = 1:length(eventfiles)
             caxis(clim{ip});
             colormap(seiscmap)
         end
+        
+        figure(41);
+        for ip = 1:length(eventphv)
+            nanind = find(isnan(helmholtz(ip).GV(:)));
+            ampmap = helmholtz(ip).ampmap;
+			ampmap(nanind) = NaN;
+            if ip == 1
+                clf;
+                set(gcf,'Position',[84           3         744        1022]);
+                sgtitle([eventphv(ip).id,' M',num2str(eventphv(ip).Mw)],'fontweight','bold','fontsize',18)
+
+                axes('Position',[.4 .005 .35*.6 .4*.6])
+                landareas = shaperead('landareas.shp','UseGeoCoords',true);
+                ax = axesm('eqdazim', 'Frame', 'on', 'Grid', 'off');
+                ax.XAxis.Visible = 'off';
+                ax.YAxis.Visible = 'off';
+                box off;
+                % setm(ax,'Origin',[mean(lalim),mean(lolim)])
+                setm(ax,'Origin',[mean(lalim),mean(lolim)],'FLatLimit',[-125 125]+mean(lalim),'FLonLimit',[],'MapLonLimit',[-125 125]+mean(lolim))
+                geoshow(ax, landareas,'FaceColor',[0.8 0.8 0.8],'EdgeColor','none'); hold on;
+                for ii = [30 60 90 120]
+                    [latc,longc] = scircle1(mean(lalim),mean(lolim),ii);
+                    plotm(latc,longc,'-','color',[0.6 0.6 0.6],'linewidth',1)
+                end
+                [la_gcev,lo_gcev]=track2('gc',eventphv(ip).evla,eventphv(ip).evlo,mean(lalim),mean(lolim));
+                plotm(la_gcev,lo_gcev,'-k','linewidth',2);
+                plotm(mean(lalim),mean(lolim),'p','color',[0 0.2 0.4],'MarkerFaceColor',[0 0.5 1],'MarkerSize',24,'linewidth',1);
+                plotm(eventphv(ip).evla,eventphv(ip).evlo,'o','color',[0.4 0 0],'MarkerFaceColor',[0.85 0 0],'MarkerSize',10,'linewidth',1);
+            end
+            la_gc = [];
+            lo_gc = [];
+            for ista = 1:length(helmholtz(ip).stainfo.stlas)
+                [la,lo]=track2('gc',eventphv(ip).evla,eventphv(ip).evlo,helmholtz(ip).stainfo.stlas(ista),helmholtz(ip).stainfo.stlos(ista));
+                la_gc = [la_gc; la; nan];
+                lo_gc = [lo_gc; lo; nan];
+            end
+            N=3; M = floor(length(periods)/N)+1;
+            subplot(M,N,ip)
+            ax = worldmap(lalim, lolim);
+            surfacem(xi,yi,ampmap);
+            if ~isempty(helmholtz(ip).stainfo.stlas)
+                plotm(la_gc,lo_gc,'-k');
+            end
+            quiverm(xi,yi,helmholtz(ip).amp_gradlat,helmholtz(ip).amp_gradlon,'-k')
+            title([num2str(periods(ip)),' s'],'fontsize',15)
+            cb = colorbar;
+            clim = cb.Limits;
+            colormap(seiscmap)
+        end
     end
     
 	matfilename = fullfile(helmholtz_path,[eventphv(1).id,'_helmholtz_',parameters.component,'.mat']);
@@ -547,5 +596,52 @@ for ie = 1:length(eventfiles)
         end
         save2pdf([figdir,eventphv(1).id,'_helmholtz_',parameters.component,'.pdf'],39,100);
         save2pdf([figdir,eventphv(1).id,'_helmholtz_',parameters.component,'_StaAmps.pdf'],40,100);
+        save2pdf([figdir,eventphv(1).id,'_helmholtz_',parameters.component,'_AmpGrad.pdf'],41,100);
     end
 end  % loop of events
+
+%% Plot laplacian of amplitude with distance
+% eventfiles = dir([helmholtz_path,'/*_helmholtz_',parameters.component,'.mat']);
+% for ip = 1:length(periods)
+%     mat(ip).dist_all = [];
+%     mat(ip).amp_corr_all = [];
+%     mat(ip).azi_all = [];
+% end
+% for ie = 1:length(eventfiles)
+%     % read in data for this event
+%     clear helmholtz
+%     helmholtzfile = [helmholtz_path,'/',eventfiles(ie).name];
+%     temp = load(helmholtzfile);
+%     helmholtz = temp.helmholtz;
+% 
+%     for ip = 1:length(periods)
+%         azi = azimuth(helmholtz(ip).evla,helmholtz(ip).evlo,xi,yi);
+%         D = km2deg(distance(helmholtz(ip).evla,helmholtz(ip).evlo,xi,yi,referenceEllipsoid('GRS80'))/1000);
+%         mat(ip).dist_all = [mat(ip).dist_all; D(:)];
+%         mat(ip).amp_corr_all = [mat(ip).amp_corr_all; helmholtz(ip).amp_lap(:)./helmholtz(ip).ampmap(:)./(2*pi/periods(ip)).^2];
+%         mat(ip).azi_all = [mat(ip).azi_all; azi(:)];
+%     end
+% end
+% figure(999); clf;
+% for ip = 1:length(periods)
+%     subplot(4,3,ip);
+%     plot(mat(ip).dist_all(:),mat(ip).amp_corr_all(:),'.b'); hold on;
+% 
+%     x = linspace(min(mat(ip).dist_all(:)),max(mat(ip).dist_all(:)),100);
+%     R = 6371;
+% %     pre = -cosd(x)./(R*sind(x).^(5/2))*1e-4 ./(2*pi/periods(ip)).^2;
+%     pre = -(2-cosd(x).^2) ./ (4*(R*sind(x)).^2) ./(2*pi/periods(ip)).^2;
+%     plot(x,pre,'-r','linewidth',2);
+%     sgtitle('$\nabla^2 A / (\omega^2 A)$','interpreter','latex','fontsize',20);
+%     xlabel('Distance (deg)');
+%     set(gca,'fontsize',15)
+% %     plot(x,pre2,'--c');
+% end
+% 
+% figure(1000); clf;
+% for ip = 1:length(periods)
+%     mat(ip).azi_all(mat(ip).azi_all<0) = mat(ip).azi_all(mat(ip).azi_all<0) + 360;
+%     mat(ip).azi_all(mat(ip).azi_all>360) = mat(ip).azi_all(mat(ip).azi_all>360) - 360;
+%     subplot(4,3,ip);
+%     plot(mat(ip).azi_all(:),mat(ip).amp_corr_all(:),'.b');
+% end
