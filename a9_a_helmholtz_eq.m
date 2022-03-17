@@ -278,9 +278,9 @@ for ie = 1:length(eventfiles)
             amp_gradlat_ampnorm_err = ampgrad_norm(ip).dAmpx_A_err';
             amp_gradlon_ampnorm_err = ampgrad_norm(ip).dAmpy_A_err';
         else
-            amp_grad_ampnorm_err = nan(size(amp_grad_ampnorm));
-            amp_gradlat_ampnorm_err = nan(size(amp_grad_ampnorm));
-            amp_gradlon_ampnorm_err = nan(size(amp_grad_ampnorm));
+            amp_grad_ampnorm_err = nan(size(amp_grad));
+            amp_gradlat_ampnorm_err = nan(size(amp_grad));
+            amp_gradlon_ampnorm_err = nan(size(amp_grad));
         end
 %         dAmp_test = del2m(mesh_xi,mesh_yi,ampmap);
 %         inan = isnan(dAmp);
