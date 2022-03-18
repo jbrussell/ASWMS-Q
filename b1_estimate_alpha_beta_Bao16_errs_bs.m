@@ -1,5 +1,8 @@
 % Estimate travel time surface and gradient as well as amplitude gradient
 % for use in eq (4) of Bao et al. (2016) GJI
+%
+% This version determines uncertainties via bootstrapping
+%
 % github.com/jbrussell
 % 2021-06
 
@@ -362,15 +365,7 @@ for ip = 1:length(avgphv)
     attenuation(ip).azi_maxamp_1d_err = azi_maxamp_err;
     
     % Binned 1-D sinusoidal fit
-    [para, alpha, dlnbeta_dx, dlnbeta_dy]=fit_alpha_beta(azi_bin(:),amp_bin(:));
-    beta_tau = sqrt(dlnbeta_dx.^2+dlnbeta_dy.^2);
-    azi_maxamp = atan2d(dlnbeta_dx,dlnbeta_dy);
-    parastd=confint(para,.95);
-    dlnbeta_dx_err = (parastd(2,1)-parastd(1,1))/2;
-    dlnbeta_dy_err = (parastd(2,2)-parastd(1,2))/2;
-    beta_tau_err = ( (dlnbeta_dx.*dlnbeta_dx_err).^2 + (dlnbeta_dy.*dlnbeta_dy_err).^2 ).^0.5 ./ (dlnbeta_dx.^2+dlnbeta_dy.^2).^0.5;
-    azi_maxamp_err = 180/pi * ( (dlnbeta_dy.*dlnbeta_dx_err).^2 + (dlnbeta_dx.*dlnbeta_dy_err).^2 ).^0.5 ./ ( dlnbeta_dx.^2+dlnbeta_dy.^2 );
-    alpha_err = (parastd(2,3)-parastd(1,3))/2;
+    [alpha, dlnbeta_dx, dlnbeta_dy, beta_tau, azi_maxamp, alpha_err, dlnbeta_dx_err, dlnbeta_dy_err, beta_tau_err, azi_maxamp_err]=run_fit_alpha_beta_bootstrap(azi_bin(:),amp_bin(:),amp_bin_std(:),Nbs);
     attenuation(ip).alpha_1d_bin = alpha;
     attenuation(ip).beta_tau_1d_bin = beta_tau;
     attenuation(ip).azi_maxamp_1d_bin = azi_maxamp;
