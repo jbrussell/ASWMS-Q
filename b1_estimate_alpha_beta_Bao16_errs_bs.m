@@ -525,7 +525,8 @@ alphas_avg_err = [attenuation(:).alpha_1d_avg_err];
 for ip = 1:length(attenuation)
     alphas_2d(ip) = nanmean(attenuation(ip).alpha_2d(:));
 %     alphas_2d_err(ip) = nanmean(attenuation(ip).alpha_2d_err(:));
-    alphas_2d_err(ip) = nanstd(attenuation(ip).alpha_2d(:));
+	% Report which ever is largest, std of map or mean of stds
+    alphas_2d_err(ip) = max([nanstd(attenuation(ip).alpha_2d(:)), nanmean(attenuation(ip).alpha_2d_err(:))]);
 end
 plot(mode.T,alpha_MINEOS,'-','color',[0.7 0.7 0.7],'linewidth',5); hold on;
 errorbar(periods,alphas_bin,alphas_bin_err,'-om'); hold on;
