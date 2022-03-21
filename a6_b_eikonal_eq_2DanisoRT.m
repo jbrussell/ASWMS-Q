@@ -192,7 +192,7 @@ for ip = 1:length(periods)
 
 		% Build the rotation matrix
 		razi = azimuth(xi+gridsize/2,yi+gridsize/2,evla,evlo,referenceEllipsoid('GRS80'))+180;
-		R = sparse(Nxy+Nxyazi,Nxy+Nxyazi);
+		% R = sparse(Nxy+Nxyazi,Nxy+Nxyazi);
 		% for i=1:Nx
 		% 	for j=1:Ny
 		% 		n=Ny*(i-1)+j;
@@ -288,10 +288,10 @@ for ip = 1:length(periods)
     mat = [mat_iso, mat_azi];
 
     % build dumping matrix for ST
-    dumpmatT = R(2:2:2*Nx*Ny,:);
+    % dumpmatT = R(2:2:2*Nx*Ny,:);
 
     % build dumping matrix for SR
-    dumpmatR = R(1:2:2*Nx*Ny-1,:);
+    % dumpmatR = R(1:2:2*Nx*Ny-1,:);
 
 
     % Normalize smoothing kernel
@@ -304,15 +304,15 @@ for ip = 1:length(periods)
     NA=norm(W*mat,1);
     flweight = flweight0*NA/NR;
 
-    % Normalize dumping matrix for ST
-    NR=norm(dumpmatT,1);
-    NA=norm(W*mat,1);
-    dumpweightT = Tdumpweight0*NA/NR;
-
-    % Normalize dumping matrix for SR
-    NR=norm(dumpmatR,1);
-    NA=norm(W*mat,1);
-    dumpweightR = Rdumpweight0*NA/NR;
+    % % Normalize dumping matrix for ST
+    % NR=norm(dumpmatT,1);
+    % NA=norm(W*mat,1);
+    % dumpweightT = Tdumpweight0*NA/NR;
+    % 
+    % % Normalize dumping matrix for SR
+    % NR=norm(dumpmatR,1);
+    % NA=norm(W*mat,1);
+    % dumpweightR = Rdumpweight0*NA/NR;
 
     % Rescale azimuthal anisotropy damping
     NR=norm(F_azi_damp,1);
@@ -330,11 +330,13 @@ for ip = 1:length(periods)
     flweight_azi = flweight0_azi*NA/NR;
 
     % Set up matrix on both side
-    A=[W*mat;smweight*F;flweight*F1;dumpweightT*dumpmatT;dumpweightR*dumpmatR;aziweight0*F_azi_damp; smweight_azi*F_azic; smweight_azi*F_azis; flweight_azi*J_azic; flweight_azi*J_azis];
+    % A=[W*mat;smweight*F;flweight*F1;dumpweightT*dumpmatT;dumpweightR*dumpmatR;aziweight0*F_azi_damp; smweight_azi*F_azic; smweight_azi*F_azis; flweight_azi*J_azic; flweight_azi*J_azis];
+    A=[W*mat;smweight*F;flweight*F1;aziweight0*F_azi_damp; smweight_azi*F_azic; smweight_azi*F_azis; flweight_azi*J_azic; flweight_azi*J_azis];
 
     avgv = eventcs.avgphv(ip);
     % rhs=[W*dt;zeros(size(F,1),1);zeros(size(F1,1),1);zeros(size(dumpmatT,1),1);dumpweightR*ones(size(dumpmatR,1),1)./avgv];
-    rhs=[W*dt;zeros(size(F,1),1);zeros(size(F1,1),1);zeros(size(dumpmatT,1),1);dumpweightR*ones(size(dumpmatR,1),1)./avgv;zeros(size(F_azi_damp,1),1); zeros(size(F_azic,1),1); zeros(size(F_azis,1),1); zeros(size(J_azic,1),1); zeros(size(J_azis,1),1)];
+    % rhs=[W*dt;zeros(size(F,1),1);zeros(size(F1,1),1);zeros(size(dumpmatT,1),1);dumpweightR*ones(size(dumpmatR,1),1)./avgv;zeros(size(F_azi_damp,1),1); zeros(size(F_azic,1),1); zeros(size(F_azis,1),1); zeros(size(J_azic,1),1); zeros(size(J_azis,1),1)];
+    rhs=[W*dt;zeros(size(F,1),1);zeros(size(F1,1),1);zeros(size(F_azi_damp,1),1); zeros(size(F_azic,1),1); zeros(size(F_azis,1),1); zeros(size(J_azic,1),1); zeros(size(J_azis,1),1)];
 
 
     % Least square inversion
@@ -385,15 +387,15 @@ for ip = 1:length(periods)
         NA=norm(W*mat,1);
         flweight = flweight0*NA/NR;
 
-        % rescale dumping matrix for St
-        NR=norm(dumpmatT,1);
-        NA=norm(W*mat,1);
-        dumpweightT = Tdumpweight0*NA/NR;
-
-        % rescale dumping matrix for SR
-        NR=norm(dumpmatR,1);
-        NA=norm(W*mat,1);
-        dumpweightR = Rdumpweight0*NA/NR;
+        % % rescale dumping matrix for St
+        % NR=norm(dumpmatT,1);
+        % NA=norm(W*mat,1);
+        % dumpweightT = Tdumpweight0*NA/NR;
+        % 
+        % % rescale dumping matrix for SR
+        % NR=norm(dumpmatR,1);
+        % NA=norm(W*mat,1);
+        % dumpweightR = Rdumpweight0*NA/NR;
 
         % Rescale azimuthal anisotropy damping
         NR=norm(F_azi_damp,1);
@@ -410,10 +412,11 @@ for ip = 1:length(periods)
         NA=norm(W*mat,1);
         flweight_azi = flweight0_azi*NA/NR;
 
-        A=[W*mat;smweight*F;flweight*F1;dumpweightT*dumpmatT;dumpweightR*dumpmatR;aziweight0*F_azi_damp; smweight_azi*F_azic; smweight_azi*F_azis; flweight_azi*J_azic; flweight_azi*J_azis];
+        % A=[W*mat;smweight*F;flweight*F1;dumpweightT*dumpmatT;dumpweightR*dumpmatR;aziweight0*F_azi_damp; smweight_azi*F_azic; smweight_azi*F_azis; flweight_azi*J_azic; flweight_azi*J_azis];
+        A=[W*mat;smweight*F;flweight*F1;aziweight0*F_azi_damp; smweight_azi*F_azic; smweight_azi*F_azis; flweight_azi*J_azic; flweight_azi*J_azis];
 
         % rhs=[W*dt;zeros(size(F,1),1);zeros(size(F1,1),1);zeros(size(dumpmatT,1),1);dumpweightR*ones(size(dumpmatR,1),1)./avgv];
-        rhs=[W*dt;zeros(size(F,1),1);zeros(size(F1,1),1);zeros(size(dumpmatT,1),1);dumpweightR*ones(size(dumpmatR,1),1)./avgv;zeros(size(F_azi_damp,1),1); zeros(size(F_azic,1),1); zeros(size(F_azis,1),1); zeros(size(J_azic,1),1); zeros(size(J_azis,1),1)];
+        rhs=[W*dt;zeros(size(F,1),1);zeros(size(F1,1),1);zeros(size(F_azi_damp,1),1); zeros(size(F_azic,1),1); zeros(size(F_azis,1),1); zeros(size(J_azic,1),1); zeros(size(J_azis,1),1)];
         phaseg=(A'*A)\(A'*rhs);
     end	
     
