@@ -167,10 +167,17 @@ for ie = 1:length(eventfiles)
             tp_lap_err = ( (tp_laplat'.*tp_gradlat_err).^2 + (tp_laplon'.*tp_gradlon_err).^2 ).^0.5; % propagate errors to Laplacian
             phv_err = eventphv(ip).phv_err';
         else
-            tp_lap=del2m(mesh_xi,mesh_yi,tpmap);
-            [tp_grad,tp_gradlat,tp_gradlon]=delm(mesh_xi,mesh_yi,tpmap);
-            tp_ang = 90 - atan2d(tp_gradlat,tp_gradlon);     
-            
+            tp_lap=del2m(mesh_xi',mesh_yi',tpmap');
+            [tp_grad,tp_gradlat,tp_gradlon]=delm(mesh_xi',mesh_yi',tpmap');
+            tp_ang = 90 - atan2d(tp_gradlat,tp_gradlon);  
+
+            tp_lap = tp_lap';
+            tp_laplat = tp_laplat';
+            tp_laplon = tp_laplon';
+            tp_grad = tp_grad';
+            tp_gradlat = tp_gradlat';
+            tp_gradlon = tp_gradlon';
+            tp_ang = tp_ang';
             tp_grad_err = nan(size(tp_grad));
             tp_gradlat_err = nan(size(tp_grad));
             tp_gradlon_err = nan(size(tp_grad));

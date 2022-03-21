@@ -260,9 +260,15 @@ for ie = 1:length(eventfiles)
             amp_gradlon_err = ampgrad(ip).dAmpy_err';
             amp_lap_err = ( (amp_laplat'.*amp_gradlat_err).^2 + (amp_laplon'.*amp_gradlon_err).^2 ).^0.5; % propagate errors to Laplacian
         else
-            [amp_grad,amp_gradlat,amp_gradlon]=delm(mesh_xi,mesh_yi,ampmap);
-            dAmp=del2m(mesh_xi,mesh_yi,ampmap);
-            
+            [amp_grad,amp_gradlat,amp_gradlon]=delm(mesh_xi',mesh_yi',ampmap');
+            amp_lap=del2m(mesh_xi',mesh_yi',ampmap');
+
+            dAmp = amp_lap';
+            amp_laplat = amp_laplat';
+            amp_laplon = amp_laplon';
+            amp_grad = amp_grad';
+            amp_gradlat = amp_gradlat';
+            amp_gradlon = amp_gradlon';
             amp_grad_err = nan(size(amp_grad));
             amp_gradlat_err = nan(size(amp_grad));
             amp_gradlon_err = nan(size(amp_grad));
