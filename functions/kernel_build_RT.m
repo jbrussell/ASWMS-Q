@@ -52,7 +52,7 @@ for i = 1:nray
 % closest to
 
 [lat_way,lon_way] = gcwaypts(lat1,lon1,lat2,lon2,Nr);
-dr = gc_raydr_km(lat_way,lon_way);
+[dr, azi_ray] = gc_raydr_km(lat_way,lon_way);
 % mid point location of segment
 xv = 0.5*(lat_way(1:Nr)+lat_way(2:Nr+1));
 yv = 0.5*(lon_way(1:Nr)+lon_way(2:Nr+1));
@@ -78,10 +78,12 @@ else % faster way, or so we hope
     % sum binned dr values
     qv = sort(qv);    
     drq = zeros(size(unique(qv)'));
+    azq = zeros(size(unique(qv)'));
     ii = 0;
     for iq = unique(qv)'
         ii = ii+1;
         drq(ii) = sum(dr(qv==iq));
+        azq(ii) = mean(azi_ray(qv==iq));
     end
     % now count of the ray segments in each pixel of the
     % image, and use the count to increment the appropriate
@@ -95,8 +97,8 @@ else % faster way, or so we hope
     end
     % G(i,2*icount-1) = G(i,2*icount-1) + count(icount)*dr*cosd(azi-r_azi(i));
     % G(i,2*icount) = G(i,2*icount) + count(icount)*dr*sind(azi-r_azi(i));
-    G(i,2*icount-1) = G(i,2*icount-1) + drq.*cosd(azi-r_azi(i,icount));
-    G(i,2*icount) = G(i,2*icount) + drq.*sind(azi-r_azi(i,icount));
+    G(i,2*icount-1) = G(i,2*icount-1) + drq.*cosd(azq-r_azi(i,icount));
+    G(i,2*icount) = G(i,2*icount) + drq.*sind(azq-r_azi(i,icount));
 end
 end
 
@@ -104,14 +106,15 @@ end
 return
 
 %%
-    function [dr_ray] = gc_raydr_km(lat_way,lon_way)
+    function [dr_ray,azi_ray] = gc_raydr_km(lat_way,lon_way)
         % Calculate dr vector in units of km for lat-lon waypoints using great circle
         % approximations along each segment. (If assume straight rays, can
         % accumulate errors of ~20% !)
         % JBR 5/8/2020
         %
-        dr_ray = distance(lat_way(1:end-1),lon_way(1:end-1),...
-                                 lat_way(2:end),lon_way(2:end),referenceEllipsoid('GRS80'))/1000;
+        [dr_ray,azi_ray] = distance(lat_way(1:end-1),lon_way(1:end-1),...
+                                 lat_way(2:end),lon_way(2:end),referenceEllipsoid('GRS80'));
+        dr_ray = dr_ray / 1000;
     end
     
 end
