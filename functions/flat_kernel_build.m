@@ -24,7 +24,7 @@ Areg = sparse(repmat(ind,1,2),[ind,ind+1], ...
 ind = j(:) + Ny*(i(:)-1);
 % dx = diff(xnode);
 % dx2 = dx(i(:));
-dx3 = km2deg(distance(xnode(i),ynode(j),xnode(i+1),ynode(j),referenceEllipsoid('GRS80'))/1000);
+dx2 = km2deg(distance(xnode(i),ynode(j),xnode(i+1),ynode(j),referenceEllipsoid('GRS80'))/1000);
 Areg = [Areg;sparse(repmat(ind,1,2),[ind,ind+Ny], ...
     [-1./dx2, 1./dx2],N,N)];
 % F=Areg;
