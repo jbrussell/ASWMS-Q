@@ -172,8 +172,8 @@ for ie = 1:length(eventfiles)
             tp_ang = 90 - atan2d(tp_gradlat,tp_gradlon);  
 
             tp_lap = tp_lap';
-            tp_laplat = tp_laplat';
-            tp_laplon = tp_laplon';
+            % tp_laplat = tp_laplat';
+            % tp_laplon = tp_laplon';
             tp_grad = tp_grad';
             tp_gradlat = tp_gradlat';
             tp_gradlon = tp_gradlon';
