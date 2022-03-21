@@ -264,8 +264,8 @@ for ie = 1:length(eventfiles)
             amp_lap=del2m(mesh_xi',mesh_yi',ampmap');
 
             dAmp = amp_lap';
-            amp_laplat = amp_laplat';
-            amp_laplon = amp_laplon';
+            % amp_laplat = amp_laplat';
+            % amp_laplon = amp_laplon';
             amp_grad = amp_grad';
             amp_gradlat = amp_gradlat';
             amp_gradlon = amp_gradlon';
