@@ -142,8 +142,23 @@ for ie = 1:length(eventfiles)
         if length(tp(~isnan(tp)))<3
             tpmap = nan(size(xi'));
         else
-            [tpmap,mesh_xi,mesh_yi]=gridfit_jg(stlas,stlos,tp,xnode,ynode,...
+            % [tpmap,mesh_xi,mesh_yi]=gridfit_jg(stlas,stlos,tp,xnode,ynode,...
+            %                     'smooth',2,'regularizer','del4','solver','normal');
+            % Convert from geographic to ENU for surface fitting
+            mesh_xi = xi';
+            mesh_yi = yi';
+            olat = mean(xnode);
+            olon = mean(ynode);
+            [st_yE, st_xN, ~] = geodetic2enu(stlas, stlos, zeros(size(stlos)), olat, olon, 0, referenceEllipsoid('GRS80'));
+            [yim_E, xim_N, ~] = geodetic2enu(xi, yi, zeros(size(xi)), olat, olon, 0, referenceEllipsoid('GRS80'));
+            xnodem_N = mean(xim_N,2)';
+            ynodem_E = mean(yim_E,1);
+            [tpmap,mesh_xim,mesh_yim]=gridfit_jg(st_xN/1000,st_yE/1000,tp,xnodem_N/1000,ynodem_E/1000,...
                                 'smooth',2,'regularizer','del4','solver','normal');
+            % Convert ENU back to geographic and sample at even grid spacing
+            [mesh_xig, mesh_yig, ~] = enu2geodetic(mesh_yim*1000, mesh_xim*1000, zeros(size(mesh_xim)), olat, olon, 0, referenceEllipsoid('GRS80'));
+            F = scatteredInterpolant(mesh_xig(:),mesh_yig(:),tpmap(:));
+            tpmap = F(mesh_xi,mesh_yi);
         end
 
 		%% Calculate the traveltime and amplitude fields
@@ -152,8 +167,9 @@ for ie = 1:length(eventfiles)
             tp_grad = 1./eventphv(ip).GV'; % phase slowness magnitude
             tp_gradlat = -eventphv(ip).GVx; % phase slowness in x-direction
             tp_gradlon = -eventphv(ip).GVy; % phase slowness in y-direction
-            [~,tp_laplat,~]=delm(xi,yi,tp_gradlat);
-            [~,~,tp_laplon]=delm(xi,yi,tp_gradlon);
+            % [~,tp_laplat,~]=delm(xi,yi,tp_gradlat);
+            % [~,~,tp_laplon]=delm(xi,yi,tp_gradlon);
+            [~,tp_laplat,tp_laplon]=del2m_grad_sph(xi,yi,tp_gradlat,tp_gradlon);
             tp_lap = tp_laplat + tp_laplon;
             tp_ang = 90 - atan2d(tp_gradlat,tp_gradlon);
             tp_gradlat = tp_gradlat';
@@ -167,9 +183,10 @@ for ie = 1:length(eventfiles)
             tp_lap_err = ( (tp_laplat'.*tp_gradlat_err).^2 + (tp_laplon'.*tp_gradlon_err).^2 ).^0.5; % propagate errors to Laplacian
             phv_err = eventphv(ip).phv_err';
         else
-            tp_lap=del2m(mesh_xi',mesh_yi',tpmap');
-            [tp_grad,tp_gradlat,tp_gradlon]=delm(mesh_xi',mesh_yi',tpmap');
+            [tp_grad,tp_gradlat,tp_gradlon]=delm_sph(mesh_xi',mesh_yi',tpmap');
             tp_ang = 90 - atan2d(tp_gradlat,tp_gradlon);  
+            
+            [tp_lap,tp_laplat,tp_laplon]=del2m_sph(mesh_xi',mesh_yi',tpmap');
 
             tp_lap = tp_lap';
             % tp_laplat = tp_laplat';
@@ -184,6 +201,12 @@ for ie = 1:length(eventfiles)
             tp_lap_err = nan(size(tp_grad));
             phv_err = nan(size(tp_grad));
         end
+        
+        tp_lap(isnan(eventphv(ip).GV)') = nan;
+        tp_grad(isnan(eventphv(ip).GV)') = nan;
+        tp_gradlat(isnan(eventphv(ip).GV)') = nan;
+        tp_gradlon(isnan(eventphv(ip).GV)') = nan;
+        tp_ang(isnan(eventphv(ip).GV)') = nan;
         
 		% prepare the avg phase velocity and event phase velocity
 		avgGV = avgphv(ip).GV;

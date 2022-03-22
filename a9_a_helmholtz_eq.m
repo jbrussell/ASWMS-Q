@@ -237,8 +237,23 @@ for ie = 1:length(eventfiles)
 %         %         caxis([min(ampmap(:)) max(ampmap(:))]);
 %                 pause;
             else
-                [ampmap,mesh_xi,mesh_yi]=gridfit_jg(stlas,stlos,amps,xnode,ynode,...
-                                    'smooth',2,'regularizer','del4','solver','normal');
+                % [ampmap,mesh_xi,mesh_yi]=gridfit_jg(stlas,stlos,amps,xnode,ynode,...
+                %                     'smooth',2,'regularizer','del4','solver','normal');
+				% Convert from geographic to ENU for surface fitting
+	            mesh_xi = xi';
+	            mesh_yi = yi';
+	            olat = mean(xnode);
+	            olon = mean(ynode);
+	            [st_yE, st_xN, ~] = geodetic2enu(stlas, stlos, zeros(size(stlos)), olat, olon, 0, referenceEllipsoid('GRS80'));
+	            [yim_E, xim_N, ~] = geodetic2enu(xi, yi, zeros(size(xi)), olat, olon, 0, referenceEllipsoid('GRS80'));
+	            xnodem_N = mean(xim_N,2)';
+	            ynodem_E = mean(yim_E,1);
+	            [ampmap,mesh_xim,mesh_yim]=gridfit_jg(st_xN/1000,st_yE/1000,amps,xnodem_N/1000,ynodem_E/1000,...
+	                                'smooth',2,'regularizer','del4','solver','normal');
+	            % Convert ENU back to geographic and sample at even grid spacing
+	            [mesh_xig, mesh_yig, ~] = enu2geodetic(mesh_yim*1000, mesh_xim*1000, zeros(size(mesh_xim)), olat, olon, 0, referenceEllipsoid('GRS80'));
+	            F = scatteredInterpolant(mesh_xig(:),mesh_yig(:),ampmap(:));
+	            ampmap = F(mesh_xi,mesh_yi);
             end
         end
 
@@ -248,8 +263,9 @@ for ie = 1:length(eventfiles)
             amp_grad = ampgrad(ip).dAmp';
             amp_gradlat = -ampgrad(ip).dAmpx;
             amp_gradlon = -ampgrad(ip).dAmpy;
-            [~,amp_laplat,~]=delm(xi,yi,amp_gradlat);
-            [~,~,amp_laplon]=delm(xi,yi,amp_gradlon);
+            % [~,amp_laplat,~]=delm(xi,yi,amp_gradlat);
+            % [~,~,amp_laplon]=delm(xi,yi,amp_gradlon);
+			[~,amp_laplat,amp_laplon]=del2m_grad_sph(xi,yi,amp_gradlat,amp_gradlon);
             dAmp = amp_laplat + amp_laplon;
             dAmp = dAmp';
             amp_gradlat = amp_gradlat';
@@ -260,8 +276,9 @@ for ie = 1:length(eventfiles)
             amp_gradlon_err = ampgrad(ip).dAmpy_err';
             amp_lap_err = ( (amp_laplat'.*amp_gradlat_err).^2 + (amp_laplon'.*amp_gradlon_err).^2 ).^0.5; % propagate errors to Laplacian
         else
-            [amp_grad,amp_gradlat,amp_gradlon]=delm(mesh_xi',mesh_yi',ampmap');
-            amp_lap=del2m(mesh_xi',mesh_yi',ampmap');
+            [amp_grad,amp_gradlat,amp_gradlon]=delm_sph(mesh_xi',mesh_yi',ampmap');
+			
+			[amp_lap,amp_laplat,amp_laplon]=del2m_sph(mesh_xi',mesh_yi',ampmap');
 
             dAmp = amp_lap';
             % amp_laplat = amp_laplat';
@@ -274,6 +291,11 @@ for ie = 1:length(eventfiles)
             amp_gradlon_err = nan(size(amp_grad));
             amp_lap_err = nan(size(amp_grad));
         end
+		
+		dAmp(isnan(eventphv(ip).GV)') = nan;
+        amp_grad(isnan(eventphv(ip).GV)') = nan;
+        amp_gradlat(isnan(eventphv(ip).GV)') = nan;
+        amp_gradlon(isnan(eventphv(ip).GV)') = nan;
         
         if is_eikonal_ampgrad_norm
             amp_grad_ampnorm = ampgrad_norm(ip).dAmp_A';
