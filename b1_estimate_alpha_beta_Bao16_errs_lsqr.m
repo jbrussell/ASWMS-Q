@@ -25,7 +25,7 @@ min_nbin = parameters.min_nbin; % minimum number of measurements in order to inc
 N_min_evts = parameters.N_min_evts; % minimum number of events contributing to grid cell required in order to be considered
 smsize_alpha = parameters.smsize_alpha; % number of nearby gridcells to gather data from
 smweight_beta = parameters.smweight_beta; % Second derivative smoothing weight for beta map
-smooth_rad_deg = parameters.smooth_rad_deg; % [deg] smoothing radius of 2d alpha map
+smooth_alpha_Nwl = parameters.smooth_alpha_Nwl; % [wavelengths] smoothing radius of 2d alpha map
 
 is_eikonal_ampgrad_norm = parameters.is_eikonal_ampgrad_norm;
 
@@ -443,7 +443,7 @@ for ip = 1:length(avgphv)
         end
     end
 	% Smooth alpha map based on wavelength
-    D = smooth_rad_deg*nanmean(avgphv(ip).GV_cor(:))*periods(ip);
+    D = smooth_alpha_Nwl*nanmean(avgphv(ip).GV_cor(:))*periods(ip);
     alpha_2d_sm = smoothmap(xi,yi,attenuation(ip).alpha_2d,D);
     alpha_2d_sm(find(isnan(attenuation(ip).alpha_2d))) = NaN;
     attenuation(ip).alpha_2d = alpha_2d_sm;
@@ -510,7 +510,7 @@ alphas_2d_err(ip) = max([nanstd(attenuation(ip).alpha_2d(:)), nanmean(attenuatio
 end
 plot(mode.T,alpha_MINEOS,'-','color',[0.7 0.7 0.7],'linewidth',5); hold on;
 errorbar(periods,alphas_bin,alphas_bin_err,'-om'); hold on;
-errorbar(periods,alphas,alphas_err,'-ok');
+errorbar(periods,alphas,alphas_err,'-ok');   
 plot(periods,alphas_avg,'-oc');
 % errorbar(periods,alphas_2d,alphas_2d_err,'-ob');
 plot(periods,alphas_2d,'-ob');
