@@ -295,6 +295,10 @@ for ip = 1:length(avgphv)
         amp_bin_std(ibin) = nanstd(amp_term_srt(I_bin));
         azi_bin(ibin) = (bins(ibin)+bins(ibin+1))/2;
     end
+	isbad = isnan(amp_bin_std) | amp_bin_std==0;
+    amp_bin(isbad) = [];
+    amp_bin_std(isbad) = [];
+    azi_bin(isbad) = [];
     
     %% Do curve fitting (eq 9 in Bao et al. 2016)
     attenuation(ip).evids = evids;
