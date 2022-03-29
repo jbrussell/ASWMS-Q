@@ -256,10 +256,7 @@ for f = 1:nfiles
          [A count1] = fread(fid, [70 1], 'float32');
          [B count2] = fread(fid, [40 1], 'int32');
       end
-<<<<<<< HEAD
       % [C count3] = fread(fid, [1 192], 'char');
-=======
->>>>>>> a78c4dfeebab3cc00c7876352e7c24d3a1f9ffdb
       [C count3] = fread(fid, [1 192], 'uchar');
       C = char(C);
 
