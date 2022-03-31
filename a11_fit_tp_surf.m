@@ -141,6 +141,8 @@ for ie = 1:length(eventfiles)
 		tp(badstaids) = [];
         if length(tp(~isnan(tp)))<3
             tpmap = nan(size(xi'));
+            mesh_xi = xi';
+            mesh_yi = yi';
         else
             % [tpmap,mesh_xi,mesh_yi]=gridfit_jg(stlas,stlos,tp,xnode,ynode,...
             %                     'smooth',2,'regularizer','del4','solver','normal');
