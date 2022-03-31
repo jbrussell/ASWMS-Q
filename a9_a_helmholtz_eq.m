@@ -175,6 +175,8 @@ for ie = 1:length(eventfiles)
         
         if length(amps(~isnan(amps)))<min_sta_num
             ampmap = nan(size(xi'));
+            mesh_xi = xi';
+            mesh_yi = yi';
         else
             if is_eikonal_ampgrad == 1 && ~isempty(ampgrad(ip).dAmpx(~isnan(ampgrad(ip).dAmpx))) && ~isempty(ampgrad(ip).dAmpy(~isnan(ampgrad(ip).dAmpy)))
                 % Use amplitude gradient maps from inversion to solve for
