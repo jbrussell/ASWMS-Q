@@ -280,6 +280,7 @@ for ip = 1:length(avgphv)
             ampgradR_ampnorm_dot_tpgrad(:,:,evcnt) = (amp_gradR_map(:,:,evcnt) ./ amp) .* tp_grad;
         end
     end
+	amp_term(isnan(azi(:))) = nan;
     
 	% Ensure that no individual events or pixels dominate the weighting scheme
 	cutoff = prctile(amp_term_err(:),5);

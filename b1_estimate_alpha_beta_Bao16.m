@@ -258,6 +258,7 @@ for ip = 1:length(avgphv)
             ampgradR_ampnorm_dot_tpgrad(:,:,evcnt) = (amp_gradR_map(:,:,evcnt) ./ amp) .* tp_grad;
         end
     end
+	amp_term(isnan(azi(:))) = nan;
 	
 	% Do initial (unweighted) fitting and remove outliers
 	[~, alpha, dlnbeta_dx, dlnbeta_dy]=fit_alpha_beta(azi(:),amp_term(:));
