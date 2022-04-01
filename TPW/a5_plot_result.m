@@ -1,4 +1,7 @@
 clear;
+
+is_savemat = 1; % save output file?
+
 setup_parameters_tpw;
 periods = parameters.periods;
 workingdir_tpw = parameters_tpw.workingdir;
@@ -24,6 +27,7 @@ for ip = 1:length(periods)
     stacor(ip) = load_stacorfile(stacorfile,'stations.mat');
     
     tpw.periods(ip) = period;
+    tpw.vel(ip) = vel(ip);
     tpw.phv_1d(ip) = nanmean(vel(ip).phv(:));
     tpw.phv_1d_std(ip) = nanmean(vel(ip).phv_std(:));
     tpw.A2_1d(ip) = nanmean(ani(ip).A2_kms(:)./tpw.phv_1d(ip));
@@ -32,7 +36,11 @@ for ip = 1:length(periods)
     tpw.phi2_1d_std(ip) = nanmean(ani(ip).phi2_std(:));
     tpw.alpha_1d(ip) = nanmean(atten(ip).alpha(:));
     tpw.alpha_1d_std(ip) = nanmean(atten(ip).alpha_std(:));
+    tpw.stacor(ip) = stacor(ip);
 
+end
+if is_savemat
+    save([workingdir_tpw,'/TPW_model_',parameters.component,'.mat'],'tpw')
 end
 
 %% Load ASWMS measurements
