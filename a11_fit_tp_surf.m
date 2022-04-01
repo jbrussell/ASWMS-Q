@@ -242,10 +242,12 @@ for ie = 1:length(eventfiles)
         traveltime(ip).tp_gradlon_err = tp_gradlon_err';
         traveltime(ip).tp_lap_err = tp_lap_err';
 		traveltime(ip).period = periods(ip);
+        traveltime(ip).stainfo.stlas = stlas;
+        traveltime(ip).stainfo.stlos = stlos;
 % 		bestalphas(ip,ie) = bestalpha;
 
 		% plot to check
-		if isfigure
+        if isfigure
 			figure(37)
 			clf
                         set(gcf,'renderer','zbuffer');
@@ -307,86 +309,107 @@ for ie = 1:length(eventfiles)
 % 			[temp bestalphai] = min(alpha_errs);
 			title('\nabla^2 \tau_p')
             drawnow;
+        end % end of isfigure
+    end  % loop of period
            
             
-            if is_save_amp_fig
-                figure(39);
-                if ip == 1
-                    clf;
-                    set(gcf,'Position',[84           3         744        1022]);
-                    sgtitle([eventphv(ip).id,' M',num2str(eventphv(ip).Mw)],'fontweight','bold','fontsize',18)
-                    
-                    axes('Position',[.4 .005 .35*.6 .4*.6])
-                    landareas = shaperead('landareas.shp','UseGeoCoords',true);
-                    ax = axesm('eqdazim', 'Frame', 'on', 'Grid', 'off');
-                    ax.XAxis.Visible = 'off';
-                    ax.YAxis.Visible = 'off';
-                    box off;
-                    % setm(ax,'Origin',[mean(lalim),mean(lolim)])
-                    setm(ax,'Origin',[mean(lalim),mean(lolim)],'FLatLimit',[-125 125]+mean(lalim),'FLonLimit',[],'MapLonLimit',[-125 125]+mean(lolim))
-                    geoshow(ax, landareas,'FaceColor',[0.8 0.8 0.8],'EdgeColor','none'); hold on;
-                    for ii = [30 60 90 120]
-                        [latc,longc] = scircle1(mean(lalim),mean(lolim),ii);
-                        plotm(latc,longc,'-','color',[0.6 0.6 0.6],'linewidth',1)
-                    end
-                    [la_gcev,lo_gcev]=track2('gc',eventphv(ip).evla,eventphv(ip).evlo,mean(lalim),mean(lolim));
-                    plotm(la_gcev,lo_gcev,'-k','linewidth',2);
-                    plotm(mean(lalim),mean(lolim),'p','color',[0 0.2 0.4],'MarkerFaceColor',[0 0.5 1],'MarkerSize',24,'linewidth',1);
-                    plotm(eventphv(ip).evla,eventphv(ip).evlo,'o','color',[0.4 0 0],'MarkerFaceColor',[0.85 0 0],'MarkerSize',10,'linewidth',1);
+    if is_save_amp_fig
+        figure(39);
+        for ip = 1:length(traveltime)
+            nanind = find(isnan(traveltime(ip).GV(:)));
+            tpmap = traveltime(ip).tpmap;
+			tpmap(nanind) = NaN;
+            if ip == 1
+                clf;
+                set(gcf,'Position',[84           3         744        1022]);
+                sgtitle([eventphv(ip).id,' M',num2str(eventphv(ip).Mw)],'fontweight','bold','fontsize',18)
+
+                axes('Position',[.4 .005 .35*.6 .4*.6])
+                landareas = shaperead('landareas.shp','UseGeoCoords',true);
+                ax = axesm('eqdazim', 'Frame', 'on', 'Grid', 'off');
+                ax.XAxis.Visible = 'off';
+                ax.YAxis.Visible = 'off';
+                box off;
+                % setm(ax,'Origin',[mean(lalim),mean(lolim)])
+                setm(ax,'Origin',[mean(lalim),mean(lolim)],'FLatLimit',[-125 125]+mean(lalim),'FLonLimit',[],'MapLonLimit',[-125 125]+mean(lolim))
+                geoshow(ax, landareas,'FaceColor',[0.8 0.8 0.8],'EdgeColor','none'); hold on;
+                for ii = [30 60 90 120]
+                    [latc,longc] = scircle1(mean(lalim),mean(lolim),ii);
+                    plotm(latc,longc,'-','color',[0.6 0.6 0.6],'linewidth',1)
                 end
-                N=3; M = floor(length(periods)/N)+1;
-                subplot(M,N,ip)
-                ax = worldmap(lalim, lolim);
-                surfacem(xi,yi,tpmap);
-                if ~isempty(stlas) 
-                    plotm(stlas,stlos,'v');
-                end
-                plotm(la_gc,lo_gc,'-k');
-                quiverm(xi,yi,tp_gradlat,tp_gradlon,'-k')
-                title([num2str(periods(ip)),' s'],'fontsize',15)
-                cb = colorbar;
-                clim = cb.Limits;
-                colormap(seiscmap)
-                
-                figure(40);
-                if ip == 1
-                    clf;
-                    set(gcf,'Position',[84           3         744        1022]);
-                    sgtitle([eventphv(ip).id,' M',num2str(eventphv(ip).Mw)],'fontweight','bold','fontsize',18)
-                    
-                    axes('Position',[.4 .005 .35*.6 .4*.6])
-                    landareas = shaperead('landareas.shp','UseGeoCoords',true);
-                    ax = axesm('eqdazim', 'Frame', 'on', 'Grid', 'off');
-                    ax.XAxis.Visible = 'off';
-                    ax.YAxis.Visible = 'off';
-                    box off;
-                    % setm(ax,'Origin',[mean(lalim),mean(lolim)])
-                    setm(ax,'Origin',[mean(lalim),mean(lolim)],'FLatLimit',[-125 125]+mean(lalim),'FLonLimit',[],'MapLonLimit',[-125 125]+mean(lolim))
-                    geoshow(ax, landareas,'FaceColor',[0.8 0.8 0.8],'EdgeColor','none'); hold on;
-                    for ii = [30 60 90 120]
-                        [latc,longc] = scircle1(mean(lalim),mean(lolim),ii);
-                        plotm(latc,longc,'-','color',[0.6 0.6 0.6],'linewidth',1)
-                    end
-                    [la_gcev,lo_gcev]=track2('gc',eventphv(ip).evla,eventphv(ip).evlo,mean(lalim),mean(lolim));
-                    plotm(la_gcev,lo_gcev,'-k','linewidth',2);
-                    plotm(mean(lalim),mean(lolim),'p','color',[0 0.2 0.4],'MarkerFaceColor',[0 0.5 1],'MarkerSize',24,'linewidth',1);
-                    plotm(eventphv(ip).evla,eventphv(ip).evlo,'o','color',[0.4 0 0],'MarkerFaceColor',[0.85 0 0],'MarkerSize',10,'linewidth',1);
-                end
-                subplot(M,N,ip)
-                ax = worldmap(lalim, lolim);
-                scatterm(stlas,stlos,100,tp,'v','filled','markeredgecolor',[0 0 0]);
-                if ~isempty(stlas) 
-                    plotm(la_gc,lo_gc,'-k');
-                end
-                title([num2str(periods(ip)),' s'],'fontsize',15)
-                colorbar
-                caxis(clim);
-                colormap(seiscmap)
+                [la_gcev,lo_gcev]=track2('gc',eventphv(ip).evla,eventphv(ip).evlo,mean(lalim),mean(lolim));
+                plotm(la_gcev,lo_gcev,'-k','linewidth',2);
+                plotm(mean(lalim),mean(lolim),'p','color',[0 0.2 0.4],'MarkerFaceColor',[0 0.5 1],'MarkerSize',24,'linewidth',1);
+                plotm(eventphv(ip).evla,eventphv(ip).evlo,'o','color',[0.4 0 0],'MarkerFaceColor',[0.85 0 0],'MarkerSize',10,'linewidth',1);
             end
+            la_gc = [];
+            lo_gc = [];
+            for ista = 1:length(traveltime(ip).stainfo.stlas)
+                [la,lo]=track2('gc',eventphv(ip).evla,eventphv(ip).evlo,traveltime(ip).stainfo.stlas(ista),traveltime(ip).stainfo.stlos(ista));
+                la_gc = [la_gc; la; nan];
+                lo_gc = [lo_gc; lo; nan];
+            end
+            N=3; M = floor(length(periods)/N)+1;
+            subplot(M,N,ip)
+            ax = worldmap(lalim, lolim);
+            surfacem(xi,yi,tpmap);
+            if ~isempty(traveltime(ip).stainfo.stlas) 
+                plotm(traveltime(ip).stainfo.stlas,traveltime(ip).stainfo.stlos,'v');
+                plotm(la_gc,lo_gc,'-k');
+            end
+            quiverm(xi,yi,traveltime(ip).tp_gradlat,traveltime(ip).tp_gradlon,'-k')
+            title([num2str(periods(ip)),' s'],'fontsize',15)
+            cb = colorbar;
+            clim = cb.Limits;
+            colormap(seiscmap)
+        end
+
+        figure(40);
+        for ip = 1:length(traveltime)
+            if ip == 1
+                clf;
+                set(gcf,'Position',[84           3         744        1022]);
+                sgtitle([eventphv(ip).id,' M',num2str(eventphv(ip).Mw)],'fontweight','bold','fontsize',18)
+
+                axes('Position',[.4 .005 .35*.6 .4*.6])
+                landareas = shaperead('landareas.shp','UseGeoCoords',true);
+                ax = axesm('eqdazim', 'Frame', 'on', 'Grid', 'off');
+                ax.XAxis.Visible = 'off';
+                ax.YAxis.Visible = 'off';
+                box off;
+                % setm(ax,'Origin',[mean(lalim),mean(lolim)])
+                setm(ax,'Origin',[mean(lalim),mean(lolim)],'FLatLimit',[-125 125]+mean(lalim),'FLonLimit',[],'MapLonLimit',[-125 125]+mean(lolim))
+                geoshow(ax, landareas,'FaceColor',[0.8 0.8 0.8],'EdgeColor','none'); hold on;
+                for ii = [30 60 90 120]
+                    [latc,longc] = scircle1(mean(lalim),mean(lolim),ii);
+                    plotm(latc,longc,'-','color',[0.6 0.6 0.6],'linewidth',1)
+                end
+                [la_gcev,lo_gcev]=track2('gc',eventphv(ip).evla,eventphv(ip).evlo,mean(lalim),mean(lolim));
+                plotm(la_gcev,lo_gcev,'-k','linewidth',2);
+                plotm(mean(lalim),mean(lolim),'p','color',[0 0.2 0.4],'MarkerFaceColor',[0 0.5 1],'MarkerSize',24,'linewidth',1);
+                plotm(eventphv(ip).evla,eventphv(ip).evlo,'o','color',[0.4 0 0],'MarkerFaceColor',[0.85 0 0],'MarkerSize',10,'linewidth',1);
+            end
+            la_gc = [];
+            lo_gc = [];
+            for ista = 1:length(traveltime(ip).stainfo.stlas)
+                [la,lo]=track2('gc',eventphv(ip).evla,eventphv(ip).evlo,traveltime(ip).stainfo.stlas(ista),traveltime(ip).stainfo.stlos(ista));
+                la_gc = [la_gc; la; nan];
+                lo_gc = [lo_gc; lo; nan];
+            end
+            subplot(M,N,ip)
+            ax = worldmap(lalim, lolim);
+            if ~isempty(traveltime(ip).stainfo.stlas) 
+                scatterm(traveltime(ip).stainfo.stlas,traveltime(ip).stainfo.stlos,100,traveltime(ip).tp,'v','filled','markeredgecolor',[0 0 0]);
+                plotm(la_gc,lo_gc,'-k');
+            end
+            title([num2str(periods(ip)),' s'],'fontsize',15)
+            colorbar
+            caxis(clim);
+            colormap(seiscmap)
+        end
+    end
+        
             
-%             pause;
-		end % end of isfigure
-	end  % loop of period
 	matfilename = fullfile(traveltime_path,[eventphv(1).id,'_traveltime_',parameters.component,'.mat']);
 	save(matfilename,'traveltime');
 	fprintf('\n');
