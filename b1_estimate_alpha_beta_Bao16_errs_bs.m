@@ -370,6 +370,7 @@ for ip = 1:length(avgphv)
     attenuation(ip).azi_maxamp_1d_err = azi_maxamp_err;
     
     % Binned 1-D sinusoidal fit
+    amp_bin(amp_bin_std==0) = nan;
     [alpha, dlnbeta_dx, dlnbeta_dy, beta_tau, azi_maxamp, alpha_err, dlnbeta_dx_err, dlnbeta_dy_err, beta_tau_err, azi_maxamp_err]=run_fit_alpha_beta_bootstrap(azi_bin(:),amp_bin(:),amp_bin_std(:),Nbs);
     attenuation(ip).alpha_1d_bin = alpha;
     attenuation(ip).beta_tau_1d_bin = beta_tau;

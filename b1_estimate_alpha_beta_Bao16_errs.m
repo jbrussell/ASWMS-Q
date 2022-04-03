@@ -373,6 +373,7 @@ for ip = 1:length(avgphv)
     attenuation(ip).para_1d = para;
     
     % Binned 1-D sinusoidal fit
+    amp_bin(amp_bin_std==0) = nan;
     [para, alpha, dlnbeta_dx, dlnbeta_dy]=fit_alpha_beta(azi_bin(:),amp_bin(:));
     beta_tau = sqrt(dlnbeta_dx.^2+dlnbeta_dy.^2);
     azi_maxamp = atan2d(dlnbeta_dx,dlnbeta_dy);

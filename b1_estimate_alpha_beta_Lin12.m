@@ -330,6 +330,7 @@ for ip = 1:length(avgphv)
     attenuation(ip).para_1d = para;
     
     % Binned 1-D sinusoidal fit
+    amp_bin(amp_bin_std==0) = nan;
     [para, alpha, beta_tau, azi_maxamp]=fit_alpha_beta_Lin12(azi_bin(:),amp_bin(:));
     parastd=confint(para,.95);
     beta_tau_err = (parastd(2,1)-parastd(1,1))/2;
