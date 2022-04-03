@@ -146,6 +146,7 @@ parameters.N_min_evts = 10; % minimum number of events contributing to grid cell
 parameters.smsize_alpha = 3; % number of nearby gridcells to gather data from
 parameters.smweight_beta = 0.3; % Second derivative smoothing weight for beta map
 parameters.smooth_alpha_Nwl = 1.5; % [wavelengths] smoothing radius of 2d alpha map
+parameters.azi_anom_maxthresh = 10; % [degrees] Remove grid cells with propagation anomaly larger than this value
 
 %%
 if length(parameters.periods)~=length(parameters.smweight_array) || length(parameters.periods)~=length(parameters.min_csgoodratio)

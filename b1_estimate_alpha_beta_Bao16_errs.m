@@ -26,6 +26,7 @@ N_min_evts = parameters.N_min_evts; % minimum number of events contributing to g
 smsize_alpha = parameters.smsize_alpha; % number of nearby gridcells to gather data from
 smweight_beta = parameters.smweight_beta; % Second derivative smoothing weight for beta map
 smooth_alpha_Nwl = parameters.smooth_alpha_Nwl; % [wavelengths] smoothing radius of 2d alpha map
+azi_anom_maxthresh = parameters.azi_anom_maxthresh; % [degrees] Remove grid cells with propagation anomaly larger than this value
 
 is_eikonal_ampgrad_norm = parameters.is_eikonal_ampgrad_norm;
 
@@ -72,7 +73,7 @@ end
 
 clear attenuation
 for ip = 1:length(avgphv)
-    clear ampgradR_ampnorm_dot_tpgrad amp_gradR_ampnorm_map amp_gradR_map amp_gradT_map amp_gradlat_ampnorm_map amp_gradlon_ampnorm_map ampgrad_dot_tpgrad_ampnorm amp_term amp_term_err azi amp_decay_map tp_focus_map tp_grad_map amp_grad_map ampgrad_dot_tpgrad amp_grad_norm_map evids dist_map amp_map amp_gradlat_map amp_gradlon_map tp_gradlat_map tp_gradlon_map
+    clear ampgradR_ampnorm_dot_tpgrad amp_gradR_ampnorm_map amp_gradR_map amp_gradT_map amp_gradlat_ampnorm_map amp_gradlon_ampnorm_map ampgrad_dot_tpgrad_ampnorm amp_term amp_term_err azi amp_decay_map tp_focus_map tp_grad_map amp_grad_map ampgrad_dot_tpgrad amp_grad_norm_map evids dist_map amp_map amp_gradlat_map amp_gradlon_map tp_gradlat_map tp_gradlon_map azi_anom
     evcnt = 0;
     for ie = 1:length(eventfiles)
     %for ie = 59
@@ -172,6 +173,9 @@ for ip = 1:length(avgphv)
         % Get propagation azimuth at each grid cell
         azi_prop = traveltime(ip).tp_ang;
         azi_prop(azi_prop<0) = azi_prop(azi_prop<0)+360;
+        % Propagation azimuth anomaly
+        razi = azimuth(xi+gridsize/2,yi+gridsize/2,traveltime(ip).evla,traveltime(ip).evlo,referenceEllipsoid('GRS80'))+180;
+        azi_prop_anom  = angdiff(razi*pi/180,azi_prop*pi/180)*180/pi;
         
         % Get structural phase velocity
         phv = avgphv(ip).GV_cor ;
@@ -250,6 +254,7 @@ for ip = 1:length(avgphv)
         % Propagate errors
         amp_term_err(:,:,evcnt) = ( (0.5.*(amp_decay + tp_focus).*phv_err).^2 + (0.5.*phv.*amp_decay_err).^2 + (0.5.*phv.*tp_focus_err).^2 ).^0.5;
         azi(:,:,evcnt) = azi_prop;
+        azi_anom(:,:,evcnt) = azi_prop_anom;
         
         tp_grad_map(:,:,evcnt) = tp_grad;
         amp_grad_map(:,:,evcnt) = amp_grad;
@@ -286,6 +291,13 @@ for ip = 1:length(avgphv)
 	cutoff = prctile(amp_term_err(:),5);
 	amp_term_err(amp_term_err<cutoff) = cutoff;
 	amp_term_err(isnan(amp_term_err)) = inf;
+    
+    % Check propagation anomaly
+%     figure(999); clf;
+%     plot(res(:),azi_anom(:),'o');
+    i_azianom = find(abs(azi_anom(:)) > azi_anom_maxthresh);
+    amp_term_err(i_azianom) = inf;
+    amp_term(i_azianom) = nan;
 
 	% Do initial (unweighted) fitting and remove outliers
 	[~, alpha, dlnbeta_dx, dlnbeta_dy]=fit_alpha_beta(azi(:),amp_term(:));
