@@ -26,6 +26,7 @@ N_min_evts = parameters.N_min_evts; % minimum number of events contributing to g
 smsize_alpha = parameters.smsize_alpha; % number of nearby gridcells to gather data from
 smooth_rad_deg = parameters.smooth_rad_deg; % [deg] smoothing radius of 2d alpha map
 azi_anom_maxthresh = parameters.azi_anom_maxthresh; % [degrees] Remove grid cells with propagation anomaly larger than this value
+isbin_2d = parameters.isbin_2d; % use azimuthal binning for 2-D maps?
 
 is_eikonal_ampgrad_norm = parameters.is_eikonal_ampgrad_norm;
 
@@ -379,6 +380,31 @@ for ip = 1:length(avgphv)
                     amps = [amps; squeeze(amp_term(ii,jj,:))];
                     azis = [azis; squeeze(azi(ii,jj,:))];
                 end
+            end
+            if isbin_2d
+				% Bin measurements by azimuth
+	            [~,Isort] = sort(azis(:));
+	            azi_srt = azis(Isort);
+	            amp_term_srt = amps(Isort);
+	            bins = [0:azi_bin_deg:360];
+	            amp_bin = 0; azi_bin = 0; amp_bin_std = 0; azi_bin_err = 0;
+	            for ibin = 1:length(bins)-1
+	                I_bin = azi_srt>=bins(ibin) & azi_srt<bins(ibin+1);
+	                if sum(I_bin)<min_nbin
+	                    I_bin = false(size(I_bin));
+	                end
+	                % Weighted means and standard deviations
+	                amp_bin(ibin) = nanmedian(amp_term_srt(I_bin));
+	                amp_bin_std(ibin) = nanstd(amp_term_srt(I_bin));
+	                azi_bin(ibin) = (bins(ibin)+bins(ibin+1))/2;
+                    N_min_evts = floor(length(bins)/2);
+                end
+                isbad = amp_bin_std==0;
+                amp_bin_std(isbad) = nan;
+                amp_bin(isbad) = nan;
+                amps = amp_bin;
+                amps_err = amp_bin_std;
+                azis = azi_bin;
             end
 %             amps = squeeze(amp_term(ix,iy,:));
 %             azis = squeeze(azi(ix,iy,:));

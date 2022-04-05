@@ -140,13 +140,14 @@ parameters.min_Mw_rec = 5.5; %6.0;
 % (b1_estimate_alpha_beta)
 parameters.min_Mw_alpha = 5.5; % minimum magnitude
 parameters.min_Ngrcells = 20; % minimum numbe of grid cells required in order to use event
-parameters.azi_bin_deg = 30; % [deg] size of azimuthal bins
+parameters.azi_bin_deg = 20; % [deg] size of azimuthal bins
 parameters.min_nbin = 10; % minimum number of measurements in order to include bin
 parameters.N_min_evts = 10; % minimum number of events contributing to grid cell required in order to be considered
 parameters.smsize_alpha = 3; % number of nearby gridcells to gather data from
 parameters.smweight_beta = 0.3; % Second derivative smoothing weight for beta map
 parameters.smooth_alpha_Nwl = 1.5; % [wavelengths] smoothing radius of 2d alpha map
 parameters.azi_anom_maxthresh = 10; % [degrees] Remove grid cells with propagation anomaly larger than this value
+parameters.isbin_2d = 1; % use azimuthal binning for 2-D maps?
 
 %%
 if length(parameters.periods)~=length(parameters.smweight_array) || length(parameters.periods)~=length(parameters.min_csgoodratio)

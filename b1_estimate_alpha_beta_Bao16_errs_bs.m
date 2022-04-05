@@ -30,6 +30,7 @@ smsize_alpha = parameters.smsize_alpha; % number of nearby gridcells to gather d
 smweight_beta = parameters.smweight_beta; % Second derivative smoothing weight for beta map
 smooth_alpha_Nwl = parameters.smooth_alpha_Nwl; % [wavelengths] smoothing radius of 2d alpha map
 azi_anom_maxthresh = parameters.azi_anom_maxthresh; % [degrees] Remove grid cells with propagation anomaly larger than this value
+isbin_2d = parameters.isbin_2d; % use azimuthal binning for 2-D maps?
 
 is_eikonal_ampgrad_norm = parameters.is_eikonal_ampgrad_norm;
 
@@ -417,8 +418,7 @@ for ip = 1:length(avgphv)
                     azis = [azis; squeeze(azi(ii,jj,:))];
                 end
             end
-			isbin = 0;
-            if isbin
+            if isbin_2d
 				% Bin measurements by azimuth
 	            [~,Isort] = sort(azis(:));
 	            azi_srt = azis(Isort);
@@ -434,8 +434,13 @@ for ip = 1:length(avgphv)
 	                amp_bin(ibin) = nanmedian(amp_term_srt(I_bin));
 	                amp_bin_std(ibin) = nanstd(amp_term_srt(I_bin));
 	                azi_bin(ibin) = (bins(ibin)+bins(ibin+1))/2;
-	            end
+                    N_min_evts = floor(length(bins)/2);
+                end
+                isbad = amp_bin_std==0;
+                amp_bin_std(isbad) = nan;
+                amp_bin(isbad) = nan;
                 amps = amp_bin;
+                amps_err = amp_bin_std;
                 azis = azi_bin;
             end
 %             amps = squeeze(amp_term(ix,iy,:));
@@ -615,7 +620,7 @@ for ip = 1:length(attenuation)
     title([num2str(periods(ip)),' s'],'fontsize',15)
     cb = colorbar;
     ylabel(cb,'\beta');
-    caxis( abs([-1 1]+(max(abs(beta_2d(:)))-1)) );
+    caxis( [min(beta_2d(:)),max(beta_2d(:))]);
     colormap(flip(seiscmap))
 end
 
