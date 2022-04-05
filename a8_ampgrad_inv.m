@@ -512,3 +512,37 @@ for ie = 1:length(csmatfiles)
 	save(matfilename,'ampgrad');
 	disp(['Save the result to: ',matfilename])
 end % end of loop ie
+
+%% Plot residuals
+eventfiles = dir([ampgrad_output_path,'/*_ampgrad_',parameters.component,'.mat']);
+clear residuals
+for ie = 1:length(eventfiles)
+    temp = load(fullfile(ampgrad_output_path,eventfiles(ie).name));
+    ampgrad = temp.ampgrad;
+    for ip = 1:length(ampgrad)
+        if ie == 1
+            residuals(ip).rms_dA_res = [];
+            residuals(ip).mean_dA_res = [];
+        end
+        isgood = ampgrad(ip).isgood;
+        dA_res = ampgrad(ip).dA_res(isgood);
+        residuals(ip).rms_dA_res = [residuals(ip).rms_dA_res(:); rms(dA_res(:))];
+        residuals(ip).mean_dA_res = [residuals(ip).mean_dA_res(:); mean(dA_res(:))];
+    end
+end
+
+%%
+figure(88); clf; set(gcf,'color','w','position',[1035         155         560         781]);
+for ip = 1:length(periods)
+    subplot(2,1,1);
+    plot(periods(ip),residuals(ip).mean_dA_res,'o','color',[0.7 0.7 0.7]); hold on;
+    plot(periods(ip),nanmean(residuals(ip).mean_dA_res),'rs','linewidth',2,'markersize',10);
+    ylabel('mean (dA_{obs}-dA_{pre})')
+    set(gca,'linewidth',1.5,'fontsize',15);
+    subplot(2,1,2);
+    plot(periods(ip),residuals(ip).rms_dA_res,'o','color',[0.7 0.7 0.7]); hold on;
+    plot(periods(ip),nanmean(residuals(ip).rms_dA_res),'rs','linewidth',2,'markersize',10);
+    xlabel('Period (s)');
+    ylabel('RMS (dA_{obs}-dA_{pre})')
+    set(gca,'linewidth',1.5,'fontsize',15);
+end
