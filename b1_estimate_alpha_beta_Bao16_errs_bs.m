@@ -76,7 +76,7 @@ end
 
 clear attenuation
 for ip = 1:length(avgphv)
-    clear ampgradR_ampnorm_dot_tpgrad amp_gradR_ampnorm_map amp_gradR_map amp_gradT_map amp_gradlat_ampnorm_map amp_gradlon_ampnorm_map ampgrad_dot_tpgrad_ampnorm amp_term amp_term_err azi amp_decay_map tp_focus_map tp_grad_map amp_grad_map ampgrad_dot_tpgrad amp_grad_norm_map evids dist_map amp_map amp_gradlat_map amp_gradlon_map tp_gradlat_map tp_gradlon_map azi_anom
+    clear ampgradR_ampnorm_dot_tpgrad amp_gradR_ampnorm_map amp_gradR_map amp_gradT_map amp_gradlat_ampnorm_map amp_gradlon_ampnorm_map ampgrad_dot_tpgrad_ampnorm amp_term amp_term_err azi amp_decay_map tp_focus_map tp_grad_map amp_grad_map ampgrad_dot_tpgrad amp_grad_norm_map evids dist_map amp_map amp_gradlat_map amp_gradlon_map tp_gradlat_map tp_gradlon_map azi_anom phv_map
     evcnt = 0;
     for ie = 1:length(eventfiles)
     %for ie = 59
@@ -258,6 +258,7 @@ for ip = 1:length(avgphv)
         amp_term_err(:,:,evcnt) = ( (0.5.*(amp_decay + tp_focus).*phv_err).^2 + (0.5.*phv.*amp_decay_err).^2 + (0.5.*phv.*tp_focus_err).^2 ).^0.5;
         azi(:,:,evcnt) = azi_prop;
         azi_anom(:,:,evcnt) = azi_prop_anom;
+        phv_map(:,:,evcnt) = phv;
         
         tp_grad_map(:,:,evcnt) = tp_grad;
         amp_grad_map(:,:,evcnt) = amp_grad;
@@ -347,6 +348,7 @@ for ip = 1:length(avgphv)
     
     %% Do curve fitting (eq 9 in Bao et al. 2016)
     attenuation(ip).evids = evids;
+    attenuation(ip).phv_map = phv_map;
     attenuation(ip).amp_term = amp_term;
     attenuation(ip).amp_term_err = amp_term_err;
     attenuation(ip).azi = azi;
