@@ -807,6 +807,70 @@ for ip = 1:length(attenuation)
     set(gca,'fontsize',15)
 end
 
+%% Plot average maps
+figure(99); clf; set(gcf,'position',[146           1         726        1024],'color','w');
+sgtitle('Average $\frac{\nabla (A/\beta) \cdot \nabla\tau}{A/\beta}$','interpreter','latex','fontsize',30);
+for ip = 1:length(attenuation)   
+    R = 6371;
+    geospr_factor = cosd(attenuation(ip).dist_map) ./ (attenuation(ip).phv_map * R .* sind(attenuation(ip).dist_map));
+    beta_term = 2./attenuation(ip).phv_map .* (attenuation(ip).dlnbeta_dx_2d.*sind(attenuation(ip).azi) + attenuation(ip).dlnbeta_dy_2d.*cosd(attenuation(ip).azi));
+    amp_decay_map = attenuation(ip).amp_decay_map + geospr_factor - beta_term ;
+    tp_focus_map = attenuation(ip).tp_focus_map - geospr_factor;
+    amp_decay_corr_map = amp_decay_map + tp_focus_map;
+%     amp_decay_corr_beta_map = amp_decay_corr_map - beta_term;
+    
+    subplot(M,N,ip)
+    ax = worldmap(lalim, lolim);
+    surfacem(xi,yi,nanmean(amp_decay_map,3));
+    title([num2str(periods(ip)),' s'],'fontsize',15)
+    cb = colorbar;
+    ylabel(cb,'(\nabla(A/\beta)\cdot\nabla\tau) / A/\beta');
+    caxis([-5e-4 5e-4]);
+    colormap(seiscmap)
+end
+
+figure(100); clf; set(gcf,'position',[146           1         726        1024],'color','w');
+sgtitle('Average $\nabla^2\tau$','interpreter','latex','fontsize',30);
+for ip = 1:length(attenuation)   
+    R = 6371;
+    geospr_factor = cosd(attenuation(ip).dist_map) ./ (attenuation(ip).phv_map * R .* sind(attenuation(ip).dist_map));
+    beta_term = 2./attenuation(ip).phv_map .* (attenuation(ip).dlnbeta_dx_2d.*sind(attenuation(ip).azi) + attenuation(ip).dlnbeta_dy_2d.*cosd(attenuation(ip).azi));
+    amp_decay_map = attenuation(ip).amp_decay_map + geospr_factor - beta_term ;
+    tp_focus_map = attenuation(ip).tp_focus_map - geospr_factor;
+    amp_decay_corr_map = amp_decay_map + tp_focus_map;
+%     amp_decay_corr_beta_map = amp_decay_corr_map - beta_term;
+    
+    subplot(M,N,ip)
+    ax = worldmap(lalim, lolim);
+    surfacem(xi,yi,nanmean(tp_focus_map,3));
+    title([num2str(periods(ip)),' s'],'fontsize',15)
+    cb = colorbar;
+    ylabel(cb,'\nabla^2\tau');
+    caxis([-5e-4 5e-4]);
+    colormap(seiscmap)
+end
+
+figure(101); clf; set(gcf,'position',[146           1         726        1024],'color','w');
+sgtitle('Average $\frac{\nabla (A/\beta) \cdot \nabla\tau}{A/\beta} + \nabla^2\tau$','interpreter','latex','fontsize',30);
+for ip = 1:length(attenuation)   
+    R = 6371;
+    geospr_factor = cosd(attenuation(ip).dist_map) ./ (attenuation(ip).phv_map * R .* sind(attenuation(ip).dist_map));
+    beta_term = 2./attenuation(ip).phv_map .* (attenuation(ip).dlnbeta_dx_2d.*sind(attenuation(ip).azi) + attenuation(ip).dlnbeta_dy_2d.*cosd(attenuation(ip).azi));
+    amp_decay_map = attenuation(ip).amp_decay_map + geospr_factor - beta_term ;
+    tp_focus_map = attenuation(ip).tp_focus_map - geospr_factor;
+    amp_decay_corr_map = amp_decay_map + tp_focus_map;
+%     amp_decay_corr_beta_map = amp_decay_corr_map - beta_term;
+    
+    subplot(M,N,ip)
+    ax = worldmap(lalim, lolim);
+    surfacem(xi,yi,nanmean(amp_decay_corr_map,3));
+    title([num2str(periods(ip)),' s'],'fontsize',15)
+    cb = colorbar;
+    ylabel(cb,'Corrected decay');
+    caxis([-5e-4 5e-4]);
+    colormap(seiscmap)
+end
+
 %% Auxiliary figures
 if is_figures_aux
     %% Plot terms
