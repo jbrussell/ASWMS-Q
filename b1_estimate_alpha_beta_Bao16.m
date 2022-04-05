@@ -724,6 +724,28 @@ for ip = 1:length(attenuation)
     ylim([-5e-4 2e-4]);
 end
 
+figure(67); clf;
+set(gcf,'Position',[616    71   850   947]);
+sgtitle('$\alpha$ Residual','interpreter','latex','fontsize',30);
+for ip = 1:length(attenuation)
+    subplot(M,N,ip)
+    amp_term_map_evs = squeeze(nanmean(nanmean(attenuation(ip).amp_term_2d,1),2));
+    dist_evs = squeeze(nanmean(nanmean(attenuation(ip).dist_map,1),2));
+    dlnbeta_dx_2d = repmat(attenuation(ip).dlnbeta_dx_2d,1,1,size(attenuation(ip).azi,3));
+    dlnbeta_dy_2d = repmat(attenuation(ip).dlnbeta_dy_2d,1,1,size(attenuation(ip).azi,3));
+    alpha_2d = repmat(attenuation(ip).alpha_2d,1,1,size(attenuation(ip).azi,3));
+    pre = dlnbeta_dx_2d.*sind(attenuation(ip).azi) + dlnbeta_dy_2d.*cosd(attenuation(ip).azi) - alpha_2d;
+	res = attenuation(ip).amp_term_2d - pre;
+    plot(attenuation(ip).dist_map(:),res(:),'.b'); hold on;
+    text(0,0.95,[num2str(rms(res(~isnan(res)))*1e4),' e^{-4}'],'units','normalized');
+%     plot(dist_evs,amp_term_map_evs,'.r'); hold on;
+%     plot(azi_evs,tp_focus_map_evs,'.r');
+    title([num2str(attenuation(ip).period),' s'])
+    xlabel('distance (deg)');
+    ylabel('residual');
+    ylim([-5e-4 5e-4]);
+end
+
 %%
 figure(61); clf;
 set(gcf,'Position',[616    71   850   947]);
