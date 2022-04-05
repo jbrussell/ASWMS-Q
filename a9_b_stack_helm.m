@@ -369,7 +369,10 @@ drawnow;
 
 %% 1-D Average
 figure(96)
-clf; hold on;
+clf;
+
+% Phase velocity
+subplot(1,2,1); axis square; hold on;
 GV_1d = [];
 GV_std_1d = [];
 GV_cor_1d = [];
@@ -385,6 +388,16 @@ errorbar(periods,GV_1d,GV_std_1d,'o-b','linewidth',2);
 errorbar(periods-1,GV_cor_1d,GV_cor_std_1d,'o-r','linewidth',2);
 xlabel('Period (s)');
 ylabel('Phase Velocity (km/s)');
+legend('Dynamic','Structural','location','southeast');
+set(gca,'linewidth',1.5,'fontsize',15,'box','on');
+
+% Uncertainty
+subplot(1,2,2); axis square;  hold on;
+title('Average Standard Deviation','fontweight','bold','fontsize',18)
+plot(periods,GV_std_1d,'o-b','linewidth',2);
+plot(periods-1,GV_cor_std_1d,'o-r','linewidth',2);
+xlabel('Period (s)');
+ylabel('Standard Deviation (km/s)');
 legend('Dynamic','Structural','location','southeast');
 set(gca,'linewidth',1.5,'fontsize',15,'box','on');
 
