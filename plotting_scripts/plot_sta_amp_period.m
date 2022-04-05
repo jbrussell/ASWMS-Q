@@ -31,7 +31,10 @@ for ie = 1:length(CSfiles)
             continue
         end
         icount = icount+1;
-		amps(icount,:) = sqrt(eventcs.autocor(ista).amp);
+        amps(icount,:) = sqrt(eventcs.autocor(ista).amp);
+        % Remove geometrical spreading effect on amplitude
+        geomsprd = sqrt(abs(sind(km2deg(eventcs.dists(ista)))));
+        amps(icount,:) = amps(icount,:) * geomsprd;
 	end
 	meanamp = mean(amps,1);
     
