@@ -795,7 +795,7 @@ end
 
 %% Plot average maps
 figure(99); clf; set(gcf,'position',[146           1         726        1024],'color','w');
-sgtitle('Average $\frac{\nabla (A/\beta) \cdot \nabla\tau}{A/\beta}$','interpreter','latex','fontsize',30);
+sgtitle('Average $\frac{2\nabla (A/\beta) \cdot \nabla\tau}{A/\beta}$','interpreter','latex','fontsize',30);
 for ip = 1:length(attenuation)   
     R = 6371;
     geospr_factor = cosd(attenuation(ip).dist_map) ./ (attenuation(ip).phv_map * R .* sind(attenuation(ip).dist_map));
@@ -810,7 +810,7 @@ for ip = 1:length(attenuation)
     surfacem(xi,yi,nanmean(amp_decay_map,3));
     title([num2str(periods(ip)),' s'],'fontsize',15)
     cb = colorbar;
-    ylabel(cb,'(\nabla(A/\beta)\cdot\nabla\tau) / A/\beta');
+    ylabel(cb,'(2\nabla(A/\beta)\cdot\nabla\tau) / A/\beta');
     caxis([-5e-4 5e-4]);
     colormap(seiscmap)
 end
@@ -837,7 +837,7 @@ for ip = 1:length(attenuation)
 end
 
 figure(101); clf; set(gcf,'position',[146           1         726        1024],'color','w');
-sgtitle('Average $\frac{\nabla (A/\beta) \cdot \nabla\tau}{A/\beta} + \nabla^2\tau$','interpreter','latex','fontsize',30);
+sgtitle('Average $\frac{2\nabla (A/\beta) \cdot \nabla\tau}{A/\beta} + \nabla^2\tau$','interpreter','latex','fontsize',30);
 for ip = 1:length(attenuation)   
     R = 6371;
     geospr_factor = cosd(attenuation(ip).dist_map) ./ (attenuation(ip).phv_map * R .* sind(attenuation(ip).dist_map));
