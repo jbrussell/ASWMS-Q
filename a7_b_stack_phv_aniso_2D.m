@@ -13,6 +13,9 @@ phase_v_path = [workingdir,'eikonal/'];
 r = 0.05;
 isfigure = 0;
 
+APM = 114; % absolute plate motion (GSRM 2.1; NNR) https://www.unavco.org/software/geodetic-utilities/plate-motion-calculator/plate-motion-calculator.html
+FSD = 75; 
+
 comp = parameters.component;
 periods = parameters.periods;
 lalim = parameters.lalim;
@@ -145,7 +148,7 @@ for ip = 1:length(periods)
             end
 			parastd=confint(para);
             isophv(mi,mj)=para.a;
-            isophv_std(mi,mj)=parastd(2,1)-parastd(1,1);
+            isophv_std(mi,mj)=(parastd(2,1)-parastd(1,1))/2;
             aniso_strength(mi,mj)=para.d;
             aniso_azi(mi,mj)=para.e;
             if para.e > 180
@@ -156,11 +159,11 @@ for ip = 1:length(periods)
             if is_one_phi
                 aniso_1phi_strength(mi,mj)=para.b;
                 aniso_1phi_azi(mi,mj)=para.c;
-                aniso_strength_std(mi,mj)=parastd(2,4)-parastd(1,4);
-                aniso_azi_std(mi,mj)=parastd(2,5)-parastd(1,5);
+                aniso_strength_std(mi,mj)=(parastd(2,4)-parastd(1,4))/2;
+                aniso_azi_std(mi,mj)=(parastd(2,5)-parastd(1,5))/2;
             else
-                aniso_strength_std(mi,mj)=parastd(2,2)-parastd(1,2);
-                aniso_azi_std(mi,mj)=parastd(2,3)-parastd(1,3);
+                aniso_strength_std(mi,mj)=(parastd(2,2)-parastd(1,2))/2;
+                aniso_azi_std(mi,mj)=(parastd(2,3)-parastd(1,3))/2;
             end          
             if is_one_phi && isfigure
                 figure(11)
@@ -188,11 +191,44 @@ for ip = 1:length(periods)
 		avgphv_aniso(ip).aniso_strength_std=aniso_strength_std;
 		avgphv_aniso(ip).aniso_azi_std=aniso_azi_std;
 	end          
+    
+    % Get average values from 2-D maps
+    avgphv_aniso(ip).isophv_2d_mean = nanmean(avgphv_aniso(ip).isophv(:));
+    % Report which ever is largest, std of map or mean of stds
+    avgphv_aniso(ip).isophv_2d_mean_err = max([nanstd(avgphv_aniso(ip).isophv(:)), nanmean(avgphv_aniso(ip).isophv_std(:))]);
+    % Get values from center of array
+    latc = mean(xi(~isnan(avgphv_aniso(ip).isophv))); % center latitude
+    lonc = mean(yi(~isnan(avgphv_aniso(ip).isophv))); % center longitude
+    [~,ilat] = min(abs(xnode-latc));
+    [~,ilon] = min(abs(ynode-lonc));
+    isophv_2d_block = avgphv_aniso(ip).isophv(ilat+[-1:1],ilon+[-1:1]);
+    isophv_2d_block_std = avgphv_aniso(ip).isophv_std(ilat+[-1:1],ilon+[-1:1]);
+    avgphv_aniso(ip).isophv_2d_center = nanmean(isophv_2d_block(:));
+    avgphv_aniso(ip).isophv_2d_center_err = max([nanstd(isophv_2d_block(:)), nanmean(isophv_2d_block_std(:))]);
+    avgphv_aniso(ip).latc = latc;
+    avgphv_aniso(ip).lonc = lonc;
+    
+    [ A_mean, phi_mean ] = mean_aniso(avgphv_aniso(ip).aniso_strength(:), avgphv_aniso(ip).aniso_azi(:));
+    avgphv_aniso(ip).aniso_strength_2d_mean = A_mean;
+    avgphv_aniso(ip).aniso_azi_2d_mean = phi_mean;
+    avgphv_aniso(ip).aniso_strength_2d_mean_err = max([nanstd(avgphv_aniso(ip).aniso_strength(:)), nanmean(avgphv_aniso(ip).aniso_strength_std(:))]);
+    avgphv_aniso(ip).aniso_azi_2d_mean_err = nanmean(avgphv_aniso(ip).aniso_azi_std(:));
+    aniso_strength_2d_block = avgphv_aniso(ip).aniso_strength(ilat+[-1:1],ilon+[-1:1]);
+    aniso_strength_2d_block_std = avgphv_aniso(ip).aniso_strength_std(ilat+[-1:1],ilon+[-1:1]);
+    aniso_azi_2d_block = avgphv_aniso(ip).aniso_azi(ilat+[-1:1],ilon+[-1:1]);
+    aniso_azi_2d_block_std = avgphv_aniso(ip).aniso_azi_std(ilat+[-1:1],ilon+[-1:1]);
+    [ A_mean, phi_mean ] = mean_aniso(aniso_strength_2d_block(:), aniso_azi_2d_block(:));
+    avgphv_aniso(ip).aniso_strength_2d_center = A_mean;
+    avgphv_aniso(ip).aniso_strength_2d_center_err = max([nanstd(aniso_strength_2d_block(:)), nanmean(aniso_strength_2d_block_std(:))]);
+    avgphv_aniso(ip).aniso_azi_2d_center = phi_mean;
+    avgphv_aniso(ip).aniso_azi_2d_center_err = nanmean(aniso_azi_2d_block_std(:));
+    
 end % end of period loop
 
 filename = [workingdir,'eikonal_stack_aniso_',comp,'.mat'];
 save(filename,'avgphv_aniso');
 
+%%
 N=3; M = floor(length(periods)/N)+1;
 figure(56)
 clf
@@ -207,6 +243,7 @@ for ip = 1:length(periods)
 	drawnow
 	avgv = nanmean(avgphv_aniso(ip).isophv(:));
 	caxis([avgv*(1-r) avgv*(1+r)])
+    title([num2str(periods(ip)),' s'])
 end
 
 %%
@@ -245,8 +282,62 @@ for ip = 1:length(periods)
 %     plotm(xpts_bg,ypts_bg,'-','Color',[0 0 0],'linewidth',4);
     plotm(xpts,ypts,'-','Color',[0.9 0 0],'linewidth',2);
     hold on;
+    title([num2str(periods(ip)),' s'])
     % Plot reference
 %     refstick = scale*0.02;
 %     plotm([min(lalim) min(lalim)]+abs(diff(lalim))*0.15,[max(lolim)-refstick/2 max(lolim)+refstick/2]-abs(diff(lolim))*0.15,'-','Color',[0.9 0 0],'linewidth',2);
 %     textm(min(lalim)+abs(diff(lalim))*0.09,max(lolim)-abs(diff(lolim))*0.15,'2%','fontsize',12,'HorizontalAlignment', 'center');
 end
+
+%% Plot 1d estimates
+figure(59);
+set(gcf,'position',[351   677   560   668]);
+clf
+clear avgv avgv_std aniso_str aniso_str_std aniso_azi aniso_azi_std aniso_azi_bin_2std aniso_azi_bin aniso_str_bin_2std aniso_str_bin avgv_bin_2std avgv_bin
+for ip = 1:length(periods)
+    avgv(ip) = avgphv_aniso(ip).isophv_2d_mean;
+    avgv_std(ip) = avgphv_aniso(ip).isophv_2d_mean_err;
+    aniso_str(ip) = avgphv_aniso(ip).aniso_strength_2d_mean;
+    aniso_str_std(ip) = avgphv_aniso(ip).aniso_strength_2d_mean_err;
+    aniso_azi(ip) = avgphv_aniso(ip).aniso_azi_2d_mean;
+    aniso_azi_std(ip) = avgphv_aniso(ip).aniso_azi_2d_mean_err;
+    
+    avgv_center(ip) = avgphv_aniso(ip).isophv_2d_center;
+    avgv_center_std(ip) = avgphv_aniso(ip).isophv_2d_center_err;
+    aniso_str_center(ip) = avgphv_aniso(ip).aniso_strength_2d_center;
+    aniso_str_center_std(ip) = avgphv_aniso(ip).aniso_strength_2d_center_err;
+    aniso_azi_center(ip) = avgphv_aniso(ip).aniso_azi_2d_center;
+    aniso_azi_center_std(ip) = avgphv_aniso(ip).aniso_azi_2d_center_err;
+    
+end
+%plot native
+subplot(3,1,1); hold on;
+errorbar(periods,avgv,avgv_std,'-or');
+errorbar(periods,avgv_center,avgv_center_std,'-ob');
+ylim([3.85 4.4]);
+xlim([20 150]);
+ylabel('c (km/s)');
+legend({'2-D Average','2-D Center'},'location','northwest');
+%plot native
+
+subplot(3,1,2); hold on;
+errorbar(periods,aniso_str*100*2,aniso_str_std*100,'-or');
+errorbar(periods,aniso_str_center*100*2,aniso_str_center_std*100,'-ob');
+
+ylim([0 5]);
+xlim([20 150]);
+ylabel('2A');
+%plot native
+subplot(3,1,3); hold on;
+plot([periods(1),periods(end)],FSD*[1 1],'--k','linewidth',1.5); hold on;
+plot([periods(1),periods(end)],APM*[1 1],'--','color',[0.5 0.5 0.5],'linewidth',1.5);
+errorbar(periods,aniso_azi,aniso_azi_std,'-or');
+errorbar(periods,aniso_azi+180,aniso_azi_std,'-or');
+errorbar(periods,aniso_azi-180,aniso_azi_std,'-or');
+errorbar(periods,aniso_azi_center,aniso_azi_center_std,'-ob');
+errorbar(periods,aniso_azi_center+180,aniso_azi_center_std,'-ob');
+errorbar(periods,aniso_azi_center-180,aniso_azi_center_std,'-ob');
+ylim([50 140]);
+xlim([20 150]);
+ylabel('\phi');
+xlabel('Periods (s)');
