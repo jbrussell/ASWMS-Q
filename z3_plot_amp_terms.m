@@ -251,6 +251,9 @@ for ie = 1:length(eventfiles)
         surfacem(xi,yi,amp_decay_map_pl);
         plotm(la_gc,lo_gc,'-k');
         title([num2str(periods(ip)),' s'],'fontsize',15)
+        if ~isempty(amp_decay_map_pl(~isnan(amp_decay_map_pl(:))))
+            caxis([-1 1]*max(abs(amp_decay_map_pl(:))));
+        end
         cb = colorbar;
         colormap(seiscmap)
         clim{ip} = cb.Limits;
