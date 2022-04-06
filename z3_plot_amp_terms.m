@@ -14,20 +14,8 @@ setup_parameters
 is_figures_aux = 0; % lots of additional figures...
 % is_save_amp_fig = 1;
 
-% min_Mw = 5.5; % minimum magnitude
-% min_Ngrcells = 20; % minimum numbe of grid cells required in order to use event
-% azi_bin_deg = 30; % [deg] size of azimuthal bins
-% min_nbin = 10; % minimum number of measurements in order to include bin
-% N_min_evts = 10; % minimum number of events contributing to grid cell required in order to be considered
-
 min_Mw = parameters.min_Mw_alpha; % minimum magnitude
 min_Ngrcells = parameters.min_Ngrcells; % minimum numbe of grid cells required in order to use event
-azi_bin_deg = parameters.azi_bin_deg; % [deg] size of azimuthal bins
-min_nbin = parameters.min_nbin; % minimum number of measurements in order to include bin
-N_min_evts = parameters.N_min_evts; % minimum number of events contributing to grid cell required in order to be considered
-smsize_alpha = parameters.smsize_alpha; % number of nearby gridcells to gather data from
-smweight_beta = parameters.smweight_beta; % Second derivative smoothing weight for beta map
-smooth_rad_deg = parameters.smooth_rad_deg; % [deg] smoothing radius of 2d alpha map
 
 is_eikonal_ampgrad_norm = parameters.is_eikonal_ampgrad_norm;
 
