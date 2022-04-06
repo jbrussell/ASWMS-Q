@@ -472,6 +472,22 @@ for ip = 1:length(avgphv)
     alpha_2d_sm = smoothmap(xi,yi,attenuation(ip).alpha_2d,D);
     alpha_2d_sm(find(isnan(attenuation(ip).alpha_2d))) = NaN;
     attenuation(ip).alpha_2d = alpha_2d_sm;
+    
+    % Get average values from 2-D maps
+    attenuation(ip).alpha_2d_mean = nanmean(attenuation(ip).alpha_2d(:));
+    % Report which ever is largest, std of map or mean of stds
+    attenuation(ip).alpha_2d_mean_err = max([nanstd(attenuation(ip).alpha_2d(:)), nanmean(attenuation(ip).alpha_2d_err(:))]);
+    % Get alpha from center of array
+    latc = mean(xi(~isnan(attenuation(ip).alpha_2d))); % center latitude
+    lonc = mean(yi(~isnan(attenuation(ip).alpha_2d))); % center longitude
+    [~,ilat] = min(abs(xnode-latc));
+    [~,ilon] = min(abs(ynode-lonc));
+    alpha_2d_block = attenuation(ip).alpha_2d(ilat+[-1:1],ilon+[-1:1]);
+    alpha_2d_block_std = attenuation(ip).alpha_2d_err(ilat+[-1:1],ilon+[-1:1]);
+    attenuation(ip).alpha_2d_center = nanmean(alpha_2d_block(:));
+    attenuation(ip).alpha_2d_center_err = max([nanstd(alpha_2d_block(:)), nanmean(alpha_2d_block_std(:))]);
+    attenuation(ip).latc = latc;
+    attenuation(ip).lonc = lonc;
 	
     % Invert for beta map
 	[beta_2d,chi2] = inv_beta(xi,yi,attenuation(ip).dlnbeta_dy_2d,attenuation(ip).dlnbeta_dx_2d,attenuation(ip).dlnbeta_dy_2d_err,attenuation(ip).dlnbeta_dx_2d_err,smweight_beta);
@@ -527,23 +543,10 @@ alphas_bin = [attenuation(:).alpha_1d_bin];
 alphas_bin_err = [attenuation(:).alpha_1d_bin_err];
 alphas_avg = [attenuation(:).alpha_1d_avg];
 alphas_avg_err = [attenuation(:).alpha_1d_avg_err];
-latc = mean(xi(~isnan(attenuation(ip).alpha_2d)));
-lonc = mean(yi(~isnan(attenuation(ip).alpha_2d)));
-[~,ilat] = min(abs(xnode-latc));
-[~,ilon] = min(abs(ynode-lonc));
-alphas_2d_center=[]; alphas_2d_center_err=[];
-alphas_2d=[]; alphas_2d_err=[];
-for ip = 1:length(attenuation)
-    alphas_2d(ip) = nanmean(attenuation(ip).alpha_2d(:));
-%     alphas_2d_err(ip) = nanmean(attenuation(ip).alpha_2d_err(:));
-	% Report which ever is largest, std of map or mean of stds
-    alphas_2d_err(ip) = max([nanstd(attenuation(ip).alpha_2d(:)), nanmean(attenuation(ip).alpha_2d_err(:))]);
-    % Get alpha from center of array
-    alpha_2d_block = attenuation(ip).alpha_2d(ilat+[-1:1],ilon+[-1:1]);
-    alpha_2d_block_std = attenuation(ip).alpha_2d_err(ilat+[-1:1],ilon+[-1:1]);
-    alphas_2d_center(ip) = nanmean(alpha_2d_block(:));
-    alphas_2d_center_err(ip) = max([nanstd(alpha_2d_block(:)), nanmean(alpha_2d_block_std(:))]);
-end
+alphas_2d = [attenuation(:).alpha_2d_mean];
+alphas_2d_err = [attenuation(:).alpha_2d_mean_err];
+alphas_2d_center = [attenuation(:).alpha_2d_center];
+alphas_2d_center_err = [attenuation(:).alpha_2d_center_err];
 plot(mode.T,alpha_MINEOS,'-','color',[0.7 0.7 0.7],'linewidth',5); hold on;
 errorbar(periods,alphas_bin,alphas_bin_err,'-om'); hold on;
 errorbar(periods,alphas,alphas_err,'-ok');
