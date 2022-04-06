@@ -352,9 +352,9 @@ for ie = 1:length(csmatfiles)
 	    dA_res = dt - mat*phaseg;
 	    
 	    % Calculate model resolution and chi2
-	    Ginv = (A'*A)\mat';
-	    R = Ginv * mat; % model resolution
-	    D = mat * Ginv; % data resolution
+	    Ginv = (A'*A)\mat'*W;
+	    R = Ginv * W*mat; % model resolution
+	    D = W*mat * Ginv; % data resolution
 	    % Effective degrees of freedom
 	    v = length(dt) - trace(D);
 	%         v = trace(D);
