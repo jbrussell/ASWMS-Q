@@ -547,7 +547,8 @@ latc = mean(xi(~isnan(attenuation(ip).alpha_2d)));
 lonc = mean(yi(~isnan(attenuation(ip).alpha_2d)));
 [~,ilat] = min(abs(xnode-latc));
 [~,ilon] = min(abs(ynode-lonc));
-alphas_2d_center = [];
+alphas_2d_center=[]; alphas_2d_center_err=[];
+alphas_2d=[]; alphas_2d_err=[];
 for ip = 1:length(attenuation)
     alphas_2d(ip) = nanmean(attenuation(ip).alpha_2d(:));
 %     alphas_2d_err(ip) = nanmean(attenuation(ip).alpha_2d_err(:));
