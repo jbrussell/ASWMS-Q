@@ -529,11 +529,21 @@ alphas_bin = [attenuation(:).alpha_1d_bin];
 alphas_bin_err = [attenuation(:).alpha_1d_bin_err];
 alphas_avg = [attenuation(:).alpha_1d_avg];
 alphas_avg_err = [attenuation(:).alpha_1d_avg_err];
+latc = mean(xi(~isnan(attenuation(ip).alpha_2d)));
+lonc = mean(yi(~isnan(attenuation(ip).alpha_2d)));
+[~,ilat] = min(abs(xnode-latc));
+[~,ilon] = min(abs(ynode-lonc));
+alphas_2d_center = [];
 for ip = 1:length(attenuation)
     alphas_2d(ip) = nanmean(attenuation(ip).alpha_2d(:));
 %     alphas_2d_err(ip) = nanmean(attenuation(ip).alpha_2d_err(:));
-% Report which ever is largest, std of map or mean of stds
-alphas_2d_err(ip) = max([nanstd(attenuation(ip).alpha_2d(:)), nanmean(attenuation(ip).alpha_2d_err(:))]);
+	% Report which ever is largest, std of map or mean of stds
+    alphas_2d_err(ip) = max([nanstd(attenuation(ip).alpha_2d(:)), nanmean(attenuation(ip).alpha_2d_err(:))]);
+    % Get alpha from center of array
+    alpha_2d_block = attenuation(ip).alpha_2d(ilat+[-1:1],ilon+[-1:1]);
+    alpha_2d_block_std = attenuation(ip).alpha_2d_err(ilat+[-1:1],ilon+[-1:1]);
+    alphas_2d_center(ip) = nanmean(alpha_2d_block(:));
+    alphas_2d_center_err(ip) = max([nanstd(alpha_2d_block(:)), nanmean(alpha_2d_block_std(:))]);
 end
 plot(mode.T,alpha_MINEOS,'-','color',[0.7 0.7 0.7],'linewidth',5); hold on;
 errorbar(periods,alphas_bin,alphas_bin_err,'-om'); hold on;
@@ -541,9 +551,10 @@ errorbar(periods,alphas,alphas_err,'-ok');
 plot(periods,alphas_avg,'-oc');
 % errorbar(periods,alphas_2d,alphas_2d_err,'-ob');
 plot(periods,alphas_2d,'-ob');
+errorbar(periods,alphas_2d_center,alphas_2d_center_err,'-og');
 plot(1./f_mhz_zhitu*1000,alpha_zhitu,'xr','linewidth',3,'MarkerSize',8); hold on;
 plot(1./f_mhz_zhitu*1000,alpha_zhitu*2,'x','color',[0 0.85 0],'linewidth',3,'MarkerSize',8); hold on;
-legend({'True','1D fit (bin)','1D fit','1D mean','2D fit avg','Zhitu','Zhitu x 2'},'location','northeastoutside','fontsize',15)
+legend({'True','1D fit (bin)','1D fit','1D mean','2D fit avg','2D fit center','Zhitu','Zhitu x 2'},'location','northeastoutside','fontsize',15)
 set(gca,'fontsize',15,'linewidth',1.5);
 xlabel('Period (s)');
 ylabel('\alpha (km^{-1})');
