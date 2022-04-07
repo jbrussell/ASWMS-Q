@@ -134,6 +134,24 @@ for ip = 1:length(periods)
         twpevents(ie).azi = azimuth(evla,evlo,stlas,stlos,referenceEllipsoid('GRS80'));
         twpevents(ie).baz = azimuth(stlas,stlos,evla,evlo,referenceEllipsoid('GRS80'));
     end
+	
+	% Check for an remove outliers
+    for ie=1:length(twpevents)
+        amps = [twpevents(ie).amp].^0.5;
+        dists = [twpevents(ie).dists];
+        [mindist mindistid] = min(dists);
+        damps = amps./amps(mindistid);
+        ibad = find(damps>2.5 | damps<1/2.5);
+        twpevents(ie).stlas(ibad) = [];
+        twpevents(ie).stlos(ibad) = [];
+        twpevents(ie).stnms(ibad) = [];
+        twpevents(ie).tp(ibad) = [];
+        twpevents(ie).amp(ibad) = [];
+        twpevents(ie).degs(ibad) = [];
+        twpevents(ie).dists(ibad) = [];
+        twpevents(ie).azi(ibad) = [];
+        twpevents(ie).baz(ibad) = [];
+    end
 
     % output the files
     cfp = fopen(control_file,'w');
