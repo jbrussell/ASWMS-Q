@@ -111,6 +111,7 @@ end
 weights(isinf(weights)) = 0;
 
 % %%
+figure(11); clf;
 N=4; M = floor(length(periods)/N)+1;
 for ip = 1:length(periods)
     isophv=nan(Nx,Ny);
