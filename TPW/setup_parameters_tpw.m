@@ -3,7 +3,8 @@
 path2ASWMS_output = './ASWMS_OUT/'; % location of ASWMS output directory
 path2ASWMS_functions = '../functions'; % location of ASWMS functions
 addpath(path2ASWMS_output); addpath(path2ASWMS_functions); addpath('./functions/');
-setup_parameters;
+system(['cp ',path2ASWMS_output,'/setup_parameters.m setup_parameters_aswms.m'])
+setup_parameters_aswms;
 parameters.workingdir = path2ASWMS_output;
 
 % Path to tpw fortran binary
