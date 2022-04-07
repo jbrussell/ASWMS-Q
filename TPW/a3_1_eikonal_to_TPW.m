@@ -135,7 +135,7 @@ for ip = 1:length(periods)
         twpevents(ie).baz = azimuth(stlas,stlos,evla,evlo,referenceEllipsoid('GRS80'));
     end
 	
-	% Check for an remove outliers
+	% Check for and remove outliers
     for ie=1:length(twpevents)
         amps = [twpevents(ie).amp].^0.5;
         dists = [twpevents(ie).dists];
