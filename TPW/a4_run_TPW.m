@@ -32,5 +32,6 @@ for ip = 1:length(periods)
         error( 'something is wrong at srchwave589... try running a00_make_fortran_executable.m')
     end
 end
+delete('followit12c');
 cd(currentdir)
 
