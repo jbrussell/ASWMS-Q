@@ -228,7 +228,7 @@ c  Usually will pipe in data from some file like eqlistper50.
         read(*,*) nsta(iev),idnum(iev)
         nobs = nobs+ 2*nsta(iev)
 	do i = 1, nsta(iev)
-        read(*,'(a)') fn(iev,i)
+        read(*,*) fn(iev,i)
 	enddo
       enddo
       
@@ -295,6 +295,7 @@ c  first, read in master list of stations
       do ista = 1, maxnsta
         nevntsta(ista) = 0
 	read(18,*) staname(ista)
+      write(14,*) staname(ista)
 	if (staname(ista).eq.'nope') then
 	  mxnsta = ista -1
 	  go to 1111
