@@ -156,7 +156,7 @@ c  This version reads in non-uniform starting model
       
       
       character*2   nettemp
-      character*4   statemp 
+      character*10  statemp 
       character*90  foutput,fsummary,fvariance
 c  JBR - begin edit
       character*90  outvel, outazi, outstacor, outalpha
@@ -173,7 +173,7 @@ c      character*75  dummy1
 c      character*100 foutput,fn(maxevnts,maxnsta),fsummary
 c  ******* changes in this area from yun version
 c      character*100 foutput,fsummary
-      character*4 staname(maxnsta)
+      character*10 staname(maxnsta)
       character*97 fn(maxevnts,maxnsta)
       character*85  dummy, dummy1 
 
