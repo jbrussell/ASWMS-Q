@@ -35,7 +35,7 @@ phi2 = 0.5*atan2d(As_mat,Ac_mat);
 
 % Propagate error
 A2_std = sqrt( ((Ac_mat.*Ac_std_mat).^2 + (As_mat.*As_std_mat).^2) ./ (Ac_mat.^2 + As_mat.^2) );
-phi2_std = 0.5*sqrt( ((As_mat.*Ac_std_mat).^2 + (Ac_mat.*As_std_mat).^2) ./ (Ac_mat.^2 + As_mat.^2) );
+phi2_std = 180/pi * 0.5*sqrt( (As_mat.*Ac_std_mat).^2 + (Ac_mat.*As_std_mat).^2 ) ./ (Ac_mat.^2 + As_mat.^2);
 
 mat.A2_kms = A2; % km/s
 mat.A2_std_kms = A2_std; % km/s
