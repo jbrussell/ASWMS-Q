@@ -65,6 +65,7 @@ for ip = 1:length(periods)
     outazi = ['outazi.',num2str(round(period),'%03d'),'.txt'];
     outstacor = ['outstacor.',num2str(round(period),'%03d'),'.txt'];
     outalpha = ['outalpha.',num2str(round(period),'%03d'),'.txt'];
+	fresdiag = ['resolve.',num2str(round(period),'%03d'),'.txt'];
 
     % read in bad station list, if existed
     if exist('badsta.lst')
@@ -206,7 +207,7 @@ for ip = 1:length(periods)
     fprintf(cfp,'%s\n',kernelfile); % sensfn - sensitivity kernels
     fprintf(cfp,'%s\n','velout.dum'); % fvelout - output velocity file
     fprintf(cfp,'%s\n',outgrd); % startvel
-    fprintf(cfp,'%s\n','resolve.dum'); % fresdiag - Resolution
+    fprintf(cfp,'%s\n',fresdiag); % fresdiag - Resolution
     fprintf(cfp,'%s\n','gridphase.dum'); % fendvel
     fprintf(cfp,'%s\n',outvel); % output phase velocity
     fprintf(cfp,'%s\n',outazi); % output azimuthal anisotropy
