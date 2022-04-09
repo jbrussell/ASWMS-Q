@@ -15,6 +15,8 @@
 %
 clear;
 
+amp_rel_QC = 3; % 999; % Relative amplitude QC
+
 setup_parameters_tpw;
 comp = parameters.component;
 periods = parameters.periods;
@@ -145,23 +147,23 @@ for ip = 1:length(periods)
         twpevents(ie).baz = azimuth(stlas,stlos,evla,evlo,referenceEllipsoid('GRS80'));
     end
 	
-	% % Check for and remove outliers
-    % for ie=1:length(twpevents)
-    %     amps = [twpevents(ie).amp].^0.5;
-    %     dists = [twpevents(ie).dists];
-    %     [mindist mindistid] = min(dists);
-    %     damps = amps./amps(mindistid);
-    %     ibad = find(damps>2.5 | damps<1/2.5);
-    %     twpevents(ie).stlas(ibad) = [];
-    %     twpevents(ie).stlos(ibad) = [];
-    %     twpevents(ie).stnms(ibad) = [];
-    %     twpevents(ie).tp(ibad) = [];
-    %     twpevents(ie).amp(ibad) = [];
-    %     twpevents(ie).degs(ibad) = [];
-    %     twpevents(ie).dists(ibad) = [];
-    %     twpevents(ie).azi(ibad) = [];
-    %     twpevents(ie).baz(ibad) = [];
-    % end
+	% Check for and remove outliers
+    for ie=1:length(twpevents)
+        amps = [twpevents(ie).amp].^0.5;
+        dists = [twpevents(ie).dists];
+        [mindist mindistid] = min(dists);
+        damps = amps./amps(mindistid);
+        ibad = find(damps>amp_rel_QC | damps<1/amp_rel_QC);
+        twpevents(ie).stlas(ibad) = [];
+        twpevents(ie).stlos(ibad) = [];
+        twpevents(ie).stnms(ibad) = [];
+        twpevents(ie).tp(ibad) = [];
+        twpevents(ie).amp(ibad) = [];
+        twpevents(ie).degs(ibad) = [];
+        twpevents(ie).dists(ibad) = [];
+        twpevents(ie).azi(ibad) = [];
+        twpevents(ie).baz(ibad) = [];
+    end
 
     % output the files
     cfp = fopen(control_file,'w');
