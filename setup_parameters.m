@@ -96,7 +96,7 @@ parameters.alpha_search_grid = 0.1;
 %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%%
 % parameter for stacking 
 % (stack_phv.m stack_helm.m)
-parameters.min_csgoodratio= 1*ones(length(parameters.periods));%[3 3 3 3 5 10 15 15 15 15 20]; %[3 3 3 3 5 10 15 15]; % minimum radio between good and bad measurements for a good event
+parameters.min_csgoodratio= 1*ones(1,length(parameters.periods));%[3 3 3 3 5 10 15 15 15 15 20]; %[3 3 3 3 5 10 15 15]; % minimum radio between good and bad measurements for a good event
 parameters.min_phv_tol = 3; % minimum allowed phase velocity
 parameters.max_phv_tol = 5; % maximum allowed phase velocity
 parameters.is_raydense_weight = 0; %1; % manual says suggested turned off for large azimuthal anisotropy
