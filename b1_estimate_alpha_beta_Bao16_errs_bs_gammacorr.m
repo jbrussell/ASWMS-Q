@@ -21,6 +21,8 @@ is_figures_aux = 0; % lots of additional figures...
 % is_save_amp_fig = 1;
 is_save_mat = 1;
 
+gamma_frac_thresh = 0.1; % remove pixels within gamma +/- this fraction to avoid strong finite-frequency biases 
+
 % min_Mw = 5.5; % minimum magnitude
 % min_Ngrcells = 20; % minimum numbe of grid cells required in order to use event
 % azi_bin_deg = 30; % [deg] size of azimuthal bins
@@ -194,6 +196,11 @@ for ip = 1:length(avgphv)
         
         % Finite-frequency correction factor
         gamma = phv.*tp_grad;
+		
+		% Remove pixels with large finite-frequency bias
+        inan = gamma>1+gamma_frac_thresh | gamma<1-gamma_frac_thresh;
+        gamma(inan) = nan;
+        phv(inan) = nan;
         
 %         figure(1); clf;
 %         subplot(2,2,1);
