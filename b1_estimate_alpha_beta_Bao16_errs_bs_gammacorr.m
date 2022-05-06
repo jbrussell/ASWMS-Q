@@ -190,7 +190,8 @@ for ip = 1:length(avgphv)
         azi_prop_anom  = angdiff(razi*pi/180,azi_prop*pi/180)*180/pi;
         
         % Get structural phase velocity
-        phv = avgphv(ip).GV_cor ;
+%         phv = avgphv(ip).GV_cor ; % use average Helmholtz
+        phv = traveltime(ip).GV_cor ; % use event-specific Helmholtz
         phv(isnan(traveltime(ip).GV_cor)) = nan;
         phv_err = full(traveltime(ip).phv_err);
         
