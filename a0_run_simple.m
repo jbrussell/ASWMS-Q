@@ -24,6 +24,6 @@ a9_b_stack_helm
 
 a11_fit_tp_surf
 
-b1_estimate_alpha_beta_Bao16_errs_bs
+b1_estimate_alpha_beta_Bao16_errs_bs_gammacorr
 
 c1_save_figures
