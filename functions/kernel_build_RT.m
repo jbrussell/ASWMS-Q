@@ -83,7 +83,7 @@ else % faster way, or so we hope
     for iq = unique(qv)'
         ii = ii+1;
         drq(ii) = sum(dr(qv==iq));
-        azq(ii) = mean(azi_ray(qv==iq));
+        azq(ii) = angmean(azi_ray(qv==iq)*pi/180)*180/pi;
     end
     % now count of the ray segments in each pixel of the
     % image, and use the count to increment the appropriate
