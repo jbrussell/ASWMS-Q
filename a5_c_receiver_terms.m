@@ -280,6 +280,7 @@ for ip = 1:length(amplitudes)
 %     amplitudes(ip).dlogAmp_avg;
 %     amplitudes(ip).std_err;
 %     amplitudes(ip).G = G;
+	receiver(ip).period = periods(ip);
     receiver(ip).Amp_rec = Amp_rec;
     receiver(ip).std_pair = std_save;
     receiver(ip).chi2 = chi2;
