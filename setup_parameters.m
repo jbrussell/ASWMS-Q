@@ -37,6 +37,7 @@ parameters.eventfile = 'evlist.txt'; % name of eventlist located in dbpath
 parameters.minMw = 5.5;
 parameters.maxdepth = 50;
 parameters.snr_tol = 3;
+parameters.resample_delta = 1; % in second 
 
 %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%%
 % parameters for the auto_win_select.m

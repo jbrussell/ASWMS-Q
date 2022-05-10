@@ -88,6 +88,23 @@ for ie = 1:length(eventids)
 %             disp('low snr... skipping')
             continue
         end
+		
+        % resample the data if necessary
+        if parameters.resample_delta > data_delta
+            data_delta = sac.DELTA;
+            stadata = sac.DATA1;
+        	old_taxis = 0:data_delta:(length(stadata)-1)*data_delta;
+        	resample_delta = parameters.resample_delta;
+        	new_taxis = 0:resample_delta:(length(stadata)-1)*data_delta;
+        	% apply anti-alias filter
+        	fN = 1/2/data_delta;
+        	w_c = 1./2/resample_delta/fN;
+        	[b,a] = butter(2,w_c,'low');
+        	stadata = filtfilt(b,a,stadata);
+        	sac.DATA1 = interp1(old_taxis,stadata,new_taxis,'spline');
+        	sac.DELTA = resample_delta;
+        end
+		
         iisac = iisac+1;
 		% build up event.stadata structure
 		event.stadata(iisac).stla = sac.STLA;
