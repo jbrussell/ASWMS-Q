@@ -79,7 +79,7 @@ parameters.is_winx2 = 1; % jbr - 0=window single seismogram (default); 1=window 
 % (eikonal_eq.m helmholtz_eq.m)
 % parameters.smweight_array = 3*[0.4 0.3 0.2 0.2 0.2 0.5 0.5 0.5 1 1 1 2 3 3 3];  % 2nd derivative smoothing weight for the deltaSx and delta Sy
 parameters.grd_per_wl = parameters.refphv.*parameters.periods./deg2km(parameters.gridsize); % JBR - grid cells per wavelength
-parameters.smweight_array = 1*parameters.grd_per_wl; % 2nd derivative smoothing weight for the deltaSx and delta Sy
+parameters.smweight_array = 0.1*parameters.grd_per_wl; % 2nd derivative smoothing weight for the deltaSx and delta Sy
 parameters.flweight_array = 0*parameters.grd_per_wl; % JBR - 1st derivative smoothing
 parameters.is_offgc_smoothing = 0; % 1st derivative smoothing along propagation direction rather than great circle. Requires an initial run of a6_a0_eikonal_eq_GetPropAzi.m to get propagation azimuth
 parameters.raydensetol=deg2km(parameters.gridsize)*2;
