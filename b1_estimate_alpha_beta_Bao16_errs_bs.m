@@ -488,6 +488,14 @@ for ip = 1:length(avgphv)
     alpha_2d_sm = smoothmap(xi,yi,attenuation(ip).alpha_2d,D);
     alpha_2d_sm(find(isnan(attenuation(ip).alpha_2d))) = NaN;
     attenuation(ip).alpha_2d = alpha_2d_sm;
+	
+	inan2d = isnan(avgphv(ip).GV_cor);
+    attenuation(ip).alpha_2d(inan2d) = nan;
+    attenuation(ip).alpha_2d_err(inan2d) = nan;
+    attenuation(ip).dlnbeta_dy_2d(inan2d) = nan;
+    attenuation(ip).dlnbeta_dx_2d(inan2d) = nan;
+    attenuation(ip).dlnbeta_dy_2d_err(inan2d) = nan;
+    attenuation(ip).dlnbeta_dx_2d_err(inan2d) = nan;
     
     % Get average values from 2-D maps
     attenuation(ip).alpha_2d_mean = nanmean(attenuation(ip).alpha_2d(:));
