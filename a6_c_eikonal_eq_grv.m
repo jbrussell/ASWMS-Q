@@ -111,7 +111,7 @@ for ie = 1:length(csmatfiles)
 	evla = eventcs.evla;
 	evlo = eventcs.evlo;
 
-	matfilename = [eikonl_output_path,'/',eventcs.id,'_eikonal_',comp,'.mat'];
+	matfilename = [eikonl_output_path,'/',eventcs.id,'_eikonal_grv_',comp,'.mat'];
 	if exist(matfilename,'file') && ~is_overwrite
 		disp(['Exist ',matfilename,', skip']);
 		continue;
