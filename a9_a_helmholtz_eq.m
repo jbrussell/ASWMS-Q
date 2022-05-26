@@ -248,8 +248,9 @@ for ie = 1:length(eventfiles)
 	            olon = mean(ynode);
 	            [st_yE, st_xN, ~] = geodetic2enu(stlas, stlos, zeros(size(stlos)), olat, olon, 0, referenceEllipsoid('GRS80'));
 	            [yim_E, xim_N, ~] = geodetic2enu(xi, yi, zeros(size(xi)), olat, olon, 0, referenceEllipsoid('GRS80'));
-	            xnodem_N = mean(xim_N,2)';
-	            ynodem_E = mean(yim_E,1);
+                dm = min( [min(min(abs(diff(xim_N,1)))), min(min(abs(diff(yim_E',1))))]);
+                xnodem_N = min(xim_N(:))-dm : dm : max(xim_N(:))+dm;
+                ynodem_E = min(yim_E(:))-dm : dm : max(yim_E(:))+dm;
 	            [ampmap,mesh_xim,mesh_yim]=gridfit_jg(st_xN/1000,st_yE/1000,amps,xnodem_N/1000,ynodem_E/1000,...
 	                                'smooth',2,'regularizer','del4','solver','normal');
 	            % Convert ENU back to geographic and sample at even grid spacing
