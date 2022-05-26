@@ -144,24 +144,8 @@ for ie = 1:length(eventfiles)
             mesh_xi = xi';
             mesh_yi = yi';
         else
-            % [tpmap,mesh_xi,mesh_yi]=gridfit_jg(stlas,stlos,tp,xnode,ynode,...
-            %                     'smooth',2,'regularizer','del4','solver','normal');
-            % Convert from geographic to ENU for surface fitting
-            mesh_xi = xi';
-            mesh_yi = yi';
-            olat = mean(xnode);
-            olon = mean(ynode);
-            [st_yE, st_xN, ~] = geodetic2enu(stlas, stlos, zeros(size(stlos)), olat, olon, 0, referenceEllipsoid('GRS80'));
-            [yim_E, xim_N, ~] = geodetic2enu(xi, yi, zeros(size(xi)), olat, olon, 0, referenceEllipsoid('GRS80'));
-            dm = min( [min(min(abs(diff(xim_N,1)))), min(min(abs(diff(yim_E',1))))]);
-            xnodem_N = min(xim_N(:))-dm : dm : max(xim_N(:))+dm;
-            ynodem_E = min(yim_E(:))-dm : dm : max(yim_E(:))+dm;
-            [tpmap,mesh_xim,mesh_yim]=gridfit_jg(st_xN/1000,st_yE/1000,tp,xnodem_N/1000,ynodem_E/1000,...
+            [tpmap,mesh_xi,mesh_yi]=gridfit_jg_geo(stlas,stlos,tp,xnode,ynode,...
                                 'smooth',2,'regularizer','del4','solver','normal');
-            % Convert ENU back to geographic and sample at even grid spacing
-            [mesh_xig, mesh_yig, ~] = enu2geodetic(mesh_yim*1000, mesh_xim*1000, zeros(size(mesh_xim)), olat, olon, 0, referenceEllipsoid('GRS80'));
-            F = scatteredInterpolant(mesh_xig(:),mesh_yig(:),tpmap(:));
-            tpmap = F(mesh_xi,mesh_yi);
         end
 
 		%% Calculate the traveltime and amplitude fields

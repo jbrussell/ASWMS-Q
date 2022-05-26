@@ -295,7 +295,7 @@ for ip = 1:length(periods)
     stlas = receiver(ip).stlas;
     stlos = receiver(ip).stlos;
     Amp_rec = receiver(ip).Amp_rec;
-    [Amp_rec_map,mesh_xi,mesh_yi]=gridfit_jg(stlas,stlos,Amp_rec,xnode,ynode,...
+    [Amp_rec_map,mesh_xi,mesh_yi]=gridfit_jg_geo(stlas,stlos,Amp_rec,xnode,ynode,...
                                    'smooth',2,'regularizer','del4','solver','normal');
     receiver(ip).Amp_rec_map = Amp_rec_map';
     receiver(ip).xi = xi;

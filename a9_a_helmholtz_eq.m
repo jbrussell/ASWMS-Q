@@ -182,7 +182,7 @@ for ie = 1:length(eventfiles)
                 % Use amplitude gradient maps from inversion to solve for
                 % maps of amplitude. The inversion includes damping towards 
                 % the reference amplitude map and enforcing second derivative smoothing)
-                [ampmap_ref,mesh_xi,mesh_yi]=gridfit_jg(stlas,stlos,amps,xnode,ynode,...
+                [ampmap_ref,mesh_xi,mesh_yi]=gridfit_jg_geo(stlas,stlos,amps,xnode,ynode,...
                                     'smooth',2,'regularizer','del4','solver','normal');
                 amp_gradlat = -ampgrad(ip).dAmpx;
                 amp_gradlon = -ampgrad(ip).dAmpy;
@@ -239,24 +239,8 @@ for ie = 1:length(eventfiles)
 %         %         caxis([min(ampmap(:)) max(ampmap(:))]);
 %                 pause;
             else
-                % [ampmap,mesh_xi,mesh_yi]=gridfit_jg(stlas,stlos,amps,xnode,ynode,...
-                %                     'smooth',2,'regularizer','del4','solver','normal');
-				% Convert from geographic to ENU for surface fitting
-	            mesh_xi = xi';
-	            mesh_yi = yi';
-	            olat = mean(xnode);
-	            olon = mean(ynode);
-	            [st_yE, st_xN, ~] = geodetic2enu(stlas, stlos, zeros(size(stlos)), olat, olon, 0, referenceEllipsoid('GRS80'));
-	            [yim_E, xim_N, ~] = geodetic2enu(xi, yi, zeros(size(xi)), olat, olon, 0, referenceEllipsoid('GRS80'));
-                dm = min( [min(min(abs(diff(xim_N,1)))), min(min(abs(diff(yim_E',1))))]);
-                xnodem_N = min(xim_N(:))-dm : dm : max(xim_N(:))+dm;
-                ynodem_E = min(yim_E(:))-dm : dm : max(yim_E(:))+dm;
-	            [ampmap,mesh_xim,mesh_yim]=gridfit_jg(st_xN/1000,st_yE/1000,amps,xnodem_N/1000,ynodem_E/1000,...
-	                                'smooth',2,'regularizer','del4','solver','normal');
-	            % Convert ENU back to geographic and sample at even grid spacing
-	            [mesh_xig, mesh_yig, ~] = enu2geodetic(mesh_yim*1000, mesh_xim*1000, zeros(size(mesh_xim)), olat, olon, 0, referenceEllipsoid('GRS80'));
-	            F = scatteredInterpolant(mesh_xig(:),mesh_yig(:),ampmap(:));
-	            ampmap = F(mesh_xi,mesh_yi);
+                [ampmap,mesh_xi,mesh_yi]=gridfit_jg_geo(stlas,stlos,amps,xnode,ynode,...
+                                    'smooth',2,'regularizer','del4','solver','normal');
             end
         end
 
@@ -330,7 +314,7 @@ for ie = 1:length(eventfiles)
 		% smooth the correction term 
 		smD=max([300 periods(ip).*parameters.refv]);
         if length(amp_term(~isnan(amp_term(:))))>min_sta_num
-            amp_term = gridfit_jg(mesh_xi(:),mesh_yi(:),amp_term(:),xnode,ynode,...
+            amp_term = gridfit_jg_geo(mesh_xi(:),mesh_yi(:),amp_term(:),xnode,ynode,...
                                 'smooth',floor(smD./deg2km(gridsize)),'regularizer','laplacian','solver','normal');
         end
 		% prepare the avg phase velocity and event phase velocity
