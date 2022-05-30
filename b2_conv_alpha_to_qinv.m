@@ -145,7 +145,7 @@ for ip = 1:length(attenuation)
 %     end
     title([num2str(periods(ip)),' s'],'fontsize',15)
     cb = colorbar;
-    ylabel(cb,'\alpha');
+    ylabel(cb,'Q^{-1}');
     caxis([0 2e-2]);
     colormap(flip(seiscmap))
 end
