@@ -90,8 +90,8 @@ for ie = 1:length(eventids)
         end
 		
         % resample the data if necessary
+        data_delta = sac.DELTA;
         if parameters.resample_delta > data_delta
-            data_delta = sac.DELTA;
             stadata = sac.DATA1;
         	old_taxis = 0:data_delta:(length(stadata)-1)*data_delta;
         	resample_delta = parameters.resample_delta;
