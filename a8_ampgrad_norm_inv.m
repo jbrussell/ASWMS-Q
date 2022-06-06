@@ -3,8 +3,8 @@
 % 2013.1.16
 %
 % jbrussell - modify original eikonal tomography which inverts dt
-% measurements for dt/dx = grad(t) to instead invert dA/A measurements for
-% (dA/dx)/A = grad(A)/A
+% measurements for dt/dx = grad(t) to instead invert dln(A) measurements for
+% dln(A)/dx = (dA/dx)/A = grad(A)/A
 %
 clear
 % setup parameters
@@ -223,8 +223,9 @@ for ie = 1:length(csmatfiles)
 			if eventcs.CS(ics).isgood(ip) > 0 && ~isnan(amps(Ista1)*amps(Ista2))
 	            
 	%                 dt(ics) = amps(Ista1)-amps(Ista2);
-	            amp_mean = 0.5*(amps(Ista1)+amps(Ista2));
-	            dt(ics) = (amps(Ista1)-amps(Ista2)) ./ amp_mean;
+	            % amp_mean = 0.5*(amps(Ista1)+amps(Ista2));
+	            % dt(ics) = (amps(Ista1)-amps(Ista2)) ./ amp_mean;
+	            dt(ics) = log(amps(Ista1)) - log(amps(Ista2));
 	            
 	% 				dt(ics) = eventcs.CS(ics).dtp(ip);
 				w(ics) = 1;
