@@ -190,13 +190,13 @@ for ip = 1:length(avgphv)
         azi_prop_anom  = angdiff(razi*pi/180,azi_prop*pi/180)*180/pi;
         
         % Get structural phase velocity
-%         phv = avgphv(ip).GV_cor ; % use average Helmholtz
-        phv = traveltime(ip).GV_cor ; % use event-specific Helmholtz
+        phv = avgphv(ip).GV_cor ; % use average Helmholtz
         phv(isnan(traveltime(ip).GV_cor)) = nan;
         phv_err = full(traveltime(ip).phv_err);
         
         % Finite-frequency correction factor
-        gamma = phv.*tp_grad;
+		phv_ev = traveltime(ip).GV_cor ; % use event-specific Helmholtz so that azimuthal anisotropy does not bias "gamma"
+        gamma = phv_ev.*tp_grad;
 		
 		% Remove pixels with large finite-frequency bias
         inan = gamma>1+gamma_frac_thresh | gamma<1-gamma_frac_thresh;
