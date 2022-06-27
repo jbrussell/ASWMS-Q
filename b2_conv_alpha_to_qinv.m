@@ -1,4 +1,7 @@
 % Convert estimates of alpha to Q^-1
+% Must first generate group velocity maps by running:
+%       - a6_c_eikonal_eq_grv
+%       - a7_c_stack_grv
 %
 % Q^-1 = 2 * alpha * grv / omega
 %
@@ -20,7 +23,10 @@ eikonal_grv_stack_file = [workingdir,'eikonal_grv_stack_',parameters.component];
 attenuation_path = workingdir; %[workingdir,'attenuation/'];
 attenuation_file = [attenuation_path,'attenuation_',parameters.component];
 
-% load stacked phase velocity map
+% load stacked group velocity map
+if ~exist(eikonal_grv_stack_file)
+    error('Must first run a6_c_eikonal_eq_grv and a7_c_stack_grv to generate group velocity maps');
+end
 temp = load(eikonal_grv_stack_file);
 avggrv = temp.avggrv;
 % Load attenuation
