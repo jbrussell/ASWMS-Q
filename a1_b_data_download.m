@@ -13,7 +13,7 @@
 
 clear;
 
-javaaddpath('IRIS-WS-2.0.15.jar');
+javaaddpath('IRIS-WS-2.0.19.jar');
 
 setup_parameters;
 lalim = parameters.lalim;

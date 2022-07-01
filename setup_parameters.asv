@@ -7,20 +7,14 @@ plottingpath = [fullMAINpath(1:regexp(fullMAINpath,mfilename)-1),'plotting_scrip
 addpath(functionspath); addpath(plottingpath);
 
 parameters.workingdir = './OUT/';
-if ~exist(parameters.workingdir ,'dir')
-	mkdir(parameters.workingdir );
-end
+
 %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%%
 %%%% Global settings
-
-
-
-parameters.proj_name = 'YS';
+parameters.proj_name = 'XX'; % network code
 parameters.component = 'BHZ';   % determined by filenames
-parameters.lalim=[14 27];
-parameters.lolim=[-163 -149];
+parameters.lalim = [-9 -3] ;
+parameters.lolim = [-136 -130];
 parameters.gridsize=0.5;   % in degrees
-%parameters.periods = [20 25 32 40 50 60 80 100];  % in seconds
 parameters.periods = round(logspace(log10(20),log10(150),15));
 
 %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%%
@@ -28,7 +22,7 @@ parameters.periods = round(logspace(log10(20),log10(150),15));
 parameters.start_time = '2005-01-01 00:00:00';
 parameters.end_time = '2008-01-01 00:00:00'; % put '' for using 4 days before current date
 parameters.is_use_timestamp = 0;
-parameters.network = '_HAWAII';
+parameters.network = '_US-ALL';
 parameters.minMw = 6;
 parameters.maxdepth = 50;
 parameters.datalength = 7200;  % in second
@@ -39,7 +33,7 @@ parameters.eventfile = 'eventlist';
 %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%%
 % Parameters for own data selection criteria (if using SAC)
 %parameters.dbpath = '/path/to/sac/data/directory/'; 
-parameters.dbpath = './sacdata/'; 
+parameters.dbpath = '/path/to/sac/data/directory/'; 
 parameters.eventfile = 'evlist.txt'; % name of eventlist located in dbpath
 parameters.minMw = 5.5;
 parameters.maxdepth = 50;

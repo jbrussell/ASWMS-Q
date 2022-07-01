@@ -47,7 +47,7 @@ for ie = 1:length(eventids)
     if isempty(saclist)
         continue
     end
-    iisac = 0;
+    iisac = 0; 
     is_skip_mag_dep = 0; % Initialize to 0
 	for isac = 1:length(saclist)
 		% read sac file
