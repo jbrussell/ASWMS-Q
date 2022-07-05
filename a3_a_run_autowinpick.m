@@ -8,11 +8,11 @@ is_overwrite = 1;
 % Setup parameters
 setup_parameters
 
-% eventmatpath = './eventmat/';
-% outwinpath = './winpara/';
-workingdir = parameters.workingdir;
-eventmatpath = [workingdir,'eventmat/'];
-outwinpath = [workingdir,'winpara/'];
+eventmatpath = './eventmat/';
+outwinpath = './winpara/';
+% workingdir = parameters.workingdir;
+% eventmatpath = [workingdir,'eventmat/'];
+% outwinpath = [workingdir,'winpara/'];
 
 if ~exist(outwinpath,'dir')
 	mkdir(outwinpath)
@@ -47,10 +47,14 @@ for ie = 1:length(matfiles)
 	end
 
 	% set up some useful arrays
-	stlas = [event.stadata(:).stla];
-	stlos = [event.stadata(:).stlo];
-	stnms = {event.stadata(:).stnm};
-	dists = [event.stadata(:).dist];
+    if ~isfield(event,'stadata')
+        continue;
+    end
+    stlas = [event.stadata(:).stla];
+    stlos = [event.stadata(:).stlo];
+    stnms = {event.stadata(:).stnm};
+    dists = [event.stadata(:).dist];
+    
 
 	% automatically select the signal window by using ftan method
 	disp('Start to picking the window');

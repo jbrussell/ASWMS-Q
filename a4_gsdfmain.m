@@ -27,12 +27,12 @@ parameters.isfigure = isfigure;
 parameters.isdebug = isdebug;
 
 workingdir = parameters.workingdir;
-% eventmatpath = './eventmat/';
-% CSoutputpath = './CSmeasure/';
-% winparapath = './winpara/';
-eventmatpath = [workingdir,'eventmat/'];
-CSoutputpath = [workingdir,'CSmeasure/'];
-winparapath = [workingdir,'winpara/'];
+eventmatpath = './eventmat/';
+CSoutputpath = './CSmeasure/';
+winparapath = './winpara/';
+% eventmatpath = [workingdir,'eventmat/'];
+% CSoutputpath = [workingdir,'CSmeasure/'];
+% winparapath = [workingdir,'winpara/'];
 
 if ~exist(CSoutputpath,'dir')
 	mkdir(CSoutputpath)
@@ -244,10 +244,10 @@ for ie = 1:length(matfiles)
 	eventcs.stnms = stnms;
 	eventcs.evla = event.evla;
 	eventcs.evlo = event.evlo;
-	eventcs.evdp = event.evdp;
+	%eventcs.evdp = event.evdp;
 	eventcs.dists = dists;
 	eventcs.eventmatfile = [eventmatpath,matfiles(ie).name];
-    eventcs.Mw = event.Mw;
+    %eventcs.Mw = event.Mw;
 
 	matfilename = [CSoutputpath,char(event.id),'_cs_',comp,'.mat'];
 	save(matfilename,'eventcs')
