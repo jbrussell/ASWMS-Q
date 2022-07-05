@@ -74,6 +74,8 @@ for ie = 1:length(matfiles)
 	disp(['Start to work on event: ',event.id]);
 
 	% set up some useful arrays
+    % may have problem 
+    % some event has no stadata
 	stlas = [event.stadata(:).stla];
 	stlos = [event.stadata(:).stlo];
 	stnms = {event.stadata(:).stnm};
