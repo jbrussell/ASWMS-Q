@@ -1,6 +1,6 @@
-MYBIN = /Users/russell/Lamont/GITHUB/ASWMS-ani/MINEOS/FORTRAN/bin
+MYBIN = /Users/russell/Lamont/GITHUB/MINEOS_synthetics/FORTRAN/bin
 FC = gfortran
-MYLIB = /Users/russell/Lamont/GITHUB/ASWMS-ani/MINEOS/FORTRAN/libgfortran
+MYLIB = /Users/russell/Lamont/GITHUB/MINEOS_synthetics/FORTRAN/libgfortran
 #
 PROG= idagrn6_sac_excite
 SUBS= spheroidal5.f toroidal5_excite.f spheroidal_exc5.f toroidal_exc5.f \

@@ -13,15 +13,17 @@ Open makeall.sh and edit the 3 variables at the top of the script
 To compile everything, open the terminal and type: 
 sudo ./makeall.sh
 
-If everything works, there should be 20 files in the bin directory:
+If everything works, these files should be in the bin directory:
 
-draw_frechet_gv      frechet_cvG          idagrn6_sac
-draw_frechet_gv_perc frechet_cv_ms        idagrn6_sac_excite
-eig_recover          frechet_cv_perc      mineos_nohang
-eigenST_asc          frechet_gv           mineos_qcorrectphv
-frechet              frechet_psi          mineos_strip
-frechet_ACFLN_love   idagrn6_excite       mineos_table
-frechet_cv           idagrn6_mask         plot_wk
+draw_frechet_gv       frechet_cvG           idagrn6_mask
+draw_frechet_gv_perc  frechet_cv_ms         idagrn6_sac
+eig_recover           frechet_cv_perc       idagrn6_sac_excite
+eigenST_asc           frechet_gv            mineos_nohang
+frechet               frechet_psi           mineos_qcorrectphv
+frechet_ACFLN_love    get_eigfxn_grvelo     mineos_strip
+frechet_Q             get_eigfxn_grvelo_int mineos_table
+frechet_cv            idagrn6_excite        plot_wk
+
 
 
 ----- STEP 3 ----- *

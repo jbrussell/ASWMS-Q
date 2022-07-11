@@ -28,7 +28,7 @@ c
       include 'parameter.h'
 c                
       integer*4 nqknot
-      parameter (nqknot = 1000)
+      parameter (nqknot = 20)
 c                 
       real*8 temp (nknot), t,dr(nknot), wd,qd,gvd
 c
@@ -84,6 +84,15 @@ c
 c equivalence statement means abuf(i) contains entire 'ablk'
 c This includes nn,ll,wd,qd,gvd,buf(nknot6)
 c
+
+      data pi/3.1415926535d0/
+      data rn/6371000.d0/
+
+c     scale is the normalization for the eigenfunctions - 
+c     checked and rechecked 11/5/88
+c     scale  = 1.0/(rn*sqrt(rn*pi*bigg)*rhobar)
+c
+      scale = 1.d0/(rn*dsqrt(rn*pi*6.6723d-11)*5515.d0)
 
 c
 c     open branch file
@@ -481,10 +490,10 @@ c
         kkk=1
         dscnum = 0
         do j = 1, knot
-          u = buf(iold)
-          up = buf(iold + knoto)
-          v = buf(iold + k2)
-          vp = buf(iold + k3)
+          u = buf(iold)*scale
+          up = buf(iold + knoto)*scale
+          v = buf(iold + k2)*scale
+          vp = buf(iold + k3)*scale
           phi = buf(iold + k4)*scale3
           phip = buf(iold + k5)*scale3
           if(knewd(kkk).eq.j) then
@@ -500,8 +509,8 @@ c
           r = rj/1000
           
           
-          write(3,11) ll,nn,w,radius(j),kappa(j),mu(j),dnn(j),u,up,v,vp,phi,phip
-11        format(I5,I5,F15.8,F15.3,F20.3,F20.3,F20.3,F20.8,F20.8,F20.8,F20.8,F25.3,F25.3)
+          write(3,11) ll,nn,w,radius(j),kappa(j),mu(j),u,up,v,vp,phi,phip
+11        format(I5,I5,F15.8,F15.3,F20.3,F20.3,F15.8,F20.8,F15.8,F20.8,F15.8,F20.8)
         end do
         
         go to 100
@@ -561,16 +570,16 @@ c
         kkk=1
         dscnum = 0
         do j = 1, knot
-          wl = buf(iold)
-          wp = buf(iold + knoto)
+          wl = buf(iold)*scale
+          wp = buf(iold + knoto)*scale
           rj = radius(j)                        
           rm = rj / rn 
           
           r = rj/1000
           
           
-          write(3,10) ll,nn,w,radius(j),kappa(j),mu(j),dnn(j),wl,wp
-10        format(I5,I5,F15.8,F15.3,F20.3,F20.3,F20.3,F20.8,F20.8)
+          write(3,10) ll,nn,w,radius(j),kappa(j),mu(j),wl,wp
+10        format(I5,I5,F15.8,F15.3,F20.3,F20.3,F15.8,F20.8)
 c          print*,'nn= ',nn,'ll= ',ll,'wl= ',wl,'wp= ',wp,
 c     &     'rj= ',rj,'rm= ',rm
 c 

@@ -4,15 +4,15 @@ FFLAGS=-ffixed-line-length-none
 #-L/usr/local/include 
 #FFLAGS2=-march=x86_64
 
-all:  $(FBIN)/eigenST_asc
+all:  $(FBIN)/frechet_Q 
 
 .f.o: 
 	$(FC) $(FFLAGS) $(FFLAGS2) -c $*.f
 
 #----------------------------------
 
-$(FBIN)/eigenST_asc: eigenST_asc.f
-	$(FC) $(FFLAGS) -o $(FBIN)/eigenST_asc eigenST_asc.f
-
+$(FBIN)/frechet_Q: frechet_Q.f
+	$(FC) $(FFLAGS) -o $(FBIN)/frechet_Q frechet_Q.f
+	
 clean: 
-	rm -rf *.o $(FBIN)/eigenST_asc
+	rm -rf *.o $(FBIN)/frechet_Q

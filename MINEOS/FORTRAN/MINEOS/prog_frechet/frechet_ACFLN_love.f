@@ -80,7 +80,7 @@ c
       include 'parameter.h'
 c                
       integer*4 nqknot
-      parameter (nqknot = 20)
+      parameter (nqknot = 1000)
 c                 
       real*8 temp (nknot), t,dr(nknot), wd,qd,gvd
 c

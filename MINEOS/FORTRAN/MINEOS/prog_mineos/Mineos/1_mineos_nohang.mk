@@ -1,4 +1,4 @@
-MYBIN = /Users/russell/Lamont/GITHUB/ASWMS-ani/MINEOS/FORTRAN/bin
+MYBIN = /Users/russell/Lamont/GITHUB/MINEOS_synthetics/FORTRAN/bin
 FC = gfortran
 #
 PROG= mineos_nohang

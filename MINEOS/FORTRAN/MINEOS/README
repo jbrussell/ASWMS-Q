@@ -11,7 +11,7 @@ The format is as follows:
 1_eigenST_asc.mk       - eigenST_asc (spheroidal and toroidal mode eigenfunctions)
 
 ------------------------------------------------------------
-./prog_frechet (2 makefiles)
+./prog_frechet (3 makefiles)
 1_frechet_all.mk         - frechet
                          - frechet_psi (not tested...)
                          - frechet_cv (wavespeed kernels in km/s; scaled by c^2/U)
@@ -22,6 +22,7 @@ The format is as follows:
                          - draw_frechet_gv (use with frechet_cv or frechet_cv_ms)
                          - draw_frechet_gv_perc (use with frechet_cv_perc; multiplies kernels by V)
 2_frechet_ACFLN_love.mk  - frechet_ACFLN_love (unscaled A,C,F,L,N kernels)
+3_frechet_Q.mk           - frechet_Q (scaled Q_mu and Q_kappa kernels)
 
 ------------------------------------------------------------
 ./prog_mineos (4 makefiles)

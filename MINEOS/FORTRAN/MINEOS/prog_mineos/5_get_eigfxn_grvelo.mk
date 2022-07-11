@@ -6,6 +6,6 @@ LFLAGS= -L$(MYLIB)
 
 
 #-------------------------------------------------------------------------------
-#f77 $(FFLAGS) $(LFLAGS) -o $(MYBIN)/mineos_qcorrectphv mineos_qcorrectphv.f
-mineos_qcorrectphv: mineos_qcorrectphv.o 
-	$(FC) $(FFLAGS) -o $(MYBIN)/mineos_qcorrectphv mineos_qcorrectphv.o
+#f77 $(FFLAGS) $(LFLAGS) -o $(MYBIN)/get_eigfxn_grvelo get_eigfxn_grvelo.f
+get_eigfxn_grvelo: get_eigfxn_grvelo.o 
+	$(FC) $(FFLAGS) -o $(MYBIN)/get_eigfxn_grvelo get_eigfxn_grvelo.o

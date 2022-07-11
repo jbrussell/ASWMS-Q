@@ -1,4 +1,4 @@
-      program frechet
+      program frechet_Q
 c
 c     WARNING currently hardwired to compute anisotropic partials
 c     irregardless of input model.  Reset variable "force" to
@@ -69,6 +69,13 @@ c                the value of knot_t or knot_s that they were written
 c                with, which might need to change over time.
 c
 C23456789112345678921234567893123456789412345678951234567896123456789712
+c	  JOSH
+c 	  11/22/21 - Modified to calculate and save Q_mu and Q_kappa Kernels. Kernels
+c                are premultiplied by factors of mu and kappa:
+c                K_qmu = mu * mm
+c                K_qkappa = kappa * kk
+c              - Output interpolated Q_mu and Q_kappa values in columns following
+c                K_qmu and K_qkappa
 c
 c     SEE file FRECHET.DEFS for variable definitions
 c
@@ -194,7 +201,6 @@ cad      open(unit=1,file=b_file,form='unformatted',access='sequential',
 cad     +    recl=24000)
 
       open(unit=1,file=b_file,form='unformatted',access='sequential')
-cc
 
       read(1) jcom, nmodes, nnmin, nnmax, llmin, llmax
       read(1) nb, (numb(ii), ii = 1, nb)
@@ -248,8 +254,6 @@ c
      &      (betah(i), i=1,ksave),(eta(i), i=1,ksave)
         print*, ' knots nic, and noc in input= ',ksave,nic,noc
 	print*, ' ifanis, force= ',ifanis,force
-	print*, 'rad(i) =',rad
-	print*, 'dn(i) =',dn
 c
 c       store original knot structure for input
 c
@@ -480,9 +484,7 @@ c       pattylin for radial and toroidal modes
         k2 = 2*knoto
         k1 = knoto - 1
 c
-c        nrec = newvec * 4
-c JBR - increase nrec
-        nrec = newvec * 8
+        nrec = newvec * 4
 	
 c ad added this part to check if nrec is large enough
 ccc
@@ -727,25 +729,53 @@ c
 c
 c            SV velocity kernel
 c
-             intg(j,3) = 2.*dnn(j)*betav(j)*(xll-2.*eta(j)*xff)
+c             intg(j,3) = 2.*dnn(j)*betav(j)*(xll-2.*eta(j)*xff)
+
+c             intg(j,3) = xll
 c
 c            PV kernel
 c
-             intg(j,4) = 2.*dnn(j)*alphav(j)*xcc
+c             intg(j,4) = 2.*dnn(j)*alphav(j)*xcc
+             
 c
 c            SH kernel
 c
-             intg(j,5) = 2.*dnn(j)*betah(j)*xnn
+c             intg(j,5) = 2.*dnn(j)*betah(j)*xnn
 c
 c            PH kernel
 c
-             intg(j,6) = 2.*dnn(j)*alphah(j)*(xaa + eta(j)*xff)
+c             intg(j,6) = 2.*dnn(j)*alphah(j)*(xaa + eta(j)*xff)
 c
 c            eta kernel
 c
-             intg(j,7) = dnn(j)*(alphah(j)**2. 
-     &                   - 2.*betav(j)**2.)*xff
+c             intg(j,7) = dnn(j)*(alphah(j)**2. 
+c     &                   - 2.*betav(j)**2.)*xff
 c
+
+c            Q KERNELS (11/22/21 JBR)
+
+c            Q mu kernel (Q_mu) factor of 2 because later multipled by 0.5 in draw_frechet_gv
+c             intg(j,3) = dnn(j)* betav(j)**2 *xll
+             intg(j,3) = mu(j)*mm * 2
+             
+c            Q kappa kernel (Q_k) factor of 2 because later multipled by 0.5 in draw_frechet_gv
+c             intg(j,4) = dnn(j)* alphav(j)**2 *xcc 
+             intg(j,4) = kappa(j)*kk * 2         
+
+c            Q_mu (divide by 0.5*scale*scale because it will be multipled later in draw_frechet_gv)
+c             intg(j,5) = dnn(j)* betah(j)**2 *xnn
+             intg(j,5) = muq(j) / (0.5*scale*scale)
+             
+c            Q_kappa (divide by 0.5*scale*scale because it will be multipled in draw_frechet_gv)
+c             intg(j,6) = dnn(j)* alphah(j)**2 *xaa
+             intg(j,6) = kapq(j) / (0.5*scale*scale)
+             
+c            Dummy value
+c             intg(j,7) = dnn(j)* eta(j)*(alphah(j)**2
+c     &                   - 2.*betav(j)**2) *xff
+             intg(j,7) = 0
+              
+
 c            discontinuity kernel -- COE-side - surface-side
 c
              if (isdisc (j)) then       
@@ -956,11 +986,22 @@ c
 c
 c            SV velocity kernel
 c
-             intg(j,3) = 2.*dnn(j)*betav(noc+j)*xll
+c             intg(j,3) = 2.*dnn(j)*betav(noc+j)*xll
 c
 c            SH kernel
 c
-             intg(j,4) = 2.*dnn(j)*betah(noc+j)*xnn
+c             intg(j,4) = 2.*dnn(j)*betah(noc+j)*xnn
+             
+c            Q KERNELS (11/22/21 JBR)
+c            Q mu kernel (Q_mu) factor of 2 because later multipled by 0.5 in draw_frechet_gv
+c             intg(j,3) = dnn(j)* betav(noc+j)**2 *xll  
+             intg(j,3) = mu(j)*mm * 2
+
+c            Q_mu (divide by 0.5*scale*scale because it will be multipled later in draw_frechet_gv)
+c             intg(j,5) = dnn(j)* betah(j)**2 *xnn
+             intg(j,4) = muq(j) / (0.5*scale*scale)
+             
+                          
 c
 c            discontinuity kernel -- COE-side - surface-side
 c
@@ -1180,7 +1221,7 @@ c
 c         if anistropic, compute the density and 5 velocity kernels
 c
           if (ifanis.eq.1) then
-c
+c            Jim's thesis A20
 c            density kernel
 c        
              intg(j,2) = (rr + (xaa + eta(j)*xff)*alphah(j)**2.
@@ -1189,24 +1230,51 @@ c
 c
 c            SV velocity kernel
 c
-             intg(j,3) = 2.*dnn(j)*betav(j)*(xll-2.*eta(j)*xff)
+c             intg(j,3) = 2.*dnn(j)*betav(j)*(xll-2.*eta(j)*xff)
+
+c             intg(j,3) = xll
 c
 c            PV kernel
 c
-             intg(j,4) = 2.*dnn(j)*alphav(j)*xcc
+c             intg(j,4) = 2.*dnn(j)*alphav(j)*xcc
+             
 c
 c            SH kernel
 c
-             intg(j,5) = 2.*dnn(j)*betah(j)*xnn
+c             intg(j,5) = 2.*dnn(j)*betah(j)*xnn
 c
 c            PH kernel
 c
-             intg(j,6) = 2.*dnn(j)*alphah(j)*(xaa + eta(j)*xff)
+c             intg(j,6) = 2.*dnn(j)*alphah(j)*(xaa + eta(j)*xff)
 c
 c            eta kernel
 c
-             intg(j,7) = dnn(j)*(alphah(j)**2. 
-     &                   - 2.*betav(j)**2.)*xff
+c             intg(j,7) = dnn(j)*(alphah(j)**2. 
+c     &                   - 2.*betav(j)**2.)*xff
+c
+
+c            Q KERNELS (11/22/21 JBR)
+
+c            Q mu kernel (Q_mu) factor of 2 because later multipled by 0.5 in draw_frechet_gv
+c             intg(j,3) = dnn(j)* betav(j)**2 *xll
+             intg(j,3) = mu(j)*mm * 2
+             
+c            Q kappa kernel (Q_k) factor of 2 because later multipled by 0.5 in draw_frechet_gv
+c             intg(j,4) = dnn(j)* alphav(j)**2 *xcc 
+             intg(j,4) = kappa(j)*kk * 2         
+
+c            Q_mu (divide by 0.5*scale*scale because it will be multipled later in draw_frechet_gv)
+c             intg(j,5) = dnn(j)* betah(j)**2 *xnn
+             intg(j,4) = muq(j) / (0.5*scale*scale)
+           
+c            Q_kappa (divide by 0.5*scale*scale because it will be multipled in draw_frechet_gv)
+c             intg(j,6) = dnn(j)* alphah(j)**2 *xaa
+             intg(j,6) = kapq(j) / (0.5*scale*scale)
+             
+c            Dummy value
+c             intg(j,7) = dnn(j)* eta(j)*(alphah(j)**2
+c     &                   - 2.*betav(j)**2) *xff
+             intg(j,7) = 0
 c
 c            discontinuity kernel -- COE-side - surface-side
 c
