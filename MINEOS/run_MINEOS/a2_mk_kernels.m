@@ -31,7 +31,7 @@ periods = param.periods;
 
 yaxis = [0 350]; %[0 100]; %[0 350];
 
-is_frech_x = 1; % 1 => scale ax; 0 => autoscale
+is_frech_x = 0; % 1 => scale ax; 0 => autoscale
 frech_x = [0 2e-8]; %[0 2.0e-7]; %[0 2.0e-8];
 %frech_x = [-2.5e-8 2.5e-8];
 
@@ -157,7 +157,8 @@ if ( TYPE == 'S')
             for ip = 1:length(periods)
                 ax2 = subplot(1,3,2);
                 hold on
-                plot(FRECH_S(ip).vsv,(6371000-FRECH_S(ip).rad)./1000,'-k','linewidth',3,'color',CC(ip,:))
+                dr = gradient(FRECH_S(ip).rad);
+                plot(FRECH_S(ip).vsv .* dr,(6371000-FRECH_S(ip).rad)./1000,'-k','linewidth',3,'color',CC(ip,:))
                 title('FRECH S - Vsv','fontname','Times New Roman','fontsize',12);
                 lgd{ip}=[num2str(periods(ip)),'s'];
                 set(gca,'Ydir','reverse','linewidth',2,'YMinorTick','on','XMinorTick','on');
@@ -175,7 +176,65 @@ if ( TYPE == 'S')
             ax2.Position = [ax1.Position(1)+ax1.Position(3)+0.1 ax2.Position(2) ax2.Position(3)+dx ax2.Position(4)];
             legend(lgd,'position',[ax2.Position(1)+ax2.Position(3)+0.08 0.5 0 0],'box','off');
 
-
+            
+            
+            figure(99); clf;
+            set(gcf,'position',[119          53        1533         962],'color','w');
+           
+            subplot(2,3,1); box on; hold on;
+            for ip = 1:length(periods)
+                plot(FRECH_S(ip).vpv .* dr,(6371000-FRECH_S(ip).rad)./1000,'-k','linewidth',3,'color',CC(ip,:))
+            end   
+            set(gca,'fontsize',15,'linewidth',1.5,'ydir','reverse');
+            xlabel('K_{V_{PV}}')
+            ylabel('Depth (km)');
+            ylim(yaxis)
+            legend(lgd,'location','southeast');
+            
+            subplot(2,3,2); box on; hold on;
+            for ip = 1:length(periods)
+                plot(FRECH_S(ip).vph .* dr,(6371000-FRECH_S(ip).rad)./1000,'-k','linewidth',3,'color',CC(ip,:))
+            end   
+            set(gca,'fontsize',15,'linewidth',1.5,'ydir','reverse');
+            xlabel('K_{V_{PH}}')
+            ylabel('Depth (km)');
+            ylim(yaxis)
+            
+            subplot(2,3,3); box on; hold on;
+            for ip = 1:length(periods)
+                plot(FRECH_S(ip).rho .* dr,(6371000-FRECH_S(ip).rad)./1000,'-k','linewidth',3,'color',CC(ip,:))
+            end   
+            set(gca,'fontsize',15,'linewidth',1.5,'ydir','reverse');
+            xlabel('K_{\rho}')
+            ylabel('Depth (km)');
+            ylim(yaxis)
+            
+            subplot(2,3,4); box on; hold on;
+            for ip = 1:length(periods)
+                plot(FRECH_S(ip).vsv .* dr,(6371000-FRECH_S(ip).rad)./1000,'-k','linewidth',3,'color',CC(ip,:))
+            end   
+            set(gca,'fontsize',15,'linewidth',1.5,'ydir','reverse');
+            xlabel('K_{V_{SV}}')
+            ylabel('Depth (km)');
+            ylim(yaxis)
+            
+            subplot(2,3,5); box on; hold on;
+            for ip = 1:length(periods)
+                plot(FRECH_S(ip).vsh .* dr,(6371000-FRECH_S(ip).rad)./1000,'-k','linewidth',3,'color',CC(ip,:))
+            end   
+            set(gca,'fontsize',15,'linewidth',1.5,'ydir','reverse');
+            xlabel('K_{V_{SH}}')
+            ylabel('Depth (km)');
+            ylim(yaxis)
+            
+            subplot(2,3,6); box on; hold on;
+            for ip = 1:length(periods)
+                plot(FRECH_S(ip).eta .* dr,(6371000-FRECH_S(ip).rad)./1000,'-k','linewidth',3,'color',CC(ip,:))
+            end   
+            set(gca,'fontsize',15,'linewidth',1.5,'ydir','reverse');
+            xlabel('K_{\eta}')
+            ylabel('Depth (km)');
+            ylim(yaxis)
 
     end
     
@@ -210,7 +269,8 @@ elseif ( TYPE == 'T')
                 ax2 = subplot(1,3,2);
                 axis tight;
                 hold on
-                plot(FRECH_T(ip).vsh,(6371000-FRECH_T(ip).rad)./1000,'-k','linewidth',3,'color',CC(ip,:))
+                dr = gradient(FRECH_T(ip).rad);
+                plot(FRECH_T(ip).vsh .* dr,(6371000-FRECH_T(ip).rad)./1000,'-k','linewidth',3,'color',CC(ip,:))
 %                 title(titlename,'fontsize',18);
                 lgd{ip}=[num2str(periods(ip)),'s'];
                 set(gca,'YDir','reverse','linewidth',2,'YMinorTick','on','XMinorTick','on')
@@ -229,7 +289,37 @@ elseif ( TYPE == 'T')
             ax2.Position = [ax1.Position(1)+ax1.Position(3)+0.1 ax2.Position(2) ax2.Position(3)+dx ax2.Position(4)];
             legend(lgd,'position',[ax2.Position(1)+ax2.Position(3)+0.08 0.5 0 0],'box','off');
 
-
+            
+            figure(99); clf;
+            set(gcf,'position',[119          53        1533         962/2],'color','w');
+            
+            subplot(1,3,1); box on; hold on;
+            for ip = 1:length(periods)
+                plot(FRECH_T(ip).vsv .* dr,(6371000-FRECH_T(ip).rad)./1000,'-k','linewidth',3,'color',CC(ip,:))
+            end   
+            set(gca,'fontsize',15,'linewidth',1.5,'ydir','reverse');
+            xlabel('K_{V_{SV}}')
+            ylabel('Depth (km)');
+            ylim(yaxis)
+            
+            subplot(1,3,2); box on; hold on;
+            for ip = 1:length(periods)
+                plot(FRECH_T(ip).vsh .* dr,(6371000-FRECH_T(ip).rad)./1000,'-k','linewidth',3,'color',CC(ip,:))
+            end   
+            set(gca,'fontsize',15,'linewidth',1.5,'ydir','reverse');
+            xlabel('K_{V_{SH}}')
+            ylabel('Depth (km)');
+            ylim(yaxis)
+            
+            subplot(1,3,3); box on; hold on;
+            for ip = 1:length(periods)
+                plot(FRECH_T(ip).rho .* dr,(6371000-FRECH_T(ip).rad)./1000,'-k','linewidth',3,'color',CC(ip,:))
+            end   
+            set(gca,'fontsize',15,'linewidth',1.5,'ydir','reverse');
+            xlabel('K_{\rho}')
+            ylabel('Depth (km)');
+            ylim(yaxis)
+            
     end
 end
 
