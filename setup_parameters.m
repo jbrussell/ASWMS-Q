@@ -16,6 +16,7 @@ parameters.lalim = [-9 -3] ;
 parameters.lolim = [-136 -130];
 parameters.gridsize=0.5;   % in degrees
 parameters.periods = round(logspace(log10(20),log10(150),15));
+parameters.periods = sort(parameters.periods);  % make sure periods are ascending
 
 %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%%
 % % parameters for data downloading (if using IRIS DMC)
@@ -58,7 +59,6 @@ parameters.is_removebadwindows = 1; % JBR - 1:remove bad windows (default), 0:ke
 parameters.minstadist = 5; % minimum station cross-correlation distance in km
 parameters.maxstadist = 600; %600; %250 %200;   % maximum station cross-correlation distance in km
 parameters.is_rm_resp = 0; % remove instrument response?
-parameters.periods = sort(parameters.periods);  % make sure periods are ascending
 parameters.refv = 4;   % to select the correct cycle (for cycle skipping correction)
 parameters.refphv = ones(size(parameters.periods))*4;
 parameters.min_width = 0.10; %0.06;  % to build up gaussian filters
@@ -88,8 +88,8 @@ parameters.Rdumpweight = 0;  % damping the region to have the same phase velocit
 parameters.fiterrtol = 3;   % error allowed in the wavelet fitting
 parameters.isRsmooth = 1;  % smoothing due to Sx and Sy or Sr and S_theta; 1=Sr,S_theta
 parameters.dterrtol = 2;    % largest variance of the inversion error allowed
-parameters.inverse_err_tol = 2;  % count be number of standard devition
-parameters.min_amp_tol = 0.1;  % station with amplitude smaller than this ratio of average amplitude will not be used.
+parameters.inverse_err_tol = 2;  % number of standard deviations above which to discard measurements
+parameters.min_amp_tol = 0.1;  % (CURRENTLY UNUSED) station with amplitude smaller than this ratio of average amplitude will not be used.
 parameters.amp_var_tol = 0.4; % station with amplitude +/- this fraction relative to mean value of nearby stations will not be used (smaller value, more restrictive)
 parameters.alpha_range = [1 1];
 parameters.alpha_search_grid = 0.1;
