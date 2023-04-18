@@ -13,7 +13,7 @@ From the original repository:
 
 The primary add-ons in this package are the ability to solve explicitly for **attenuation** and a new method for solving for **azimuthal anisotropy**.
 
-It is recommended that the waveform download step is performed using this python package: [https://github.com/jbrussell/fetch_EVENTS](https://github.com/jbrussell/fetch_EVENTS) and data are loaded externally via **a1_a_sac2eventmat.m**. While ASWMS has a built in data download and preprocessing script, it does not pull the moment tensor information. We have implemented some new quality control efforts, which now requires information about earthquake magnitude (and in some cases focal mechanism). Most of the scripts should run with the old data download step, but your mileage may vary.
+It is recommended that the waveform download step is performed using this python package: [https://github.com/jbrussell/fetch_EVENTS](https://github.com/jbrussell/fetch_EVENTS) and data are loaded externally via **a1_a_sac2eventmat.m**. While ASWMS has a built in data download and preprocessing script, it does not pull the moment tensor information. We have implemented some new quality control efforts, which now require information about earthquake magnitude (and in some cases, focal mechanism). Most of the scripts should run with the old data download step, but your mileage may vary.
 
 ### Attenuation
 
@@ -30,3 +30,11 @@ Azimuthal anisotropy can be solved for using two different techniques. The first
 The second (new) method is to invert for azimuthal anisotropy and phase velocity simultaneously using all earthquakes at once (**a6_b_eikonal_eq_2DanisoRT.m** or **a6_b_eikonal_eq_flat_1DanisoRT.m**). The advantage is that both isotropic velocity and anisotropy are parameterized explicitly in the inversion. This single-step solution utilizes all data at once so outliers and bad measurements should be less problematic, in theory. In addition, for the single-step the smoothing you apply is the smoothing you get in the final map, whereas for the per-event inversion you control only smoothing of each individual event map but the final stacked map can end up much smoother (in my experience). The main disadvantage is that the Helmholtz correction cannot be applied within this framework. 
 
 There are options for both a 1-D anisotropy (one anisotropy strength and fast azimuth for the entire array) and 2-D anisotropy (anisotropy strength and azimuth at each grid point).
+
+___
+Please cite:
+
+Russell, J. B., & Dalton, C. A. (2022). Rayleigh wave attenuation and amplification measured at ocean-bottom seismometer arrays using Helmholtz tomography. Journal of Geophysical Research: Solid Earth, 127, e2022JB025174. [https://doi.org/10.1029/2022JB025174](https://doi.org/10.1029/2022JB025174)
+
+Jin, G., & Gaherty, J. B. (2015). Surface wave phase-velocity tomography based on multichannel cross-correlation. Geophysical Journal Interna-
+tional, 201(3), 1383–1398. [https://doi.org/10.1093/gji/ggv079](https://doi.org/10.1093/gji/ggv079)
