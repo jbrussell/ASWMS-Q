@@ -91,6 +91,7 @@ end
 
 %% Plot 1D average qinv
 
+mode = readMINEOS_qfile('./MINEOS/qfiles/prem.s0to66.q',0);
 % % mode = readMINEOS_qfile('./qfiles/pa5_5km.s0to66.q',0);
 % % mode = readMINEOS_qfile('./qfiles/S362ANI_NoMelt.s0to100.q',0);
 % mode = readMINEOS_qfile('./qfiles/S362ANI_JdF.s0to66.q',0);
@@ -107,7 +108,7 @@ end
 %     region(ip).q2d = interp2(mat(1).lon,mat(1).lat,mat(ip).q,yi,xi);
 %     mode.q(ip) = nanmean(region(ip).q2d(:));
 % end
-% qinv_MINEOS =  1 ./ mode.q;
+qinv_MINEOS =  1 ./ mode.q;
 
 figure(42); clf; set(gcf,'color','w');
 alpha_zhitu = [4.1 7.3 8.2 8.9 6.9]*1e-5;
@@ -123,16 +124,16 @@ qinvs_2d = [attenuation(:).qinv_2d_mean];
 qinvs_2d_err = [attenuation(:).qinv_2d_mean_err];
 qinvs_2d_center = [attenuation(:).qinv_2d_center];
 qinvs_2d_center_err = [attenuation(:).qinv_2d_center_err];
-% plot(mode.T,qinv_MINEOS,'-','color',[0.7 0.7 0.7],'linewidth',5); hold on;
+plot(mode.T,qinv_MINEOS,'-','color',[0.7 0.7 0.7],'linewidth',5); hold on;
 errorbar(periods,qinvs_bin,qinvs_bin_err,'-om'); hold on;
 errorbar(periods,qinvs,qinvs_err,'-ok');
 % plot(periods,qinvs_avg,'-oc');
 % errorbar(periods,qinvs_2d,qinvs_2d_err,'-ob');
 plot(periods,qinvs_2d,'-ob');
 errorbar(periods,qinvs_2d_center,qinvs_2d_center_err,'-og');
-plot(1./f_mhz_zhitu*1000,qinv_zhitu,'xr','linewidth',3,'MarkerSize',8); hold on;
-plot(1./f_mhz_zhitu*1000,qinv_zhitu*2,'x','color',[0 0.85 0],'linewidth',3,'MarkerSize',8); hold on;
-legend({'True','1D fit (bin)','1D fit','1D mean','2D fit center','Zhitu','Zhitu x 2'},'location','northeastoutside','fontsize',15)
+% plot(1./f_mhz_zhitu*1000,qinv_zhitu,'xr','linewidth',3,'MarkerSize',8); hold on;
+% plot(1./f_mhz_zhitu*1000,qinv_zhitu*2,'x','color',[0 0.85 0],'linewidth',3,'MarkerSize',8); hold on;
+legend({'PREM','1D fit (bin)','1D fit','2D fit avg','2D fit center','Zhitu','Zhitu x 2'},'location','northeastoutside','fontsize',15)
 set(gca,'fontsize',15,'linewidth',1.5);
 xlabel('Period (s)');
 ylabel('Q^{-1}');

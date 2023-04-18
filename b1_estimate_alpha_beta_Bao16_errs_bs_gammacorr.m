@@ -633,9 +633,9 @@ plot(periods,alphas_avg,'-oc');
 % errorbar(periods,alphas_2d,alphas_2d_err,'-ob');
 plot(periods,alphas_2d,'-ob');
 errorbar(periods,alphas_2d_center,alphas_2d_center_err,'-og');
-plot(1./f_mhz_zhitu*1000,alpha_zhitu,'xr','linewidth',3,'MarkerSize',8); hold on;
-plot(1./f_mhz_zhitu*1000,alpha_zhitu*2,'x','color',[0 0.85 0],'linewidth',3,'MarkerSize',8); hold on;
-legend({'True','1D fit (bin)','1D fit','1D mean','2D fit avg','2D fit center','Zhitu','Zhitu x 2'},'location','northeastoutside','fontsize',15)
+% plot(1./f_mhz_zhitu*1000,alpha_zhitu,'xr','linewidth',3,'MarkerSize',8); hold on;
+% plot(1./f_mhz_zhitu*1000,alpha_zhitu*2,'x','color',[0 0.85 0],'linewidth',3,'MarkerSize',8); hold on;
+legend({'PREM','1D fit (bin)','1D fit','1D mean','2D fit avg','2D fit center','Zhitu','Zhitu x 2'},'location','northeastoutside','fontsize',15)
 set(gca,'fontsize',15,'linewidth',1.5);
 xlabel('Period (s)');
 ylabel('\alpha (km^{-1})');
