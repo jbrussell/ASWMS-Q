@@ -608,7 +608,8 @@ end
 
 %% Plot 1D average alpha
 
-mode = readMINEOS_qfile('./qfiles/pa5_5km.s0to66.q',0);
+mode = readMINEOS_qfile('./MINEOS/qfiles/prem.s0to66.q',0);
+% mode = readMINEOS_qfile('./qfiles/pa5_5km.s0to66.q',0);
 % mode = readMINEOS_qfile('./qfiles/S362ANI_NoMelt.s0to100.q',0);
 alpha_MINEOS = mode.wrad ./ (2*mode.grv) ./ mode.q;
 
