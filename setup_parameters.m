@@ -76,7 +76,7 @@ parameters.is_winx2 = 1; % jbr - 0=window single seismogram (default); 1=window 
 
 %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%%
 % parameters for the tomography
-% (eikonal_eq.m helmholtz_eq.m)
+% (a6_eikonal_eq.m a8_ampgrad_inv.m a9_helmholtz_eq.m)
 % parameters.smweight_array = 3*[0.4 0.3 0.2 0.2 0.2 0.5 0.5 0.5 1 1 1 2 3 3 3];  % 2nd derivative smoothing weight for the deltaSx and delta Sy
 parameters.grd_per_wl = parameters.refphv.*parameters.periods./deg2km(parameters.gridsize); % JBR - grid cells per wavelength
 parameters.smweight_array = 0.1*parameters.grd_per_wl; % 2nd derivative smoothing weight for the deltaSx and delta Sy
@@ -96,7 +96,7 @@ parameters.alpha_search_grid = 0.1;
 
 %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%%
 % parameter for stacking 
-% (stack_phv.m stack_helm.m)
+% (a7_stack_phv.m a9_stack_helm.m)
 parameters.min_csgoodratio= 1*ones(1,length(parameters.periods));%[3 3 3 3 5 10 15 15 15 15 20]; %[3 3 3 3 5 10 15 15]; % minimum radio between good and bad measurements for a good event
 parameters.min_phv_tol = 3; % minimum allowed phase velocity
 parameters.max_phv_tol = 5; % maximum allowed phase velocity
@@ -110,7 +110,6 @@ parameters.event_bias_tol = 3; %2;
 
 %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%%
 % parameters for azimuthal anisotropy inversion
-% beta version
 parameters.gridsize_azi = parameters.gridsize; % grid size for azimuthal anisotropy in a6_b_eikonal_2DanisoRT.m
 parameters.smsize = 3; %1;  % averaging nearby grid number
 parameters.azi_bin_deg_ani= 20; % [deg] size of azimuthal bins
@@ -128,7 +127,7 @@ parameters.is_eikonal_phasegrad = 1; % 1: use eikonal tomography values for phas
 
 %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%% %%%%
 % parameters for solving for receiver terms
-% (a8_0_receiver_terms)
+% (a5_c_receiver_terms)
 parameters.max_sta_dist = 150; % [km] maximum separation allowed between station pairs
 parameters.is_azibin = 1; % bin data by propagation azimuth?
 parameters.deg_bins = 15; % [deg] size of azimuthal bins in degrees
