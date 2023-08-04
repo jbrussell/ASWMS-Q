@@ -104,22 +104,23 @@ for ip = 1:length(periods)
             amp = amp.^.5;
             
             azi = azimuth(eventcs.evla,eventcs.evlo,stlas(ista),stlos(ista),referenceEllipsoid('wgs84'));
-
-            amplitudes(ip).(stnms{ista}).amp(ie) = amp;
-            amplitudes(ip).(stnms{ista}).logamp(ie) = log(amp);
-            amplitudes(ip).(stnms{ista}).dist(ie) = dists(ista);
-            amplitudes(ip).(stnms{ista}).azi(ie) = azi;
-            amplitudes(ip).(stnms{ista}).evid{ie} = evid;
-            amplitudes(ip).(stnms{ista}).stla = stlas(ista);
-            amplitudes(ip).(stnms{ista}).stlo = stlos(ista);
-            amplitudes(ip).(stnms{ista}).stnm = stnms(ista);
+            
+            sta = stnms{ista};
+            amplitudes(ip).(['s_',sta]).amp(ie) = amp;
+            amplitudes(ip).(['s_',sta]).logamp(ie) = log(amp);
+            amplitudes(ip).(['s_',sta]).dist(ie) = dists(ista);
+            amplitudes(ip).(['s_',sta]).azi(ie) = azi;
+            amplitudes(ip).(['s_',sta]).evid{ie} = evid;
+            amplitudes(ip).(['s_',sta]).stla = stlas(ista);
+            amplitudes(ip).(['s_',sta]).stlo = stlos(ista);
+            amplitudes(ip).(['s_',sta]).stnm = stnms(ista);
             
             % Fill empties with nan
-            Iempty = find(amplitudes(ip).(stnms{ista}).amp==0);
-            amplitudes(ip).(stnms{ista}).amp(Iempty) = nan;
-            amplitudes(ip).(stnms{ista}).logamp(Iempty) = nan;
+            Iempty = find(amplitudes(ip).(['s_',sta]).amp==0);
+            amplitudes(ip).(['s_',sta]).amp(Iempty) = nan;
+            amplitudes(ip).(['s_',sta]).logamp(Iempty) = nan;
             if ~isempty(Iempty)
-                amplitudes(ip).(stnms{ista}).evid(Iempty) = {'NaN'};
+                amplitudes(ip).(['s_',sta]).evid(Iempty) = {'NaN'};
             end
         end            
     end % loop of events
@@ -136,13 +137,13 @@ for ip = 1:length(amplitudes)
     stas = fields(amplitudes(ip));
     for ista1 = 1:length(stas)
         sta1 = stas{ista1};
-		stla(ista1) = amplitudes(ip).(sta1).stla;
-        stlo(ista1) = amplitudes(ip).(sta1).stlo;
+		stla(ista1) = amplitudes(ip).(['s_',sta1]).stla;
+        stlo(ista1) = amplitudes(ip).(['s_',sta1]).stlo;
         if ismember(sta1,badstnms)
             continue
         end
-        logamps1 = amplitudes(ip).(sta1).logamp;
-        evids1 = amplitudes(ip).(sta1).evid;
+        logamps1 = amplitudes(ip).(['s_',sta1]).logamp;
+        evids1 = amplitudes(ip).(['s_',sta1]).evid;
         for ista2 = 1:length(stas)
             sta2 = stas{ista2};
             if ismember(sta2,badstnms)
@@ -151,14 +152,14 @@ for ip = 1:length(amplitudes)
             if strcmp(sta1,sta2)
                 continue
             end
-            stadist = vdist(amplitudes(ip).(sta1).stla,amplitudes(ip).(sta1).stlo,...
-                            amplitudes(ip).(sta2).stla,amplitudes(ip).(sta2).stlo)/1000;
+            stadist = vdist(amplitudes(ip).(['s_',sta1]).stla,amplitudes(ip).(['s_',sta1]).stlo,...
+                            amplitudes(ip).(['s_',sta2]).stla,amplitudes(ip).(['s_',sta2]).stlo)/1000;
             if stadist > max_sta_dist
                 continue
             end
             
-            logamps2 = amplitudes(ip).(sta2).logamp;
-            evids2 = amplitudes(ip).(sta2).evid;
+            logamps2 = amplitudes(ip).(['s_',sta2]).logamp;
+            evids2 = amplitudes(ip).(['s_',sta2]).evid;
             
             % Loop through measurements for station pairs i,j and calculate
             % differential log amplitude
@@ -177,7 +178,7 @@ for ip = 1:length(amplitudes)
                 imeas = imeas + 1;
                 dlogAmp(imeas) = logamps1(iev)-logamps2(iev2);
                 
-                azis(imeas) = amplitudes(ip).(sta1).azi(iev);
+                azis(imeas) = amplitudes(ip).(['s_',sta1]).azi(iev);
             end
             if isempty(dlogAmp)
                 disp([sta1,'-',sta2,': no measurements for this station pair']);
