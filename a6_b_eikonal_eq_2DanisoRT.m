@@ -93,7 +93,7 @@ Ny_azi=length(ynode_azi);
 disp('initial the smoothing kernel')
 Nxyazi = Nx_azi*Ny_azi*2;
 Nxy = Nx*Ny*2;
-Fsm = smooth_kernel_build(xnode, ynode, Nx*Ny);
+Fsm = smooth_kernel_build2(xnode, ynode, Nx*Ny);
 F=sparse(Nxy*2,Nxy+Nxyazi);
 for n=1:size(Fsm,1)
     ind=find(Fsm(n,:)~=0);
