@@ -101,7 +101,7 @@ for n=1:size(Fsm,1)
     F(2*n,2*ind)=Fsm(n,ind);
 end
 % Azimuthal second derivative smoothing kernels
-F_azi = smooth_kernel_build(xnode_azi, ynode_azi, Nx_azi*Ny_azi);
+F_azi = smooth_kernel_build2(xnode_azi, ynode_azi, Nx_azi*Ny_azi);
 F_azic = sparse(Nxyazi,Nxy+Nxyazi);
 F_azic(1:end,Nxy+[1:Nx_azi*Ny_azi]) = F_azi;
 F_azis = sparse(Nxyazi,Nxy+Nxyazi);
