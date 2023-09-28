@@ -127,7 +127,8 @@ meanweight = meanweight0*NA/NR;
 % Add smoothing kernel
 xnode = xi(:,1)';
 ynode = yi(1,:);
-F = smooth_kernel_build(xnode, ynode, N);
+F = smooth_kernel_build2(xnode, ynode, N);
+% F = flat_kernel_build2_2pt(xnode, ynode, N);
 f = zeros(size(F,1),1);
 % Rescale the smooth kernel
 NR=norm(F,1);

@@ -30,14 +30,7 @@ dx1 = km2deg(distance(xnode(i(:)),ynode(j(:)),xnode(i(:)-1),ynode(j(:)),referenc
 dx2 = km2deg(distance(xnode(i(:)),ynode(j(:)),xnode(i(:)+1),ynode(j(:)),referenceEllipsoid('GRS80'))/1000);
 Areg = [Areg;sparse(repmat(ind,1,3),[ind-Ny,ind,ind+Ny], ...
     [-2./(dx1.*(dx1+dx2)), 2./(dx1.*dx2), -2./(dx2.*(dx1+dx2))],N,N)];
-% F=Areg;
-
-F=sparse(Nx*Ny*2*2,Nx*Ny*2);
-for n=1:size(Areg,1)
-    ind=find(Areg(n,:)~=0);
-    F(2*n-1,2*ind-1)=Areg(n,ind);
-    F(2*n,2*ind)=Areg(n,ind);
-end
+F=Areg;
 
 if 0
     for ieq = 1:size(F,1)
