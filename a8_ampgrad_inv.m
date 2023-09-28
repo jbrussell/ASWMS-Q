@@ -89,7 +89,7 @@ tic
 toc
 
 % JBR - define first derivative "flatness" kernel
-F2 = flat_kernel_build(xnode, ynode, Nx*Ny);
+F2 = flat_kernel_build_2pt(xnode, ynode, Nx*Ny);
 
 % read in bad station list, if existed
 if exist('badampsta.lst')

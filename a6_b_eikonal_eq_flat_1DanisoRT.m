@@ -130,7 +130,7 @@ tic
 toc
 
 % JBR - define first derivative "flatness" kernel
-F2 = flat_kernel_build(xnode, ynode, Nx*Ny);
+F2 = flat_kernel_build_2pt(xnode, ynode, Nx*Ny);
 Ftemp = sparse(size(F2,1),size(F2,2)+4);
 Ftemp(1:Nx*Ny*2*2,1:Nx*Ny*2) = F2;
 F2 = Ftemp;

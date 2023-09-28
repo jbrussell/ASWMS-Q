@@ -108,7 +108,7 @@ F_azis = sparse(Nxyazi,Nxy+Nxyazi);
 F_azis(1:end,Nxy+Nx_azi*Ny_azi+[1:Nx_azi*Ny_azi]) = F_azi;
 
 % Isotropic velocity first derivative "flatness" kernel
-F1 = flat_kernel_build2(xnode, ynode, Nx*Ny);
+F1 = flat_kernel_build2_2pt(xnode, ynode, Nx*Ny);
 Ftemp = sparse(Nxy*2,Nxy+Nxyazi);
 for n=1:size(F1,1)
     ind=find(F1(n,:)~=0);
@@ -118,7 +118,7 @@ end
 F1 = Ftemp;
 
 % Azimuthal first derivative flattening kernels
-J_azi = flat_kernel_build2(xnode_azi, ynode_azi, Nx_azi*Ny_azi);
+J_azi = flat_kernel_build2_2pt(xnode_azi, ynode_azi, Nx_azi*Ny_azi);
 J_azic = sparse(Nxyazi,Nxy+Nxyazi);
 J_azic(1:end,Nxy+[1:Nx_azi*Ny_azi]) = J_azi;
 J_azis = sparse(Nxyazi,Nxy+Nxyazi);
