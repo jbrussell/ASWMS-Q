@@ -1,4 +1,4 @@
-function F = smooth_kernel_build(xnode, ynode, N)
+function F = smooth_kernel_build2(xnode, ynode, N)
 % Build smoothing kernel for tomography problem
 % 
 % N is the total number of model parameters in the final G matrix
