@@ -134,7 +134,7 @@ for ip = 1:length(amplitudes)
     std_save = [];
     stla = []; stlo = [];
     ipair = 0;
-    stas = fields(amplitudes(ip));
+    stas = erase(fields(amplitudes(ip)),'s_');
     for ista1 = 1:length(stas)
         sta1 = stas{ista1};
 		stla(ista1) = amplitudes(ip).(['s_',sta1]).stla;
