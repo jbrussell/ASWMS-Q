@@ -20,7 +20,7 @@ is_offgc_propagation = parameters.is_offgc_propagation; % Account for off-great-
 off_azi_tol = parameters.off_azi_tol; % [deg] tolerance for propagation off great-circle
 
 % Smoothing parameters
-flweight_array = 0*ones(length(parameters.periods)); %100*ones(length(parameters.periods)); %parameters.flweight_array
+flweight_array = 0*ones(size(parameters.periods)); %100*ones(length(parameters.periods)); %parameters.flweight_array
 dterrtol = 2;    % largest variance of the inversion error allowed
 inverse_err_tol = 2; %2  % count be number of standard devition
 % Main QC parameters

@@ -37,7 +37,7 @@ off_azi_tol = parameters.off_azi_tol; % [deg] tolerance for propagation off grea
 % FSD = 75; 
 
 % Smoothing parameters
-flweight_array = 100*ones(length(parameters.periods)); %parameters.flweight_array
+flweight_array = 100*ones(size(parameters.periods)); %parameters.flweight_array
 dterrtol = 2;    % largest variance of the inversion error allowed
 inverse_err_tol = 2; %2  % count be number of standard devition
 azi_bin_deg = 20; % [deg] size of azimuthal bins
