@@ -1,5 +1,8 @@
 # Automated Surface-Wave Measurement System (ASWMS) + anisotropy + attenuation
 
+[![DOI](https://zenodo.org/badge/140626024.svg)](https://doi.org/10.5281/zenodo.18931063)
+
+
 ##### This project builds from the original ASWMS package of Ge Jin ([https://github.com/jinwar/matgsdf](https://github.com/jinwar/matgsdf)) but contains some significant modifications/additions.
 
 From the original repository:
